@@ -1,72 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import localFont from "next/font/local";
 import Script from "next/script";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { ChatWidget } from "./components/ChatWidget";
-
-const lineSeed = localFont({
-  src: [
-    // EN (Latin) - Thin
-    {
-      path: "../public/fonts/LINESeedSans_W_Th.woff2",
-      weight: "100",
-      style: "normal",
-    },
-    // EN (Latin) - Regular
-    {
-      path: "../public/fonts/LINESeedSans_W_Rg.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    // EN (Latin) - Bold
-    {
-      path: "../public/fonts/LINESeedSans_W_Bd.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    // EN (Latin) - ExtraBold
-    {
-      path: "../public/fonts/LINESeedSans_W_XBd.woff2",
-      weight: "800",
-      style: "normal",
-    },
-    // EN (Latin) - Heavy
-    {
-      path: "../public/fonts/LINESeedSans_W_He.woff2",
-      weight: "900",
-      style: "normal",
-    },
-    // JP - Thin
-    {
-      path: "../public/fonts/LINESeedJP_OTF_Th.woff2",
-      weight: "100",
-      style: "normal",
-    },
-    // JP - Regular
-    {
-      path: "../public/fonts/LINESeedJP_OTF_Rg.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    // JP - Bold
-    {
-      path: "../public/fonts/LINESeedJP_OTF_Bd.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    // JP - ExtraBold
-    {
-      path: "../public/fonts/LINESeedJP_OTF_Eb.woff2",
-      weight: "800",
-      style: "normal",
-    },
-  ],
-  variable: "--font-line-seed",
-  display: "swap",
-  preload: true,
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ciraf.jp"),
@@ -107,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={lineSeed.variable}>
+    <html lang="ja">
       <body className="font-sans">
         {/* Google Tag Manager */}
         <Script
