@@ -21,7 +21,9 @@
       "mcp__ide__getDiagnostics",
       "Bash(npm run build 2>&1)",
       "Bash(brew install ffmpeg)",
-      "Bash(git add -A && git commit -m \"Add GTM tag\" && git push)"
+      "Bash(git add -A && git commit -m \"Add GTM tag\" && git push)",
+      "Bash(echo \"\\\\n# 動画ファイル\\\\npublic/videos/\" >> .gitignore && git rm -r --cached public/videos/ && git add .gitignore && git commit --amend --no-edit && git push)",
+      "Bash(git add -A && git commit -m \"フォント最適化・GTM設定・パフォーマンス改善\" && git push)"
     ]
   }
 }
