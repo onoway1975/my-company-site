@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { ContactSection } from "../components/ContactSection";
+import { BodyPageType } from "../components/BodyPageType";
 
 export const metadata: Metadata = {
   title: "サービス",
@@ -92,16 +94,17 @@ const services = [
 export default function ServicePage() {
   return (
     <>
+      <BodyPageType type="service" />
       {/* ── Page Header ── */}
-      <section className="py-24 md:py-32 px-6 lg:px-12 border-b border-border">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-[10px] tracking-[0.2em] text-muted uppercase mb-6">
+      <section className="pt-6 pb-3 px-4 lg:px-6">
+        <div className="max-w-7xl mx-auto bg-white rounded-[2rem] px-8 md:px-12 py-14 md:py-20">
+          <p className="text-xs tracking-[0.15em] text-ink uppercase mb-4">
             Service
           </p>
-          <h1 className="text-4xl md:text-5xl font-light text-ink mb-8">
+          <h1 className="text-3xl md:text-5xl font-bold text-ink mb-6">
             サービス
           </h1>
-          <p className="text-muted max-w-lg leading-relaxed text-sm">
+          <p className="text-base text-[#333333] leading-[1.9] max-w-lg">
             企画・設計・制作・運用の4フェーズで、
             <br className="hidden md:block" />
             つくりたい人のビジョンを形にするお手伝いをします。
@@ -111,74 +114,143 @@ export default function ServicePage() {
 
       {/* ── Service Detail ── */}
       {services.map((service, i) => (
-        <section
-          key={i}
-          className={`py-24 md:py-32 px-6 lg:px-12 border-b border-border ${
-            i % 2 === 1 ? "bg-surface" : ""
-          }`}
-        >
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-12 lg:gap-24">
-            {/* Left */}
-            <div>
-              <p className="text-[10px] tracking-[0.3em] text-muted uppercase mb-4">
-                {service.index} — {service.en}
-              </p>
-              <h2 className="text-3xl md:text-4xl font-light text-ink mb-6">
-                {service.ja}
-              </h2>
-              <p className="text-sm text-muted leading-relaxed">
-                {service.lead}
-              </p>
-            </div>
+        <section key={i} className="py-3 px-4 lg:px-6">
+          <div className="max-w-7xl mx-auto bg-surface rounded-[2rem] px-8 md:px-12 py-14 md:py-20">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-12 lg:gap-24">
+              {/* Left */}
+              <div>
+                <p className="text-xs tracking-[0.15em] text-ink uppercase mb-4">
+                  {service.index} — {service.en}
+                </p>
+                <h2 className="text-2xl md:text-3xl font-bold text-ink mb-6">
+                  {service.ja}
+                </h2>
+                <p className="text-sm text-[#333333] leading-relaxed">
+                  {service.lead}
+                </p>
+              </div>
 
-            {/* Right */}
-            <div>
-              {/* Description */}
-              <p className="text-ink leading-[2] text-[0.95rem] mb-12 whitespace-pre-line">
-                {service.description}
-              </p>
+              {/* Right */}
+              <div>
+                {/* Description */}
+                <p className="text-base text-[#333333] leading-[1.9] mb-12 whitespace-pre-line">
+                  {service.description}
+                </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-                {/* Scope */}
-                <div>
-                  <p className="text-[10px] tracking-[0.2em] text-muted uppercase mb-5">
-                    主なサービス項目
-                  </p>
-                  <ul className="space-y-3">
-                    {service.scope.map((item, j) => (
-                      <li
-                        key={j}
-                        className="text-sm text-muted flex items-baseline gap-3 leading-snug"
-                      >
-                        <span className="w-3 h-px bg-border shrink-0 translate-y-[-3px] inline-block" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                  {/* Scope */}
+                  <div>
+                    <p className="text-xs tracking-[0.15em] text-ink uppercase mb-4">
+                      主なサービス項目
+                    </p>
+                    <ul className="space-y-3">
+                      {service.scope.map((item, j) => (
+                        <li
+                          key={j}
+                          className="text-sm text-[#333333] leading-relaxed flex items-baseline gap-2"
+                        >
+                          <span className="shrink-0 text-muted">—</span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                {/* Consultations */}
-                <div>
-                  <p className="text-[10px] tracking-[0.2em] text-muted uppercase mb-5">
-                    よくある相談
-                  </p>
-                  <ul className="space-y-3">
-                    {service.consultations.map((item, j) => (
-                      <li
-                        key={j}
-                        className="text-sm text-muted flex items-baseline gap-3 leading-snug"
-                      >
-                        <span className="w-3 h-px bg-border shrink-0 translate-y-[-3px] inline-block" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                  {/* Consultations */}
+                  <div>
+                    <p className="text-xs tracking-[0.15em] text-ink uppercase mb-4">
+                      よくある相談
+                    </p>
+                    <ul className="space-y-3">
+                      {service.consultations.map((item, j) => (
+                        <li
+                          key={j}
+                          className="text-sm text-[#333333] leading-relaxed flex items-baseline gap-2"
+                        >
+                          <span className="shrink-0 text-muted">—</span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
       ))}
+
+      {/* ── Best Team Building ── */}
+      <section className="py-3 px-4 lg:px-6">
+        <div className="max-w-7xl mx-auto bg-white rounded-[2rem] px-8 md:px-12 py-14 md:py-20">
+          {/* Header */}
+          <div className="mb-12 md:mb-16">
+            <p className="text-xs tracking-[0.15em] text-ink uppercase mb-5">
+              Best Team Building
+            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-ink leading-snug mb-6">
+              仲間が増えカタチになっていく安心感
+            </h2>
+            <p className="text-base text-[#333333] leading-[1.9] max-w-2xl">
+              デジタルクリエイティブ黎明期から20年で培われたプロを知っているプロさらにプロと繋がる好奇心。多種多様なプロフェッショナルの方々とのコネクションを武器にプロジェクト毎にカスタマイズしたベストチームを作ります。
+            </p>
+          </div>
+
+          {/* Diagram image */}
+          <div className="flex justify-center mb-12 md:mb-16">
+            <Image
+              src="/images/team-diagram.png"
+              alt="Best Team Building diagram"
+              width={600}
+              height={400}
+              className="w-full max-w-[600px] h-auto"
+            />
+          </div>
+
+          {/* Sub text */}
+          <p className="text-sm text-[#333333] leading-[1.9] mb-10 md:mb-12">
+            ロマンある丸投げはもちろん、ご希望のフェーズからもシンクラフにお答えします。
+          </p>
+
+          {/* Partner list */}
+          <div>
+            <p className="text-xs tracking-[0.15em] text-ink uppercase mb-5">
+              Partner
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {[
+                "マーケティングプランナー",
+                "メディアプランナー",
+                "PRプランナー",
+                "テクニカルディレクター",
+                "アプリケーションエンジニア",
+                "システムエンジニア",
+                "フロントエンジニア",
+                "アートディレクター",
+                "グラフィックデザイナー",
+                "WEBデザイナー",
+                "イラストレーター",
+                "ライター",
+                "編集者",
+                "フィルムディレクター",
+                "ヘアー・メイクアップ",
+                "スタイリスト",
+                "フォトグラファー",
+                "音楽プロデューサー",
+                "キャスティング",
+                "and more...",
+              ].map((partner) => (
+                <span
+                  key={partner}
+                  className="text-xs text-[#333333] border border-border rounded-full px-3 py-1"
+                >
+                  {partner}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── Contact ── */}
       <ContactSection />

@@ -7,7 +7,21 @@
       "Bash(npm run build 2>&1 | tail -15)",
       "Bash(npm run build 2>&1 | grep -E \"\\(✓|error|Error\\)\" | head -10)",
       "Bash(npm run build 2>&1 | grep -E \"\\(✓|error|Error|warning\\)\" | head -10)",
-      "Bash(npm run build 2>&1 | grep -E \"\\(✓|error|Error\\)\" | head -5)"
+      "Bash(npm run build 2>&1 | grep -E \"\\(✓|error|Error\\)\" | head -5)",
+      "Bash(curl -s \"https://note.com/ciraf_inc/rss\" | head -100)",
+      "Bash(npm install resend)",
+      "Bash(git checkout HEAD -- app/page.tsx app/components/ContactSection.tsx && echo \"done\")",
+      "Bash(npx tsc --noEmit 2>&1 | head -50)",
+      "Bash(npx next build 2>&1 | tail -30)",
+      "Bash(npx next build 2>&1 | tail -25)",
+      "Bash(npx tsc --noEmit 2>&1)",
+      "Bash(npx next build 2>&1 | tail -20)",
+      "Bash(npm install @anthropic-ai/sdk 2>&1)",
+      "Bash(grep -n \"\\(Client\\)\\\\|\\(Year\\)\\\\|\\(Scope\\)\\\\|\\(Overview\\)\\\\|\\(URL\\)\" /Users/onoway/my-company-site/app/works/[slug]/page.tsx)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npm run build 2>&1)",
+      "Bash(brew install ffmpeg)",
+      "Bash(git add -A && git commit -m \"Add GTM tag\" && git push)"
     ]
   }
 }

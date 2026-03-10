@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContactSection } from "../components/ContactSection";
+import { BodyPageType } from "../components/BodyPageType";
 
 export const metadata: Metadata = {
   title: "お問い合わせ",
@@ -29,21 +30,22 @@ const faqs = [
 export default function ContactPage() {
   return (
     <>
+      <BodyPageType type="contact" />
       {/* ── Page Header ── */}
-      <section className="py-24 md:py-32 px-6 lg:px-12 border-b border-border">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-[10px] tracking-[0.2em] text-muted uppercase mb-6">
+      <section className="pt-6 pb-3 px-4 lg:px-6">
+        <div className="max-w-7xl mx-auto bg-white rounded-[2rem] px-8 md:px-12 py-14 md:py-20">
+          <p className="text-xs tracking-[0.15em] text-ink uppercase mb-4">
             Contact
           </p>
-          <h1 className="text-4xl md:text-5xl font-light text-ink mb-8">
+          <h1 className="text-3xl md:text-5xl font-bold text-ink mb-6">
             お問い合わせ
           </h1>
-          <p className="text-muted max-w-lg leading-relaxed text-sm">
+          <p className="text-base text-[#333333] leading-[1.9] max-w-lg">
             サービスに関するご質問・ご相談・お見積りのご依頼は、
             <br className="hidden md:block" />
             下記フォームよりお気軽にお問い合わせください。
             <br />
-            <span className="text-xs mt-2 inline-block">
+            <span className="text-sm text-[#333333] mt-2 inline-block">
               Please use the form below for any inquiries.
             </span>
           </p>
@@ -54,28 +56,28 @@ export default function ContactPage() {
       <ContactSection />
 
       {/* ── FAQ ── */}
-      <section className="py-24 md:py-32 px-6 lg:px-12 bg-surface border-t border-border">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-3 pb-6 px-4 lg:px-6">
+        <div className="max-w-7xl mx-auto bg-white rounded-[2rem] px-8 md:px-12 py-14 md:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 lg:gap-24">
             <div>
-              <p className="text-[10px] tracking-[0.2em] text-muted uppercase mb-8">
+              <p className="text-xs tracking-[0.15em] text-ink uppercase mb-4">
                 FAQ
               </p>
-              <h2 className="text-2xl md:text-3xl font-light text-ink">
-                よくある
-                <br />
-                ご質問
+              <h2 className="text-2xl md:text-3xl font-bold text-ink">
+                よくあるご質問
               </h2>
             </div>
             <div>
-              <dl className="border-t border-border">
+              <dl>
                 {faqs.map((faq, i) => (
                   <div
                     key={i}
-                    className="border-b border-border py-7"
+                    className="border-b border-dashed border-[#e2e2e2] py-7"
                   >
-                    <dt className="text-ink text-[0.95rem] mb-3">{faq.q}</dt>
-                    <dd className="text-sm text-muted leading-relaxed">
+                    <dt className="font-bold text-ink text-[0.95rem] mb-3">
+                      {faq.q}
+                    </dt>
+                    <dd className="text-sm text-[#333333] leading-relaxed">
                       {faq.a}
                     </dd>
                   </div>
