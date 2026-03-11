@@ -14,6 +14,17 @@ export type Work = {
 
 export const works: Work[] = [
   {
+    slug: "coffee-bunko",
+    title: "飲む文庫本　珈琲文庫",
+    client: "越境",
+    year: "2024",
+    category: ["WEB", "BRANDING"],
+    description: "珈琲文庫のWEBサイトを制作しました。コーヒーが注がれた文庫本です。コーヒースリーブを外すと、裏側には原稿用紙一枚分の私小説が綴られています。",
+    thumbnail: "/images/works/coffee_bunko/c_t.png",
+    video: "/videos/works/work-07.mp4",
+    url: "https://ekkyoinc.jp/coffeebunko/",
+  },
+  {
     slug: "dondabada",
     category: ["WEB", "MUSIC"],
     title: "裏通りのドンダバダ",
