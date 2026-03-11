@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ContactSection } from "@/app/components/ContactSection";
 import { BodyPageType } from "@/app/components/BodyPageType";
+import { ClientVideo } from "@/app/components/ClientVideo";
 
 import type { Work } from "@/app/data/works";
 
@@ -14,7 +15,7 @@ function WorkInfo({ work }: { work: Work }) {
         {work.title}
       </h1>
 
-      <div className="space-y-8 border-t border-gray-100">
+      <div className="border-t border-gray-100">
         {work.client && (
           <div className="pt-8 border-b border-gray-100 pb-8">
             <p className="text-[0.65rem] font-bold tracking-[0.2em] text-gray-400 uppercase mb-2">Client</p>
@@ -22,13 +23,13 @@ function WorkInfo({ work }: { work: Work }) {
           </div>
         )}
         {work.year && (
-          <div className="border-b border-gray-100 pb-8">
+          <div className="pt-8 border-b border-gray-100 pb-8">
             <p className="text-[0.65rem] font-bold tracking-[0.2em] text-gray-400 uppercase mb-2">Year</p>
             <p className="text-base text-gray-900">{work.year}</p>
           </div>
         )}
         {work.category.length > 0 && (
-          <div className="border-b border-gray-100 pb-8">
+          <div className="pt-8 border-b border-gray-100 pb-8">
             <p className="text-[0.65rem] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">Scope</p>
             <div className="flex flex-wrap gap-2">
               {work.category.map((s) => (
@@ -40,7 +41,7 @@ function WorkInfo({ work }: { work: Work }) {
           </div>
         )}
         {work.url && (
-          <div className="border-b border-gray-100 pb-8">
+          <div className="pt-8 border-b border-gray-100 pb-8">
             <p className="text-[0.65rem] font-bold tracking-[0.2em] text-gray-400 uppercase mb-2">URL</p>
             <a
               href={work.url}
@@ -56,13 +57,13 @@ function WorkInfo({ work }: { work: Work }) {
           </div>
         )}
         {work.description && (
-          <div className="pb-8">
+          <div className="pt-8 pb-8">
             <p className="text-[0.65rem] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">Overview</p>
             <p className="text-sm text-gray-700 leading-relaxed">{work.description}</p>
           </div>
         )}
         {work.credit && (
-          <div className="pb-8">
+          <div className="pt-8 pb-8">
             <p className="text-[0.65rem] font-bold tracking-[0.2em] text-gray-400 uppercase mb-3">Credit</p>
             <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{work.credit}</p>
           </div>
@@ -121,19 +122,7 @@ export default async function WorkDetailPage({
           <div className="w-full lg:w-1/2 bg-gray-50 flex items-center justify-center py-16 lg:py-0 lg:sticky lg:top-0 lg:h-screen">
             <div className="relative" style={{ width: "280px" }}>
               <div className="relative bg-[#1a1a1a] rounded-[3rem] p-[3px] shadow-2xl">
-                <div className="relative bg-black rounded-[2.7rem] overflow-hidden aspect-[9/19.5]">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-24 h-7 bg-[#1a1a1a] rounded-b-2xl" />
-                  <video
-                    className="absolute inset-0 w-full h-full object-cover"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                  >
-                    <source src={work.video} type="video/mp4" />
-                    <source src={work.video} type="video/quicktime" />
-                  </video>
-                </div>
+                <ClientVideo videoSrc={work.video!} />
                 <div className="absolute -right-[3px] top-32 w-[3px] h-14 bg-[#333] rounded-r-sm" />
                 <div className="absolute -left-[3px] top-24 w-[3px] h-8 bg-[#333] rounded-l-sm" />
                 <div className="absolute -left-[3px] top-36 w-[3px] h-8 bg-[#333] rounded-l-sm" />
