@@ -33,7 +33,8 @@
       "Bash(git add -A && git commit -m \"動画パスをmp4に更新\" && git push)",
       "Bash(git add -A && git commit -m \"詳細ページのレイアウト修正・動画ローディング追加\" && git push)",
       "Bash(git add -A && git commit -m \"SPカルーセル追加・区切り線スタイル修正\" && git push)",
-      "Bash(git add -A && git commit -m \"worksページに12件表示＋ページネーション追加\" && git push)"
+      "Bash(git add -A && git commit -m \"worksページに12件表示＋ページネーション追加\" && git push)",
+      "Bash(git add -A && git commit -m \"Client Component最小化・Server Component維持でパフォーマンス改善\" && git push)"
     ]
   }
 }
