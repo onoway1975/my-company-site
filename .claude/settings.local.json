@@ -27,7 +27,8 @@
       "Bash(grep -v \"\\\\\\\\\\\\\\\\n\" .gitignore > .gitignore.tmp && printf \"\\\\n# 動画ファイル\\\\npublic/videos/\\\\n\" >> .gitignore.tmp && mv .gitignore.tmp .gitignore && cat .gitignore | tail -5)",
       "Bash(git rm -r --cached public/videos/ && git add .gitignore && git commit --amend --no-edit && git push)",
       "Bash(git add -A && git commit -m \"GTMをafterInteractiveに変更してパフォーマンス改善\" && git push)",
-      "Bash(git add -A && git commit -m \"フォントをglobals.cssに戻す・browserslistrc追加\" && git push)"
+      "Bash(git add -A && git commit -m \"フォントをglobals.cssに戻す・browserslistrc追加\" && git push)",
+      "Bash(git add -A && git commit -m \"LCP画像にpriority・fetchPriority追加\" && git push)"
     ]
   }
 }

@@ -117,6 +117,7 @@ export function HeroChat() {
               className="w-[90px] h-[90px] md:w-[150px] md:h-[150px]"
               sizes="(max-width: 768px) 90px, 150px"
               priority
+              fetchPriority="high"
             />
           </div>
         </div>
@@ -133,6 +134,7 @@ export function HeroChat() {
               className="w-[80px] h-[80px] md:w-[130px] md:h-[130px]"
               sizes="(max-width: 768px) 80px, 130px"
               priority
+              fetchPriority="high"
             />
           </div>
         </div>
