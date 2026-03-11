@@ -80,8 +80,8 @@ export default function Home() {
             >View all</Button>
           </div>
 
-          {/* Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Grid / Carousel */}
+          <div className="-mx-8 md:mx-0 flex overflow-x-auto scrollbar-hide px-[12.5vw] gap-4 [scroll-snap-type:x_mandatory] pb-2 md:grid md:grid-cols-4 md:overflow-x-visible md:px-0 md:pb-0">
             {works.slice(0, 4).map((work) => (
               <Link
                 key={work.slug}
@@ -89,7 +89,7 @@ export default function Home() {
                 data-gtm-click="internal_link"
                 data-gtm-location="works_section"
                 data-gtm-label={work.slug}
-                className="group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
+                className="shrink-0 w-[75vw] [scroll-snap-align:center] md:w-auto group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
               >
                 {/* Thumbnail */}
                 <div className="overflow-hidden rounded-[0.75rem] aspect-[4/3] bg-surface mb-4">
@@ -116,6 +116,40 @@ export default function Home() {
               </Link>
             ))}
           </div>
+
+          {/* SP list: works 5–8 */}
+          {works.length > 4 && (
+            <div className="mt-4 md:hidden">
+              {works.slice(4, 8).map((work, i, arr) => (
+                <Link
+                  key={work.slug}
+                  href={`/works/${work.slug}`}
+                  data-gtm-click="internal_link"
+                  data-gtm-location="works_section"
+                  data-gtm-label={work.slug}
+                  className={`flex items-center gap-4 py-3${i < arr.length - 1 ? " border-b border-dashed border-[#e2e2e2]" : ""}`}
+                >
+                  {work.thumbnail ? (
+                    <Image
+                      src={work.thumbnail}
+                      alt={work.title}
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 rounded-xl object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-surface shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-muted uppercase tracking-[0.1em] mb-1">
+                      {work.category.join(" / ")}
+                    </p>
+                    <p className="text-sm font-bold text-ink leading-snug">{work.title}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -163,11 +197,11 @@ export default function Home() {
             <Button href="/service" className="hidden md:inline-flex">View all</Button>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="-mx-8 md:mx-0 flex overflow-x-auto scrollbar-hide px-[12.5vw] gap-4 [scroll-snap-type:x_mandatory] pb-2 md:grid md:grid-cols-4 md:overflow-x-visible md:px-0 md:pb-0">
             {services.map((service, i) => (
               <div
                 key={i}
-                className="bg-white rounded-[1.25rem] border border-[#e8e8e8] p-8"
+                className="shrink-0 w-[75vw] [scroll-snap-align:center] md:w-auto bg-white rounded-[1.25rem] border border-[#e8e8e8] p-8"
               >
                 <p className="text-xs tracking-[0.15em] text-ink uppercase mb-3">
                   {service.en}
@@ -183,10 +217,6 @@ export default function Home() {
                 </p>
               </div>
             ))}
-          </div>
-
-          <div className="mt-10 md:hidden">
-            <Button href="/service">View all</Button>
           </div>
 
           {/* Best Team Building */}
