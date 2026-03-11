@@ -22,7 +22,7 @@ export const works: Work[] = [
     description:
       "ヤッホーブルーイングの新ブランド「裏通りのドンダバダ」のWebサイト制作を担当。ブランドの世界観を表現するビジュアルデザインと、インタラクティブな体験を両立したフロントエンド実装を行いました。",
     thumbnail: "/images/works/dondabada.png",
-    video: "/videos/works/work-01.mov",
+    video: "/videos/works/work-01.mp4",
     url: "https://yohobrewing.com/dondabada/",
   },
   {
@@ -33,7 +33,7 @@ export const works: Work[] = [
     description:
       "撮影した写真とテキストを組み合わせ、Better Co-Beingオリジナルの「Journal」を作成できるコンテンツを制作しました。",
     thumbnail: "/images/works/better.png",
-    video: "/videos/works/work-02.mov",
+    video: "/videos/works/work-02.mp4",
   },
   {
     slug: "accesstrade",
@@ -44,7 +44,7 @@ export const works: Work[] = [
     description:
       "ACCESSTRADEの新しいロゴとロゴの考え方を紹介するスペシャルサイトです。",
     thumbnail: "/images/works/access.png",
-    video: "/videos/works/work-03.mov",
+    video: "/videos/works/work-03.mp4",
   },
   {
     slug: "rirekisho",
@@ -55,7 +55,7 @@ export const works: Work[] = [
     description:
       "伊藤忠商事の6月の新聞広告「ある商人の履歴書」「伊藤忠の履歴書」特設サイトを制作しました。",
     thumbnail: "/images/works/rirekisho.png",
-    video: "/videos/works/work-06.mov",
+    video: "/videos/works/work-06.mp4",
     url: "https://www.itochu.co.jp/ja/rirekisho/",
   },
   {
@@ -67,7 +67,7 @@ export const works: Work[] = [
     description:
       "いつでも、どこでも、好きな時に好きな場所で、お気に入りのボトルとドリンクで、自分らしく健康的に水分を摂る。好きで楽しむハイドレーション、サーモス ハイドレのWEBサイトを制作しました。",
     thumbnail: "/images/works/hydration.png",
-    video: "/videos/works/work-05.MP4",
+    video: "/videos/works/work-05.mp4",
     url: "https://www.thermos.jp/hydration/",
   },
   {
@@ -112,7 +112,7 @@ export const works: Work[] = [
     description:
       "世界初製薬会社による期間限定の音楽レーベル「SEIROGAN UTILITY RECORDS」のWEBサイト、EVISBEATSとMICHEL☆PUNCH「ポジティブになる音楽」、やけのはら「緊張をほぐす音楽」、Kan Sano「集中する音楽」の制作をさせていただきました。",
     thumbnail: "/images/works/seirogan.png",
-    video: "/videos/works/work-04.mov",
+    video: "/videos/works/work-04.mp4",
   },
 ];
 

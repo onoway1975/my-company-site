@@ -29,7 +29,8 @@
       "Bash(git add -A && git commit -m \"GTMをafterInteractiveに変更してパフォーマンス改善\" && git push)",
       "Bash(git add -A && git commit -m \"フォントをglobals.cssに戻す・browserslistrc追加\" && git push)",
       "Bash(git add -A && git commit -m \"LCP画像にpriority・fetchPriority追加\" && git push)",
-      "Bash(git add -A && git commit -m \"動画をmp4に変換・gitignoreから除外してVercelに含める\" && git push)"
+      "Bash(git add -A && git commit -m \"動画をmp4に変換・gitignoreから除外してVercelに含める\" && git push)",
+      "Bash(git add -A && git commit -m \"動画パスをmp4に更新\" && git push)"
     ]
   }
 }
