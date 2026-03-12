@@ -8,7 +8,7 @@ import { Logo } from "./Logo";
 const navItems = [
   { label: "Service", labelJa: "サービス", href: "/service", gtmClick: "internal_link", gtmLabel: "service" },
   { label: "About", labelJa: "シラフについて", href: "/about", gtmClick: "internal_link", gtmLabel: "about" },
-  { label: "Works", labelJa: "実績・受賞歴", href: "/works", gtmClick: "internal_link", gtmLabel: "works" },
+  { label: "Works", labelJa: "実績", href: "/works", gtmClick: "internal_link", gtmLabel: "works" },
   { label: "Contact", labelJa: "お問い合わせ", href: "/contact", gtmClick: "cta_contact", gtmLabel: "" },
 ];
 
