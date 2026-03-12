@@ -43,8 +43,8 @@ export default function Home() {
     <>
       <BodyPageType type="top" />
       {/* ── Hero ── */}
-      <section className="min-h-[calc(100vh-4rem)] flex flex-col px-6 lg:px-12 py-16 md:py-20">
-        <div className="flex-1 flex flex-col justify-center gap-10 md:gap-12 max-w-7xl mx-auto w-full">
+      <section className="min-h-[calc(100vh-4rem)] flex flex-col px-6 lg:px-12 py-8 md:py-10">
+        <div className="flex-1 flex flex-col justify-center gap-6 md:gap-8 max-w-7xl mx-auto w-full">
           <div>
             <h1 className="text-[clamp(1.75rem,4vw,4.5rem)] font-bold leading-[1.2] tracking-tight text-ink mb-8">
               私たちは、誰よりも、
