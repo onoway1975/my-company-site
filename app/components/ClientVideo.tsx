@@ -21,6 +21,8 @@ export function ClientVideo({ videoSrc }: { videoSrc: string }) {
         <source src={videoSrc} type="video/mp4" />
         <source src={videoSrc} type="video/quicktime" />
       </video>
+      <div className="absolute top-0 left-0 right-0 z-10 bg-black" style={{ height: '13%' }} />
+      <div className="absolute bottom-0 left-0 right-0 z-10 bg-black" style={{ height: '8%' }} />
     </div>
   );
 }
