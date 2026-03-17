@@ -14,6 +14,19 @@ export type Work = {
 
 export const works: Work[] = [
   {
+    slug: "partheno-copy",
+    title: "パルテノにあなたのお墨付きください！おすすめキャッチコピー募集キャンペーン",
+    client: "森永乳業",
+    category: ["WEB", "CAMPAIGN"],
+    description: "パルテノにあなたのお墨付きください！おすすめキャッチコピー募集キャンペーンのWEBサイトを制作しました。",
+    thumbnail: "/images/works/partheno-copy/thumbnail.png",
+    images: [
+      "/images/works/partheno-copy/toposu.jpg",
+    ],
+    video: null,
+    url: "",
+  },
+  {
     slug: "hajimete",
     title: "はじめてのパルテノ体験キャンペーン",
     client: "森永乳業",
