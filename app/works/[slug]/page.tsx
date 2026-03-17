@@ -119,8 +119,8 @@ export default async function WorkDetailPage({
         /* ── video あり: 左sticky電話フレーム / 右info ── */
         <div className="flex flex-col lg:flex-row min-h-screen bg-white">
           {/* Left: Sticky phone video */}
-          <div className="w-full lg:w-1/2 bg-gray-50 flex items-center justify-center py-16 lg:py-0 lg:sticky lg:top-0 lg:h-screen">
-            <div className="relative" style={{ width: "280px" }}>
+          <div className="w-full lg:w-[55%] xl:w-[60%] bg-gray-50 flex items-center justify-center py-16 lg:py-0 lg:sticky lg:top-0 lg:h-screen">
+            <div className="relative w-[280px] md:w-[340px] lg:w-[380px]">
               <div className="relative bg-[#1a1a1a] rounded-[3rem] p-[3px] shadow-2xl">
                 <ClientVideo videoSrc={work.video!} />
                 <div className="absolute -right-[3px] top-32 w-[3px] h-14 bg-[#333] rounded-r-sm" />
@@ -131,7 +131,7 @@ export default async function WorkDetailPage({
           </div>
 
           {/* Right: Info */}
-          <div className="w-full lg:w-1/2 px-8 lg:px-16 py-16 lg:py-24 bg-white">
+          <div className="w-full lg:w-[45%] xl:w-[40%] px-8 lg:px-16 py-16 lg:py-24 bg-white">
             <WorkInfo work={work} />
           </div>
         </div>
