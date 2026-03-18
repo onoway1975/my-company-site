@@ -82,7 +82,7 @@ export default function Home() {
 
           {/* Grid / Carousel */}
           <div className="-mx-8 md:mx-0 flex overflow-x-auto scrollbar-hide px-[12.5vw] gap-4 [scroll-snap-type:x_mandatory] pb-2 md:grid md:grid-cols-4 md:overflow-x-visible md:px-0 md:pb-0">
-            {works.slice(0, 4).map((work) => (
+            {works.slice(0, 4).map((work, i) => (
               <Link
                 key={work.slug}
                 href={`/works/${work.slug}`}
@@ -101,6 +101,7 @@ export default function Home() {
                       height={600}
                       className="w-full h-full object-cover object-center"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      {...(i === 0 ? { priority: true } : { loading: "lazy" })}
                     />
                   ) : (
                     <div className="flex items-center justify-center w-full h-full">

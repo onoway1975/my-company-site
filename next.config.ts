@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   // 画像最適化
   images: {
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30日
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       {
         protocol: "https",
