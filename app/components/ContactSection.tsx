@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { sendContactEmail } from "../actions/contact";
 
 type FormData = {
   name: string;
@@ -29,11 +28,19 @@ export function ContactSection() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("loading");
-    const result = await sendContactEmail(formData);
-    if (result.success) {
-      setStatus("success");
-      setFormData({ name: "", company: "", email: "", message: "" });
-    } else {
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) {
+        setStatus("success");
+        setFormData({ name: "", company: "", email: "", message: "" });
+      } else {
+        setStatus("error");
+      }
+    } catch {
       setStatus("error");
     }
   }
@@ -71,9 +78,8 @@ export function ContactSection() {
           <div>
             {status === "success" ? (
               <div className="bg-white/10 rounded-[1.25rem] p-8">
-                <p className="text-white mb-2">お問い合わせを承りました。</p>
-                <p className="text-sm text-white/50 leading-relaxed">
-                  担当者より3営業日以内にご連絡いたします。
+                <p className="text-white leading-relaxed">
+                  お問い合わせを受け付けました。3営業日以内にご連絡いたします。
                 </p>
                 <button
                   onClick={() => setStatus("idle")}
@@ -140,7 +146,7 @@ export function ContactSection() {
 
                 {status === "error" && (
                   <p className="text-xs text-red-400">
-                    送信に失敗しました。しばらく時間をおいてから再度お試しください。
+                    送信に失敗しました。再度お試しください。
                   </p>
                 )}
 
