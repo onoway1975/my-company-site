@@ -14,6 +14,36 @@ export type Work = {
 
 export const works: Work[] = [
   {
+    slug: "hqw",
+    title: "Hello,Quality World!",
+    client: "株式会社ベリサーブ",
+    category: ["WEB", "BRANDING"],
+    description: "Hello, Quality World! は、最新の技術トレンドや品質管理のノウハウを提供するテクノロジーライフメディアです。弊社ではアートディレクションから構築までWEBサイト制作を担当しました。",
+    thumbnail: "/images/works/hqw/thumbnail.png",
+    images: [
+      "/images/works/hqw/01.png",
+      "/images/works/hqw/02.png",
+      "/images/works/hqw/03.png",
+    ],
+    video: null,
+    url: "https://www.veriserve.co.jp/helloqualityworld/",
+  },
+  {
+    slug: "room",
+    title: "Hotel Room by Room 町ノ屋 京都二条城",
+    client: "",
+    category: ["WEB", "BRANDING"],
+    description: "Hotel Room by Room 町ノ屋 京都二条城のWEBサイトを制作しました。",
+    thumbnail: "/images/works/room/thumbnail.png",
+    images: [
+      "/images/works/room/789c70b7a0932e00ed1699006ea6258d.jpg",
+      "/images/works/room/5f7f1d9897afc03075c86ef5f23031ed.jpg",
+      "/images/works/room/roomsp.jpg",
+    ],
+    video: null,
+    url: "",
+  },
+  {
     slug: "partheno-copy",
     title: "パルテノにあなたのお墨付きください！おすすめキャッチコピー募集キャンペーン",
     client: "森永乳業",
