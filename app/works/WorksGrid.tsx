@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Work } from "../data/works";
@@ -11,6 +11,10 @@ export function WorksGrid({ works }: { works: Work[] }) {
   const categories = ["All", ...Array.from(new Set(works.flatMap((w) => w.category.map((c) => c.toUpperCase()))))];
   const [active, setActive] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   const filteredWorks = active === "All" ? works : works.filter((w) => w.category.map((c) => c.toUpperCase()).includes(active));
   const totalPages = Math.ceil(filteredWorks.length / ITEMS_PER_PAGE);
