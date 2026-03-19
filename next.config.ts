@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizeCss: true,
+  },
   // 画像最適化
   images: {
     formats: ["image/avif", "image/webp"],
