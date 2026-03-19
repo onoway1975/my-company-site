@@ -70,7 +70,7 @@ export function ContactSection() {
             <p className="text-base text-white/85 leading-[1.9]">
               For inquiries about web design, branding, and video production, contact ciraf inc.
               <br />
-              We&apos;ll respond within 3 business days.
+              We&apos;ll respond within 5 business days.
             </p>
           </div>
 
@@ -79,7 +79,7 @@ export function ContactSection() {
             {status === "success" ? (
               <div className="bg-white/10 rounded-[1.25rem] p-8">
                 <p className="text-white leading-relaxed">
-                  お問い合わせを受け付けました。3営業日以内にご連絡いたします。
+                  お問い合わせを受け付けました。5営業日以内にご連絡いたします。
                 </p>
                 <button
                   onClick={() => setStatus("idle")}
