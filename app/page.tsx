@@ -100,7 +100,7 @@ export default function Home() {
                       width={800}
                       height={600}
                       className="w-full h-full object-cover object-center"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 25vw"
                       {...(i === 0 ? { priority: true } : { loading: "lazy" })}
                     />
                   ) : (
