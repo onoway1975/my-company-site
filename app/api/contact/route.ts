@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
   try {
     await resend.emails.send({
-      from: 'ciraf.jp <onboarding@resend.dev>',
+      from: 'ciraf inc. <send@ciraf.jp>',
       to: process.env.CONTACT_TO_EMAIL!,
       replyTo: email,
       subject: `【ciraf.jp】お問い合わせ：${name}様`,

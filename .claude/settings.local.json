@@ -40,7 +40,9 @@
       "Bash(git add -A && git commit -m \"worksページのタイトルを日本語に変更\" && git push)",
       "Bash(git add -A && git commit -m \"画像最適化・priority・lazy設定を整備\" && git push)",
       "Bash(npm install critters --save-dev)",
-      "Bash(git add -A && git commit -m \"CSSインライン化でレンダリングブロッキングを解消\" && git push)"
+      "Bash(git add -A && git commit -m \"CSSインライン化でレンダリングブロッキングを解消\" && git push)",
+      "Bash(which vercel 2>/dev/null && vercel --version 2>/dev/null || echo \"vercel CLI not found\")",
+      "Bash(git add . && git commit -m \"fix: update from email to ciraf.jp domain\" && git push)"
     ]
   }
 }
