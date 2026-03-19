@@ -42,7 +42,8 @@
       "Bash(npm install critters --save-dev)",
       "Bash(git add -A && git commit -m \"CSSインライン化でレンダリングブロッキングを解消\" && git push)",
       "Bash(which vercel 2>/dev/null && vercel --version 2>/dev/null || echo \"vercel CLI not found\")",
-      "Bash(git add . && git commit -m \"fix: update from email to ciraf.jp domain\" && git push)"
+      "Bash(git add . && git commit -m \"fix: update from email to ciraf.jp domain\" && git push)",
+      "Bash(git add . && git commit -m \"feat: add auto reply email\" && git push)"
     ]
   }
 }
