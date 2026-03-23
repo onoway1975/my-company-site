@@ -67,7 +67,7 @@ export function WorksList({ works }: { works: Work[] }) {
         {works.map((work, i) => (
           <li key={work.slug} className="border-b border-border group">
             <Link
-              href={`/works/${work.slug}`}`}
+              href={`/works/${work.slug}`}
               className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 py-8 md:py-10 hover:opacity-60 transition-opacity duration-200"
               onMouseEnter={() => onEnter(work.slug, work.thumbnail)}
               onMouseLeave={onLeave}

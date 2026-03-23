@@ -44,7 +44,7 @@ export function WorksGrid({ works }: { works: Work[] }) {
         {filtered.map((work, i, arr) => (
           <Link
             key={work.slug}
-            href={`/works/${work.slug}`}`}
+            href={`/works/${work.slug}`}
             className={`group flex items-center gap-4 py-4 hover:opacity-70 transition-opacity duration-200${i < arr.length - 1 ? " border-b border-dashed border-[#e2e2e2]" : ""}`}
           >
             {work.thumbnail ? (
@@ -74,7 +74,7 @@ export function WorksGrid({ works }: { works: Work[] }) {
         {filtered.map((work) => (
           <Link
             key={work.slug}
-            href={`/works/${work.slug}`}`}
+            href={`/works/${work.slug}`}
             className="group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
           >
             {/* Thumbnail */}
