@@ -203,8 +203,6 @@ export function ContactSection() {
                 <button
                   type="submit"
                   disabled={status === "loading" || !agreed}
-                  data-gtm-click="cta_contact_submit"
-                  data-gtm-location="contact_form"
                   data-gtm-click-type="cta_contact_submit"
                   data-gtm-click-label="contact_submit"
                   data-gtm-click-location="contact_form"
