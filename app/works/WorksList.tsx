@@ -75,7 +75,7 @@ export function WorksList({ works }: { works: Work[] }) {
               onMouseEnter={() => onEnter(work.slug, work.thumbnail)}
               onMouseLeave={onLeave}
             >
-              <div className="flex items-baseline gap-6 md:gap-10">
+              <div className="flex items-baseline gap-6 md:gap-10 pointer-events-none">
                 <span className="text-[10px] tracking-[0.2em] text-muted tabular-nums shrink-0">
                   {String(i + 1).padStart(2, "0")}
                 </span>

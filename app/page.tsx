@@ -98,7 +98,7 @@ export default function Home() {
                 className="shrink-0 w-[75vw] [scroll-snap-align:center] md:w-auto group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
               >
                 {/* Thumbnail */}
-                <div className="overflow-hidden rounded-[0.75rem] aspect-[4/3] bg-surface mb-4">
+                <div className="overflow-hidden rounded-[0.75rem] aspect-[4/3] bg-surface mb-4 pointer-events-none">
                   {work.thumbnail ? (
                     <Image
                       src={work.thumbnail}
@@ -150,7 +150,7 @@ export default function Home() {
                   ) : (
                     <div className="w-16 h-16 rounded-xl bg-surface shrink-0" />
                   )}
-                  <div className="min-w-0">
+                  <div className="min-w-0 pointer-events-none">
                     <p className="text-[10px] text-muted uppercase tracking-[0.1em] mb-1">
                       {work.category.join(" / ")}
                     </p>
