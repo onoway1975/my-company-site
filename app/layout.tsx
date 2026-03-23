@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: "%s | ciraf inc.",
   },
   description:
-    "私たちは、誰よりも、つくりたい人の味方。シラフ株式会社（ciraf inc.）は、クリエイターとその作品を支えるウェブ・ブランディング・コンサルティング会社です。",
+    "シラフ株式会社（ciraf inc.）は、東京のWeb制作・ブランディング・映像制作会社です。クライアントのビジネス成長を実行力とホスピタリティで支えます。",
   alternates: {
     canonical: "https://ciraf.jp",
   },
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     title: "シラフ株式会社 | ciraf inc.",
     description:
-      "私たちは、誰よりも、つくりたい人の味方。シラフ株式会社（ciraf inc.）は、クリエイターとその作品を支えるウェブ・ブランディング・コンサルティング会社です。",
+      "シラフ株式会社（ciraf inc.）は、東京のWeb制作・ブランディング・映像制作会社です。クライアントのビジネス成長を実行力とホスピタリティで支えます。",
     url: "https://ciraf.jp",
   },
   twitter: {

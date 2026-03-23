@@ -44,7 +44,8 @@
       "Bash(which vercel 2>/dev/null && vercel --version 2>/dev/null || echo \"vercel CLI not found\")",
       "Bash(git add . && git commit -m \"fix: update from email to ciraf.jp domain\" && git push)",
       "Bash(git add . && git commit -m \"feat: add auto reply email\" && git push)",
-      "Bash(git add . && git commit -m \"feat: add favicon\" && git push)"
+      "Bash(git add . && git commit -m \"feat: add favicon\" && git push)",
+      "Bash(git add . && git commit -m \"fix: update og description\" && git push)"
     ]
   }
 }
