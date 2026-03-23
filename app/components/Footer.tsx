@@ -51,7 +51,13 @@ export function Footer() {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-16 mb-20">
           {/* Brand */}
           <div>
-            <Link href="/" className="text-ink hover:opacity-70 transition-opacity duration-200 inline-block mb-6">
+            <Link
+              href="/"
+              data-gtm-click-type="link"
+              data-gtm-click-label="logo"
+              data-gtm-click-location="footer"
+              className="text-ink hover:opacity-70 transition-opacity duration-200 inline-block mb-6"
+            >
               <Logo className="h-[20px] w-auto" />
             </Link>
             <p className="text-xs text-muted leading-loose mb-5">
@@ -71,6 +77,9 @@ export function Footer() {
                   data-gtm-click="phone_link"
                   data-gtm-location="footer"
                   data-gtm-label="03-4540-7546"
+                  data-gtm-click-type="link"
+                  data-gtm-click-label="phone"
+                  data-gtm-click-location="footer"
                   className="hover:text-ink transition-colors duration-200"
                 >
                   03-4540-7546
@@ -91,6 +100,9 @@ export function Footer() {
                   data-gtm-click="internal_link"
                   data-gtm-location="footer"
                   data-gtm-label={item.gtmLabel}
+                  data-gtm-click-type="nav"
+                  data-gtm-click-label={item.gtmLabel}
+                  data-gtm-click-location="footer"
                   className="text-xs tracking-[0.15em] text-ink uppercase hover:opacity-60 transition-opacity duration-200"
                 >
                   {item.label}
@@ -106,6 +118,9 @@ export function Footer() {
                 data-gtm-click="external_link"
                 data-gtm-location="footer"
                 data-gtm-label="note"
+                data-gtm-click-type="link"
+                data-gtm-click-label="note"
+                data-gtm-click-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
                 <NoteIcon />
@@ -118,6 +133,9 @@ export function Footer() {
                 data-gtm-click="external_link"
                 data-gtm-location="footer"
                 data-gtm-label="x"
+                data-gtm-click-type="link"
+                data-gtm-click-label="x"
+                data-gtm-click-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
                 <XIcon />
@@ -136,6 +154,9 @@ export function Footer() {
               data-gtm-click="internal_link"
               data-gtm-location="footer"
               data-gtm-label="privacy"
+              data-gtm-click-type="link"
+              data-gtm-click-label="privacy"
+              data-gtm-click-location="footer"
               className="text-xs text-muted hover:text-ink transition-colors duration-200"
             >
               プライバシーポリシー

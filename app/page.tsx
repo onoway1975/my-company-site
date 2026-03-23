@@ -77,6 +77,9 @@ export default function Home() {
               data-gtm-click="internal_link"
               data-gtm-location="works_section"
               data-gtm-label="view_all"
+              data-gtm-click-type="button"
+              data-gtm-click-label="view_all_works"
+              data-gtm-click-location="works_section"
             >View all</Button>
           </div>
 
@@ -89,6 +92,9 @@ export default function Home() {
                 data-gtm-click="internal_link"
                 data-gtm-location="works_section"
                 data-gtm-label={work.slug}
+                data-gtm-click-type="link"
+                data-gtm-click-label={work.slug}
+                data-gtm-click-location="works_section"
                 className="shrink-0 w-[75vw] [scroll-snap-align:center] md:w-auto group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
               >
                 {/* Thumbnail */}
@@ -128,6 +134,9 @@ export default function Home() {
                   data-gtm-click="internal_link"
                   data-gtm-location="works_section"
                   data-gtm-label={work.slug}
+                  data-gtm-click-type="link"
+                  data-gtm-click-label={work.slug}
+                  data-gtm-click-location="works_section"
                   className={`flex items-center gap-4 py-3${i < arr.length - 1 ? " border-b border-dashed border-[#e2e2e2]" : ""}`}
                 >
                   {work.thumbnail ? (
@@ -195,7 +204,13 @@ export default function Home() {
                 サービス
               </h2>
             </div>
-            <Button href="/service" className="hidden md:inline-flex">View all</Button>
+            <Button
+              href="/service"
+              data-gtm-click-type="button"
+              data-gtm-click-label="view_all_service"
+              data-gtm-click-location="service_section"
+              className="hidden md:inline-flex"
+            >View all</Button>
           </div>
 
           <div className="-mx-8 md:mx-0 flex overflow-x-auto scrollbar-hide px-[12.5vw] gap-4 [scroll-snap-type:x_mandatory] pb-2 md:grid md:grid-cols-4 md:overflow-x-visible md:px-0 md:pb-0">

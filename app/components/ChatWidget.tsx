@@ -163,6 +163,9 @@ export function ChatWidget() {
               <button
                 onClick={handleReset}
                 aria-label="会話をリセット"
+                data-gtm-click-type="button"
+                data-gtm-click-label="chat_reset"
+                data-gtm-click-location="chat_widget"
                 className="text-white/60 hover:text-white transition-colors duration-200"
               >
                 <ResetIcon />
@@ -170,6 +173,9 @@ export function ChatWidget() {
               <button
                 onClick={() => setOpen(false)}
                 aria-label="チャットを閉じる"
+                data-gtm-click-type="button"
+                data-gtm-click-label="chat_close"
+                data-gtm-click-location="chat_widget"
                 className="text-white/60 hover:text-white transition-colors duration-200"
               >
                 <CloseIcon />
@@ -215,6 +221,9 @@ export function ChatWidget() {
                   <button
                     key={s}
                     onClick={() => send(s)}
+                    data-gtm-click-type="button"
+                    data-gtm-click-label={s}
+                    data-gtm-click-location="chat_widget"
                     className="text-left text-xs text-muted border border-border rounded-xl px-3 py-2 hover:border-ink hover:text-ink transition-colors duration-200 bg-white"
                   >
                     {s}
@@ -245,6 +254,9 @@ export function ChatWidget() {
                 onClick={() => send(input)}
                 disabled={!input.trim() || loading}
                 aria-label="送信"
+                data-gtm-click-type="button"
+                data-gtm-click-label="chat_send"
+                data-gtm-click-location="chat_widget"
                 className="flex-shrink-0 w-9 h-9 rounded-xl bg-ink text-white flex items-center justify-center disabled:opacity-30 hover:opacity-80 transition-opacity duration-200"
               >
                 <SendIcon />
@@ -258,6 +270,9 @@ export function ChatWidget() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "チャットを閉じる" : "AIアシスタントに聞く"}
+        data-gtm-click-type="button"
+        data-gtm-click-label="chat_toggle"
+        data-gtm-click-location="chat_widget"
         className="fixed bottom-4 right-4 md:right-6 z-50 w-14 h-14 rounded-full bg-ink text-white flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:scale-105 active:scale-95 transition-transform duration-200"
       >
         {open ? <CloseIcon /> : <ChatIcon />}
