@@ -9,10 +9,13 @@ export const metadata: Metadata = {
   title: "偉人AI肖像画ジェネレーター | ciraf",
   description:
     "今日にゆかりの偉人スタイルで、あなたの顔をAIが肖像画に変換します。",
+  robots: process.env.NODE_ENV === "production" ? "noindex, nofollow" : undefined,
 };
 
 export default function DemoPage() {
-  if (process.env.NODE_ENV === "production") { notFound(); }
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
 
   const today = new Date();
   const figure = getTodayFigure(today);
