@@ -151,7 +151,6 @@ export function HeroChat() {
               disabled={loading}
               data-gtm-click="cta_ai_suggest"
               data-gtm-location="hero"
-              data-gtm-label={s}
               data-gtm-click-type="button"
               data-gtm-click-label={s}
               data-gtm-click-location="hero"

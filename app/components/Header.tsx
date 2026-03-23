@@ -99,7 +99,7 @@ export function Header() {
                   href={item.href}
                   data-gtm-click={item.gtmClick}
                   data-gtm-location="header"
-                  {...(item.gtmLabel ? { "data-gtm-label": item.gtmLabel } : {})}
+                  {...(item.gtmLabel ? { "data-gtm-click-label": item.gtmLabel } : {})}
                   data-gtm-click-type="nav"
                   data-gtm-click-label={item.gtmLabel || item.label.toLowerCase()}
                   data-gtm-click-location="header"
@@ -121,7 +121,6 @@ export function Header() {
               aria-label="Note"
               data-gtm-click="external_link"
               data-gtm-location="header"
-              data-gtm-label="note"
               data-gtm-click-type="link"
               data-gtm-click-label="note"
               data-gtm-click-location="header"
@@ -136,7 +135,6 @@ export function Header() {
               aria-label="X"
               data-gtm-click="external_link"
               data-gtm-location="header"
-              data-gtm-label="x"
               data-gtm-click-type="link"
               data-gtm-click-label="x"
               data-gtm-click-location="header"
@@ -187,7 +185,7 @@ export function Header() {
               href={item.href}
               data-gtm-click={item.gtmClick}
               data-gtm-location="header"
-              {...(item.gtmLabel ? { "data-gtm-label": item.gtmLabel } : {})}
+              {...(item.gtmLabel ? { "data-gtm-click-label": item.gtmLabel } : {})}
               data-gtm-click-type="nav"
               data-gtm-click-label={item.gtmLabel || item.label.toLowerCase()}
               data-gtm-click-location="header"
@@ -209,7 +207,6 @@ export function Header() {
               aria-label="Note"
               data-gtm-click="external_link"
               data-gtm-location="header"
-              data-gtm-label="note"
               data-gtm-click-type="link"
               data-gtm-click-label="note"
               data-gtm-click-location="header"
@@ -224,7 +221,6 @@ export function Header() {
               aria-label="X"
               data-gtm-click="external_link"
               data-gtm-location="header"
-              data-gtm-label="x"
               data-gtm-click-type="link"
               data-gtm-click-label="x"
               data-gtm-click-location="header"

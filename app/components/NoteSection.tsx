@@ -82,7 +82,6 @@ export async function NoteSection() {
               external
               data-gtm-click="external_link"
               data-gtm-location="note_section"
-              data-gtm-label="note_view_all"
               data-gtm-click-type="button"
               data-gtm-click-label="note_view_all"
               data-gtm-click-location="note_section"
@@ -109,7 +108,6 @@ export async function NoteSection() {
                     rel="noopener noreferrer"
                     data-gtm-click="external_link"
                     data-gtm-location="note_section"
-                    data-gtm-label={article.title}
                     data-gtm-click-type="link"
                     data-gtm-click-label="note_article"
                     data-gtm-click-location="note_section"

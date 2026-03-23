@@ -76,7 +76,6 @@ export function Footer() {
                   href="tel:0345407546"
                   data-gtm-click="phone_link"
                   data-gtm-location="footer"
-                  data-gtm-label="03-4540-7546"
                   data-gtm-click-type="link"
                   data-gtm-click-label="phone"
                   data-gtm-click-location="footer"
@@ -99,7 +98,6 @@ export function Footer() {
                   href={item.href}
                   data-gtm-click="internal_link"
                   data-gtm-location="footer"
-                  data-gtm-label={item.gtmLabel}
                   data-gtm-click-type="nav"
                   data-gtm-click-label={item.gtmLabel}
                   data-gtm-click-location="footer"
@@ -117,7 +115,6 @@ export function Footer() {
                 aria-label="Note"
                 data-gtm-click="external_link"
                 data-gtm-location="footer"
-                data-gtm-label="note"
                 data-gtm-click-type="link"
                 data-gtm-click-label="note"
                 data-gtm-click-location="footer"
@@ -132,7 +129,6 @@ export function Footer() {
                 aria-label="X"
                 data-gtm-click="external_link"
                 data-gtm-location="footer"
-                data-gtm-label="x"
                 data-gtm-click-type="link"
                 data-gtm-click-label="x"
                 data-gtm-click-location="footer"
@@ -153,7 +149,6 @@ export function Footer() {
               href="/privacy"
               data-gtm-click="internal_link"
               data-gtm-location="footer"
-              data-gtm-label="privacy"
               data-gtm-click-type="link"
               data-gtm-click-label="privacy"
               data-gtm-click-location="footer"

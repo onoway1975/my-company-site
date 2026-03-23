@@ -49,7 +49,6 @@ function WorkInfo({ work }: { work: Work }) {
               rel="noopener noreferrer"
               data-gtm-click="external_link"
               data-gtm-location="works_detail"
-              data-gtm-label={work.slug}
               data-gtm-click-type="link"
               data-gtm-click-label={work.slug}
               data-gtm-click-location="works_detail"
@@ -111,7 +110,6 @@ export default async function WorkDetailPage({
           href="/works"
           data-gtm-click="internal_link"
           data-gtm-location="works_detail"
-          data-gtm-label="back_to_works"
           data-gtm-click-type="link"
           data-gtm-click-label="back_to_works"
           data-gtm-click-location="works_detail"

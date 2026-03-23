@@ -76,7 +76,6 @@ export default function Home() {
               href="/works"
               data-gtm-click="internal_link"
               data-gtm-location="works_section"
-              data-gtm-label="view_all"
               data-gtm-click-type="button"
               data-gtm-click-label="view_all_works"
               data-gtm-click-location="works_section"
@@ -91,7 +90,6 @@ export default function Home() {
                 href={`/works/${work.slug}`}
                 data-gtm-click="internal_link"
                 data-gtm-location="works_section"
-                data-gtm-label={work.slug}
                 data-gtm-click-type="link"
                 data-gtm-click-label={`works_${work.slug}`}
                 data-gtm-click-location="works_section"
@@ -133,7 +131,6 @@ export default function Home() {
                   href={`/works/${work.slug}`}
                   data-gtm-click="internal_link"
                   data-gtm-location="works_section"
-                  data-gtm-label={work.slug}
                   data-gtm-click-type="link"
                   data-gtm-click-label={`works_${work.slug}`}
                   data-gtm-click-location="works_section"

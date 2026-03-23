@@ -30,7 +30,7 @@ export function WorksGrid({ works }: { works: Work[] }) {
             onClick={() => { setActive(cat); setCurrentPage(1); }}
             data-gtm-click="filter"
             data-gtm-location="works_list"
-            data-gtm-label={cat.toLowerCase()}
+            data-gtm-click-label={cat.toLowerCase()}
             className={`text-xs tracking-[0.1em] uppercase rounded-full px-4 py-2 border transition-colors duration-200 ${
               active === cat
                 ? "bg-ink text-white border-ink"
@@ -50,7 +50,6 @@ export function WorksGrid({ works }: { works: Work[] }) {
             href={`/works/${work.slug}`}
             data-gtm-click="internal_link"
             data-gtm-location="works_list"
-            data-gtm-label={work.slug}
             data-gtm-click-type="link"
             data-gtm-click-label={`works_${work.slug}`}
             data-gtm-click-location="works_list"
@@ -86,7 +85,6 @@ export function WorksGrid({ works }: { works: Work[] }) {
             href={`/works/${work.slug}`}
             data-gtm-click="internal_link"
             data-gtm-location="works_list"
-            data-gtm-label={work.slug}
             data-gtm-click-type="link"
             data-gtm-click-label={`works_${work.slug}`}
             data-gtm-click-location="works_list"
