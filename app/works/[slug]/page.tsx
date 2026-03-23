@@ -49,9 +49,9 @@ function WorkInfo({ work }: { work: Work }) {
               rel="noopener noreferrer"
               data-gtm-click="external_link"
               data-gtm-location="works_detail"
-              data-gtm-click-type="link"
+              data-gtm-click="link"
               data-gtm-label={work.slug}
-              data-gtm-click-location="works_detail"
+              data-gtm-location="works_detail"
               className="text-sm text-gray-900 underline underline-offset-4 hover:text-gray-500 transition-colors break-all"
             >
               {work.url}
@@ -110,9 +110,9 @@ export default async function WorkDetailPage({
           href="/works"
           data-gtm-click="internal_link"
           data-gtm-location="works_detail"
-          data-gtm-click-type="link"
+          data-gtm-click="link"
           data-gtm-label="back_to_works"
-          data-gtm-click-location="works_detail"
+          data-gtm-location="works_detail"
           className="inline-flex items-center gap-2 text-[0.8rem] tracking-[0.1em] text-gray-400 hover:text-gray-900 transition-colors"
         >
           ← Works
@@ -176,9 +176,9 @@ export default async function WorkDetailPage({
               <Link
                 key={w.slug}
                 href={`/works/${w.slug}`}
-                data-gtm-click-type="link"
+                data-gtm-click="link"
                 data-gtm-label={w.slug}
-                data-gtm-click-location="works_detail"
+                data-gtm-location="works_detail"
                 className="group flex-shrink-0 w-48 md:w-64"
               >
                 <div className="relative overflow-hidden rounded-[0.75rem] aspect-[4/3] bg-slate-100 mb-3">

@@ -76,9 +76,9 @@ export default function Home() {
               href="/works"
               data-gtm-click="internal_link"
               data-gtm-location="works_section"
-              data-gtm-click-type="button"
+              data-gtm-click="button"
               data-gtm-label="view_all_works"
-              data-gtm-click-location="works_section"
+              data-gtm-location="works_section"
             >View all</Button>
           </div>
 
@@ -90,9 +90,9 @@ export default function Home() {
                 href={`/works/${work.slug}`}
                 data-gtm-click="internal_link"
                 data-gtm-location="works_section"
-                data-gtm-click-type="link"
+                data-gtm-click="link"
                 data-gtm-label={`works_${work.slug}`}
-                data-gtm-click-location="works_section"
+                data-gtm-location="works_section"
                 className="shrink-0 w-[75vw] [scroll-snap-align:center] md:w-auto group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
               >
                 {/* Thumbnail */}
@@ -131,9 +131,9 @@ export default function Home() {
                   href={`/works/${work.slug}`}
                   data-gtm-click="internal_link"
                   data-gtm-location="works_section"
-                  data-gtm-click-type="link"
+                  data-gtm-click="link"
                   data-gtm-label={`works_${work.slug}`}
-                  data-gtm-click-location="works_section"
+                  data-gtm-location="works_section"
                   className={`flex items-center gap-4 py-3${i < arr.length - 1 ? " border-b border-dashed border-[#e2e2e2]" : ""}`}
                 >
                   {work.thumbnail ? (
@@ -203,9 +203,9 @@ export default function Home() {
             </div>
             <Button
               href="/service"
-              data-gtm-click-type="button"
+              data-gtm-click="button"
               data-gtm-label="view_all_service"
-              data-gtm-click-location="service_section"
+              data-gtm-location="service_section"
               className="hidden md:inline-flex"
             >View all</Button>
           </div>

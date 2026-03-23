@@ -83,9 +83,9 @@ export function ContactSection() {
                 </p>
                 <button
                   onClick={() => setStatus("idle")}
-                  data-gtm-click-type="button"
+                  data-gtm-click="button"
                   data-gtm-label="reset_form"
-                  data-gtm-click-location="contact"
+                  data-gtm-location="contact"
                   className="mt-8 text-xs tracking-widest text-white/40 underline underline-offset-4 hover:text-white transition-colors duration-200"
                 >
                   別のお問い合わせをする
@@ -190,9 +190,9 @@ export function ContactSection() {
                       href="/privacy"
                       target="_blank"
                       rel="noopener noreferrer"
-                      data-gtm-click-type="link"
+                      data-gtm-click="link"
                       data-gtm-label="privacy"
-                      data-gtm-click-location="contact"
+                      data-gtm-location="contact"
                       className="text-white underline underline-offset-2 hover:text-white/70 transition-colors duration-200"
                     >
                       https://ciraf.jp/privacy/
@@ -203,9 +203,9 @@ export function ContactSection() {
                 <button
                   type="submit"
                   disabled={status === "loading" || !agreed}
-                  data-gtm-click-type="cta_contact_submit"
+                  data-gtm-click="cta_contact_submit"
                   data-gtm-label="contact_submit"
-                  data-gtm-click-location="contact_form"
+                  data-gtm-location="contact_form"
                   className="inline-flex items-center gap-2 rounded-full bg-white text-ink border border-white text-[0.8rem] tracking-[0.1em] py-3 px-7 hover:bg-white/80 transition-all duration-[250ms] disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   {status === "loading" ? "送信中..." : "送信する →"}

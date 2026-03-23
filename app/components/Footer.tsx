@@ -53,9 +53,9 @@ export function Footer() {
           <div>
             <Link
               href="/"
-              data-gtm-click-type="link"
+              data-gtm-click="link"
               data-gtm-label="logo"
-              data-gtm-click-location="footer"
+              data-gtm-location="footer"
               className="text-ink hover:opacity-70 transition-opacity duration-200 inline-block mb-6"
             >
               <Logo className="h-[20px] w-auto" />
@@ -76,9 +76,9 @@ export function Footer() {
                   href="tel:0345407546"
                   data-gtm-click="phone_link"
                   data-gtm-location="footer"
-                  data-gtm-click-type="link"
+                  data-gtm-click="link"
                   data-gtm-label="phone"
-                  data-gtm-click-location="footer"
+                  data-gtm-location="footer"
                   className="hover:text-ink transition-colors duration-200"
                 >
                   03-4540-7546
@@ -98,9 +98,9 @@ export function Footer() {
                   href={item.href}
                   data-gtm-click="internal_link"
                   data-gtm-location="footer"
-                  data-gtm-click-type="nav"
+                  data-gtm-click="nav"
                   data-gtm-label={item.gtmLabel}
-                  data-gtm-click-location="footer"
+                  data-gtm-location="footer"
                   className="text-xs tracking-[0.15em] text-ink uppercase hover:opacity-60 transition-opacity duration-200"
                 >
                   {item.label}
@@ -115,9 +115,9 @@ export function Footer() {
                 aria-label="Note"
                 data-gtm-click="external_link"
                 data-gtm-location="footer"
-                data-gtm-click-type="link"
+                data-gtm-click="link"
                 data-gtm-label="note"
-                data-gtm-click-location="footer"
+                data-gtm-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
                 <NoteIcon />
@@ -129,9 +129,9 @@ export function Footer() {
                 aria-label="X"
                 data-gtm-click="external_link"
                 data-gtm-location="footer"
-                data-gtm-click-type="link"
+                data-gtm-click="link"
                 data-gtm-label="x"
-                data-gtm-click-location="footer"
+                data-gtm-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
                 <XIcon />
@@ -149,9 +149,9 @@ export function Footer() {
               href="/privacy"
               data-gtm-click="internal_link"
               data-gtm-location="footer"
-              data-gtm-click-type="link"
+              data-gtm-click="link"
               data-gtm-label="privacy"
-              data-gtm-click-location="footer"
+              data-gtm-location="footer"
               className="text-xs text-muted hover:text-ink transition-colors duration-200"
             >
               プライバシーポリシー

@@ -63,7 +63,12 @@
       "WebSearch",
       "WebFetch(domain:commons.wikimedia.org)",
       "Bash(git add app/demo/page.tsx && git commit -m \"fix: block /demo in production with notFound and noindex\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: rename data-gtm-click-label to data-gtm-label\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: rename data-gtm-click-label to data-gtm-label\" && git push)",
+      "Bash(git add package.json package-lock.json && git commit -m \"fix: add replicate package\" && git push)",
+      "Bash(git add next.config.ts && git commit -m \"fix: exclude demo from production build\" && git push)",
+      "Bash(npm i @vercel/speed-insights 2>&1 | tail -3)",
+      "Bash(git add package.json package-lock.json app/layout.tsx && git commit -m \"feat: add Vercel Speed Insights\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: rename GTM attributes across all files\" && git push)"
     ]
   }
 }
