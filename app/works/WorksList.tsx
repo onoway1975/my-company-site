@@ -69,7 +69,7 @@ export function WorksList({ works }: { works: Work[] }) {
             <Link
               href={`/works/${work.slug}`}
               data-gtm-click-type="link"
-              data-gtm-click-label={work.slug}
+              data-gtm-click-label={`works_${work.slug}`}
               data-gtm-click-location="works_list"
               className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 py-8 md:py-10 hover:opacity-60 transition-opacity duration-200"
               onMouseEnter={() => onEnter(work.slug, work.thumbnail)}

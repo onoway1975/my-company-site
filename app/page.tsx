@@ -93,7 +93,7 @@ export default function Home() {
                 data-gtm-location="works_section"
                 data-gtm-label={work.slug}
                 data-gtm-click-type="link"
-                data-gtm-click-label={work.slug}
+                data-gtm-click-label={`works_${work.slug}`}
                 data-gtm-click-location="works_section"
                 className="shrink-0 w-[75vw] [scroll-snap-align:center] md:w-auto group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
               >
@@ -135,7 +135,7 @@ export default function Home() {
                   data-gtm-location="works_section"
                   data-gtm-label={work.slug}
                   data-gtm-click-type="link"
-                  data-gtm-click-label={work.slug}
+                  data-gtm-click-label={`works_${work.slug}`}
                   data-gtm-click-location="works_section"
                   className={`flex items-center gap-4 py-3${i < arr.length - 1 ? " border-b border-dashed border-[#e2e2e2]" : ""}`}
                 >
