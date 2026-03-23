@@ -205,9 +205,9 @@ export function ContactSection() {
                   disabled={status === "loading" || !agreed}
                   data-gtm-click="cta_contact_submit"
                   data-gtm-location="contact_form"
-                  data-gtm-click-type="button"
+                  data-gtm-click-type="cta_contact_submit"
                   data-gtm-click-label="contact_submit"
-                  data-gtm-click-location="contact"
+                  data-gtm-click-location="contact_form"
                   className="inline-flex items-center gap-2 rounded-full bg-white text-ink border border-white text-[0.8rem] tracking-[0.1em] py-3 px-7 hover:bg-white/80 transition-all duration-[250ms] disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   {status === "loading" ? "送信中..." : "送信する →"}
