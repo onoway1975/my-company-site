@@ -1,10 +1,8 @@
 "use server";
 
 import Replicate from "replicate";
-import { fal } from "@fal-ai/client";
+import { fal } from "@/app/lib/falClient";
 import { figures } from "@/app/data/figures";
-
-fal.config({ credentials: process.env.FAL_KEY });
 
 const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
 
@@ -85,7 +83,6 @@ export async function generateStyleImage(
 
 // FAL.ai 接続テスト (rembg: 無料モデルで疎通確認)
 export async function testFalConnection(): Promise<{ ok: boolean; url?: string; error?: string }> {
-  fal.config({ credentials: process.env.FAL_KEY });
   console.log(`[fal-test] FAL_KEY=${process.env.FAL_KEY ? "set (" + process.env.FAL_KEY.slice(0, 8) + "...)" : "NOT SET"}`);
   try {
     const result = await fal.subscribe("fal-ai/imageutils/rembg", {
@@ -108,7 +105,6 @@ export async function swapFaces(
   styleImageUrl: string,
   userImageDataUrl: string
 ): Promise<{ output: string[] }> {
-  fal.config({ credentials: process.env.FAL_KEY });
   const t0 = Date.now();
   console.log(`[step2] START fal-ai/face-swap | ${new Date().toISOString()}`);
   console.log(`[step2] base_image_url=${styleImageUrl}`);
