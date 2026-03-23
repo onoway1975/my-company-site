@@ -30,7 +30,7 @@ export function WorksGrid({ works }: { works: Work[] }) {
             onClick={() => { setActive(cat); setCurrentPage(1); }}
             data-gtm-click="filter"
             data-gtm-location="works_list"
-            data-gtm-click-label={cat.toLowerCase()}
+            data-gtm-label={cat.toLowerCase()}
             className={`text-xs tracking-[0.1em] uppercase rounded-full px-4 py-2 border transition-colors duration-200 ${
               active === cat
                 ? "bg-ink text-white border-ink"
@@ -51,7 +51,7 @@ export function WorksGrid({ works }: { works: Work[] }) {
             data-gtm-click="internal_link"
             data-gtm-location="works_list"
             data-gtm-click-type="link"
-            data-gtm-click-label={`works_${work.slug}`}
+            data-gtm-label={`works_${work.slug}`}
             data-gtm-click-location="works_list"
             className={`group flex items-center gap-4 py-4 hover:opacity-70 transition-opacity duration-200${i < arr.length - 1 ? " border-b border-dashed border-[#e2e2e2]" : ""}`}
           >
@@ -86,7 +86,7 @@ export function WorksGrid({ works }: { works: Work[] }) {
             data-gtm-click="internal_link"
             data-gtm-location="works_list"
             data-gtm-click-type="link"
-            data-gtm-click-label={`works_${work.slug}`}
+            data-gtm-label={`works_${work.slug}`}
             data-gtm-click-location="works_list"
             className="group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
           >

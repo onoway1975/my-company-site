@@ -45,7 +45,25 @@
       "Bash(git add . && git commit -m \"fix: update from email to ciraf.jp domain\" && git push)",
       "Bash(git add . && git commit -m \"feat: add auto reply email\" && git push)",
       "Bash(git add . && git commit -m \"feat: add favicon\" && git push)",
-      "Bash(git add . && git commit -m \"fix: update og description\" && git push)"
+      "Bash(git add . && git commit -m \"fix: update og description\" && git push)",
+      "Bash(npm install replicate)",
+      "Bash(npm run dev)",
+      "Bash(git add app/components/Header.tsx app/components/Footer.tsx app/components/ContactSection.tsx app/components/NoteSection.tsx app/components/HeroChat.tsx app/components/ChatWidget.tsx app/page.tsx app/works/WorksList.tsx \"app/works/[slug]/page.tsx\" && git commit -m \"feat: add GTM click tracking attributes to all clickable elements\")",
+      "Bash(git push)",
+      "Bash(git add app/not-found.tsx && git commit -m \"feat: add 404 page with auto redirect\" && git push)",
+      "Bash(git add app/globals.css && git commit -m \"fix: disable pointer-events on SVGs inside buttons and links for GTM tracking\" && git push)",
+      "Bash(git add app/globals.css && git commit -m \"fix: disable pointer-events on img elements for GTM tracking\" && git push)",
+      "Bash(git add app/page.tsx app/works/WorksList.tsx app/works/WorksGrid.tsx && git commit -m \"feat: add GTM attributes to works thumbnails\" && git push)",
+      "Bash(git add app/page.tsx app/works/WorksGrid.tsx app/works/WorksList.tsx && git commit -m \"fix: add pointer-events-none to works card div for GTM tracking\" && git push)",
+      "Bash(git add app/components/ContactSection.tsx && git commit -m \"feat: add GTM attributes to contact submit button\" && git push)",
+      "Bash(git add app/components/ContactSection.tsx && git commit -m \"fix: remove old GTM attributes from contact submit button\" && git push)",
+      "WebFetch(domain:fal.ai)",
+      "Bash(git add app/data/figures.ts app/demo/DemoClient.tsx && git commit -m \"feat: remove test sections, add figure reference image to demo page\" && git push)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebSearch",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "Bash(git add app/demo/page.tsx && git commit -m \"fix: block /demo in production with notFound and noindex\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: rename data-gtm-click-label to data-gtm-label\" && git push)"
     ]
   }
 }

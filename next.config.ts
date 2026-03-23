@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "d2l930y2yx77uc.cloudfront.net",
       },
+      {
+        protocol: "https",
+        hostname: "**.replicate.delivery",
+      },
+      {
+        protocol: "https",
+        hostname: "**.replicate.com",
+      },
     ],
   },
   // 本番ビルドでconsole.logを除去

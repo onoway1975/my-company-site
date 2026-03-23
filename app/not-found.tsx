@@ -57,7 +57,7 @@ export default function NotFound() {
         <Link
           href="/"
           data-gtm-click-type="link"
-          data-gtm-click-label="back_to_top"
+          data-gtm-label="back_to_top"
           data-gtm-click-location="404"
           className="inline-flex items-center gap-2 text-sm font-medium text-ink border border-ink px-6 py-3 hover:bg-ink hover:text-white transition-colors duration-200"
         >

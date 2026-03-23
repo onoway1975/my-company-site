@@ -83,7 +83,7 @@ export async function NoteSection() {
               data-gtm-click="external_link"
               data-gtm-location="note_section"
               data-gtm-click-type="button"
-              data-gtm-click-label="note_view_all"
+              data-gtm-label="note_view_all"
               data-gtm-click-location="note_section"
             >
               View all
@@ -109,7 +109,7 @@ export async function NoteSection() {
                     data-gtm-click="external_link"
                     data-gtm-location="note_section"
                     data-gtm-click-type="link"
-                    data-gtm-click-label="note_article"
+                    data-gtm-label="note_article"
                     data-gtm-click-location="note_section"
                     className="flex items-center gap-4 py-5 group"
                   >

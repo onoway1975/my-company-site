@@ -79,7 +79,7 @@ export function Header() {
         <Link
           href="/"
           data-gtm-click-type="link"
-          data-gtm-click-label="logo"
+          data-gtm-label="logo"
           data-gtm-click-location="header"
           className="text-ink hover:opacity-70 transition-opacity duration-200"
         >
@@ -99,9 +99,9 @@ export function Header() {
                   href={item.href}
                   data-gtm-click={item.gtmClick}
                   data-gtm-location="header"
-                  {...(item.gtmLabel ? { "data-gtm-click-label": item.gtmLabel } : {})}
+                  {...(item.gtmLabel ? { "data-gtm-label": item.gtmLabel } : {})}
                   data-gtm-click-type="nav"
-                  data-gtm-click-label={item.gtmLabel || item.label.toLowerCase()}
+                  data-gtm-label={item.gtmLabel || item.label.toLowerCase()}
                   data-gtm-click-location="header"
                   className={`text-xs tracking-[0.15em] uppercase transition-opacity duration-200 ${
                     isActive ? "text-ink font-bold" : "text-ink hover:opacity-60"
@@ -122,7 +122,7 @@ export function Header() {
               data-gtm-click="external_link"
               data-gtm-location="header"
               data-gtm-click-type="link"
-              data-gtm-click-label="note"
+              data-gtm-label="note"
               data-gtm-click-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
@@ -136,7 +136,7 @@ export function Header() {
               data-gtm-click="external_link"
               data-gtm-location="header"
               data-gtm-click-type="link"
-              data-gtm-click-label="x"
+              data-gtm-label="x"
               data-gtm-click-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
@@ -151,7 +151,7 @@ export function Header() {
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
           data-gtm-click-type="button"
-          data-gtm-click-label="mobile_menu"
+          data-gtm-label="mobile_menu"
           data-gtm-click-location="header"
         >
           <span
@@ -185,9 +185,9 @@ export function Header() {
               href={item.href}
               data-gtm-click={item.gtmClick}
               data-gtm-location="header"
-              {...(item.gtmLabel ? { "data-gtm-click-label": item.gtmLabel } : {})}
+              {...(item.gtmLabel ? { "data-gtm-label": item.gtmLabel } : {})}
               data-gtm-click-type="nav"
-              data-gtm-click-label={item.gtmLabel || item.label.toLowerCase()}
+              data-gtm-label={item.gtmLabel || item.label.toLowerCase()}
               data-gtm-click-location="header"
               className={`flex justify-between items-baseline py-5 ${
                 i < navItems.length - 1 ? "" : ""
@@ -208,7 +208,7 @@ export function Header() {
               data-gtm-click="external_link"
               data-gtm-location="header"
               data-gtm-click-type="link"
-              data-gtm-click-label="note"
+              data-gtm-label="note"
               data-gtm-click-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
@@ -222,7 +222,7 @@ export function Header() {
               data-gtm-click="external_link"
               data-gtm-location="header"
               data-gtm-click-type="link"
-              data-gtm-click-label="x"
+              data-gtm-label="x"
               data-gtm-click-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >

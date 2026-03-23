@@ -54,7 +54,7 @@ export function Footer() {
             <Link
               href="/"
               data-gtm-click-type="link"
-              data-gtm-click-label="logo"
+              data-gtm-label="logo"
               data-gtm-click-location="footer"
               className="text-ink hover:opacity-70 transition-opacity duration-200 inline-block mb-6"
             >
@@ -77,7 +77,7 @@ export function Footer() {
                   data-gtm-click="phone_link"
                   data-gtm-location="footer"
                   data-gtm-click-type="link"
-                  data-gtm-click-label="phone"
+                  data-gtm-label="phone"
                   data-gtm-click-location="footer"
                   className="hover:text-ink transition-colors duration-200"
                 >
@@ -99,7 +99,7 @@ export function Footer() {
                   data-gtm-click="internal_link"
                   data-gtm-location="footer"
                   data-gtm-click-type="nav"
-                  data-gtm-click-label={item.gtmLabel}
+                  data-gtm-label={item.gtmLabel}
                   data-gtm-click-location="footer"
                   className="text-xs tracking-[0.15em] text-ink uppercase hover:opacity-60 transition-opacity duration-200"
                 >
@@ -116,7 +116,7 @@ export function Footer() {
                 data-gtm-click="external_link"
                 data-gtm-location="footer"
                 data-gtm-click-type="link"
-                data-gtm-click-label="note"
+                data-gtm-label="note"
                 data-gtm-click-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
@@ -130,7 +130,7 @@ export function Footer() {
                 data-gtm-click="external_link"
                 data-gtm-location="footer"
                 data-gtm-click-type="link"
-                data-gtm-click-label="x"
+                data-gtm-label="x"
                 data-gtm-click-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
@@ -150,7 +150,7 @@ export function Footer() {
               data-gtm-click="internal_link"
               data-gtm-location="footer"
               data-gtm-click-type="link"
-              data-gtm-click-label="privacy"
+              data-gtm-label="privacy"
               data-gtm-click-location="footer"
               className="text-xs text-muted hover:text-ink transition-colors duration-200"
             >

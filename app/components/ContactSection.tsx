@@ -84,7 +84,7 @@ export function ContactSection() {
                 <button
                   onClick={() => setStatus("idle")}
                   data-gtm-click-type="button"
-                  data-gtm-click-label="reset_form"
+                  data-gtm-label="reset_form"
                   data-gtm-click-location="contact"
                   className="mt-8 text-xs tracking-widest text-white/40 underline underline-offset-4 hover:text-white transition-colors duration-200"
                 >
@@ -191,7 +191,7 @@ export function ContactSection() {
                       target="_blank"
                       rel="noopener noreferrer"
                       data-gtm-click-type="link"
-                      data-gtm-click-label="privacy"
+                      data-gtm-label="privacy"
                       data-gtm-click-location="contact"
                       className="text-white underline underline-offset-2 hover:text-white/70 transition-colors duration-200"
                     >
@@ -204,7 +204,7 @@ export function ContactSection() {
                   type="submit"
                   disabled={status === "loading" || !agreed}
                   data-gtm-click-type="cta_contact_submit"
-                  data-gtm-click-label="contact_submit"
+                  data-gtm-label="contact_submit"
                   data-gtm-click-location="contact_form"
                   className="inline-flex items-center gap-2 rounded-full bg-white text-ink border border-white text-[0.8rem] tracking-[0.1em] py-3 px-7 hover:bg-white/80 transition-all duration-[250ms] disabled:opacity-30 disabled:cursor-not-allowed"
                 >

@@ -87,7 +87,7 @@ export async function testFalConnection(): Promise<{ ok: boolean; url?: string; 
   try {
     const result = await fal.subscribe("fal-ai/imageutils/rembg", {
       input: {
-        image_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/240px-PNG_transparency_demonstration_1.png",
+        image_url: "https://storage.googleapis.com/falserverless/model_tests/remove_background/elephant.jpg",
       },
     });
     const url = (result.data as { image: { url: string } }).image.url;
