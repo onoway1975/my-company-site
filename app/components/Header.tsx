@@ -6,9 +6,9 @@ import { usePathname } from "next/navigation";
 import { Logo } from "./Logo";
 
 const navItems = [
-  { label: "Service", labelJa: "サービス", href: "/service", gtmClick: "internal_link", gtmLabel: "service" },
-  { label: "About", labelJa: "シラフについて", href: "/about", gtmClick: "internal_link", gtmLabel: "about" },
-  { label: "Works", labelJa: "実績", href: "/works", gtmClick: "internal_link", gtmLabel: "works" },
+  { label: "Service", labelJa: "サービス", href: "/service", gtmClick: "nav_link", gtmLabel: "service" },
+  { label: "About", labelJa: "シラフについて", href: "/about", gtmClick: "nav_link", gtmLabel: "about" },
+  { label: "Works", labelJa: "実績", href: "/works", gtmClick: "nav_link", gtmLabel: "works" },
   { label: "Contact", labelJa: "お問い合わせ", href: "/contact", gtmClick: "cta_contact", gtmLabel: "" },
 ];
 
@@ -94,6 +94,9 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-gtm-click={item.gtmClick}
+                  data-gtm-location="header"
+                  data-gtm-label={item.gtmLabel || undefined}
                   className={`text-xs tracking-[0.15em] uppercase transition-opacity duration-200 ${
                     isActive ? "text-ink font-bold" : "text-ink hover:opacity-60"
                   }`}
@@ -110,6 +113,9 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Note"
+              data-gtm-click="external_link"
+              data-gtm-location="header"
+              data-gtm-label="note"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
               <NoteIcon />
@@ -119,6 +125,9 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X"
+              data-gtm-click="external_link"
+              data-gtm-location="header"
+              data-gtm-label="x"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
               <XIcon />
@@ -161,6 +170,9 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
+              data-gtm-click={item.gtmClick}
+              data-gtm-location="header"
+              data-gtm-label={item.gtmLabel || undefined}
               className={`flex justify-between items-baseline py-5 ${
                 i < navItems.length - 1 ? "" : ""
               }`}
@@ -177,6 +189,9 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Note"
+              data-gtm-click="external_link"
+              data-gtm-location="header"
+              data-gtm-label="note"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
               <NoteIcon />
@@ -186,6 +201,9 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X"
+              data-gtm-click="external_link"
+              data-gtm-location="header"
+              data-gtm-label="x"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
               <XIcon />

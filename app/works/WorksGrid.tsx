@@ -45,6 +45,9 @@ export function WorksGrid({ works }: { works: Work[] }) {
           <Link
             key={work.slug}
             href={`/works/${work.slug}`}
+            data-gtm-click="works_card"
+            data-gtm-location="works_section"
+            data-gtm-label={work.slug}
             className={`group flex items-center gap-4 py-4 hover:opacity-70 transition-opacity duration-200${i < arr.length - 1 ? " border-b border-dashed border-[#e2e2e2]" : ""}`}
           >
             {work.thumbnail ? (
@@ -59,7 +62,7 @@ export function WorksGrid({ works }: { works: Work[] }) {
             ) : (
               <div className="w-14 h-14 rounded-xl bg-surface shrink-0" />
             )}
-            <div className="flex-1 min-w-0 pointer-events-none">
+            <div className="flex-1 min-w-0 pointer-events-none" style={{ pointerEvents: "none" }}>
               <p className="text-[10px] tracking-[0.1em] text-muted uppercase mb-1">
                 {work.category.join(" / ")}
               </p>
@@ -75,10 +78,13 @@ export function WorksGrid({ works }: { works: Work[] }) {
           <Link
             key={work.slug}
             href={`/works/${work.slug}`}
+            data-gtm-click="works_card"
+            data-gtm-location="works_section"
+            data-gtm-label={work.slug}
             className="group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
           >
             {/* Thumbnail */}
-            <div className="overflow-hidden rounded-[0.75rem] aspect-[4/3] bg-surface mb-4 pointer-events-none">
+            <div className="overflow-hidden rounded-[0.75rem] aspect-[4/3] bg-surface mb-4 pointer-events-none" style={{ pointerEvents: "none" }}>
               {work.thumbnail ? (
                 <Image
                   src={work.thumbnail}

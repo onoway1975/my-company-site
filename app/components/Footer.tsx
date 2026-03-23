@@ -71,6 +71,8 @@ export function Footer() {
                 TEL&ensp;
                 <a
                   href="tel:0345407546"
+                  data-gtm-click="tel_link"
+                  data-gtm-location="footer"
                   className="hover:text-ink transition-colors duration-200"
                 >
                   03-4540-7546
@@ -88,6 +90,9 @@ export function Footer() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-gtm-click="nav_link"
+                  data-gtm-location="footer"
+                  data-gtm-label={item.gtmLabel}
                   className="text-xs tracking-[0.15em] text-ink uppercase hover:opacity-60 transition-opacity duration-200"
                 >
                   {item.label}
@@ -100,6 +105,9 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Note"
+                data-gtm-click="external_link"
+                data-gtm-location="footer"
+                data-gtm-label="note"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
                 <NoteIcon />
@@ -109,6 +117,9 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X"
+                data-gtm-click="external_link"
+                data-gtm-location="footer"
+                data-gtm-label="x"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
                 <XIcon />
@@ -124,6 +135,9 @@ export function Footer() {
           <div className="flex items-center gap-6">
             <Link
               href="/privacy"
+              data-gtm-click="nav_link"
+              data-gtm-location="footer"
+              data-gtm-label="privacy"
               className="text-xs text-muted hover:text-ink transition-colors duration-200"
             >
               プライバシーポリシー

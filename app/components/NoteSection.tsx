@@ -80,6 +80,9 @@ export async function NoteSection() {
             <Button
               href="https://note.com/ciraf_inc"
               external
+              data-gtm-click="external_link"
+              data-gtm-location="note_section"
+              data-gtm-label="note_view_all"
             >
               View all
             </Button>
@@ -101,6 +104,9 @@ export async function NoteSection() {
                     href={article.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-gtm-click="external_link"
+                    data-gtm-location="note_section"
+                    data-gtm-label="note_article"
                     className="flex items-center gap-4 py-5 group"
                   >
                     {/* Text */}

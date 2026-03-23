@@ -68,7 +68,8 @@
       "Bash(git add next.config.ts && git commit -m \"fix: exclude demo from production build\" && git push)",
       "Bash(npm i @vercel/speed-insights 2>&1 | tail -3)",
       "Bash(git add package.json package-lock.json app/layout.tsx && git commit -m \"feat: add Vercel Speed Insights\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: rename GTM attributes across all files\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: rename GTM attributes across all files\" && git push)",
+      "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nfeat: implement GTM tracking attributes\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)"
     ]
   }
 }

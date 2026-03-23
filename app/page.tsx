@@ -74,6 +74,9 @@ export default function Home() {
             </div>
             <Button
               href="/works"
+              data-gtm-click="nav_link"
+              data-gtm-location="top_works_section"
+              data-gtm-label="view_all_works"
             >View all</Button>
           </div>
 
@@ -83,6 +86,9 @@ export default function Home() {
               <Link
                 key={work.slug}
                 href={`/works/${work.slug}`}
+                data-gtm-click="works_card"
+                data-gtm-location="top_works_section"
+                data-gtm-label={work.slug}
                 className="shrink-0 w-[75vw] [scroll-snap-align:center] md:w-auto group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
               >
                 {/* Thumbnail */}
@@ -119,6 +125,9 @@ export default function Home() {
                 <Link
                   key={work.slug}
                   href={`/works/${work.slug}`}
+                  data-gtm-click="works_card"
+                  data-gtm-location="top_works_section"
+                  data-gtm-label={work.slug}
                   className={`flex items-center gap-4 py-3${i < arr.length - 1 ? " border-b border-dashed border-[#e2e2e2]" : ""}`}
                 >
                   {work.thumbnail ? (
