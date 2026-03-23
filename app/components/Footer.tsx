@@ -75,8 +75,6 @@ export function Footer() {
                 <a
                   href="tel:0345407546"
                   data-gtm-click="phone_link"
-                  data-gtm-location="footer"
-                  data-gtm-click="link"
                   data-gtm-label="phone"
                   data-gtm-location="footer"
                   className="hover:text-ink transition-colors duration-200"
@@ -96,8 +94,6 @@ export function Footer() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  data-gtm-click="internal_link"
-                  data-gtm-location="footer"
                   data-gtm-click="nav"
                   data-gtm-label={item.gtmLabel}
                   data-gtm-location="footer"
@@ -114,8 +110,6 @@ export function Footer() {
                 rel="noopener noreferrer"
                 aria-label="Note"
                 data-gtm-click="external_link"
-                data-gtm-location="footer"
-                data-gtm-click="link"
                 data-gtm-label="note"
                 data-gtm-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
@@ -128,8 +122,6 @@ export function Footer() {
                 rel="noopener noreferrer"
                 aria-label="X"
                 data-gtm-click="external_link"
-                data-gtm-location="footer"
-                data-gtm-click="link"
                 data-gtm-label="x"
                 data-gtm-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
@@ -148,8 +140,6 @@ export function Footer() {
             <Link
               href="/privacy"
               data-gtm-click="internal_link"
-              data-gtm-location="footer"
-              data-gtm-click="link"
               data-gtm-label="privacy"
               data-gtm-location="footer"
               className="text-xs text-muted hover:text-ink transition-colors duration-200"

@@ -98,9 +98,6 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   data-gtm-click={item.gtmClick}
-                  data-gtm-location="header"
-                  {...(item.gtmLabel ? { "data-gtm-label": item.gtmLabel } : {})}
-                  data-gtm-click="nav"
                   data-gtm-label={item.gtmLabel || item.label.toLowerCase()}
                   data-gtm-location="header"
                   className={`text-xs tracking-[0.15em] uppercase transition-opacity duration-200 ${
@@ -120,8 +117,6 @@ export function Header() {
               rel="noopener noreferrer"
               aria-label="Note"
               data-gtm-click="external_link"
-              data-gtm-location="header"
-              data-gtm-click="link"
               data-gtm-label="note"
               data-gtm-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
@@ -134,8 +129,6 @@ export function Header() {
               rel="noopener noreferrer"
               aria-label="X"
               data-gtm-click="external_link"
-              data-gtm-location="header"
-              data-gtm-click="link"
               data-gtm-label="x"
               data-gtm-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
@@ -184,9 +177,6 @@ export function Header() {
               key={item.href}
               href={item.href}
               data-gtm-click={item.gtmClick}
-              data-gtm-location="header"
-              {...(item.gtmLabel ? { "data-gtm-label": item.gtmLabel } : {})}
-              data-gtm-click="nav"
               data-gtm-label={item.gtmLabel || item.label.toLowerCase()}
               data-gtm-location="header"
               className={`flex justify-between items-baseline py-5 ${
@@ -206,8 +196,6 @@ export function Header() {
               rel="noopener noreferrer"
               aria-label="Note"
               data-gtm-click="external_link"
-              data-gtm-location="header"
-              data-gtm-click="link"
               data-gtm-label="note"
               data-gtm-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
@@ -220,8 +208,6 @@ export function Header() {
               rel="noopener noreferrer"
               aria-label="X"
               data-gtm-click="external_link"
-              data-gtm-location="header"
-              data-gtm-click="link"
               data-gtm-label="x"
               data-gtm-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"

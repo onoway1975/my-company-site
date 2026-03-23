@@ -81,8 +81,6 @@ export async function NoteSection() {
               href="https://note.com/ciraf_inc"
               external
               data-gtm-click="external_link"
-              data-gtm-location="note_section"
-              data-gtm-click="button"
               data-gtm-label="note_view_all"
               data-gtm-location="note_section"
             >
@@ -107,8 +105,6 @@ export async function NoteSection() {
                     target="_blank"
                     rel="noopener noreferrer"
                     data-gtm-click="external_link"
-                    data-gtm-location="note_section"
-                    data-gtm-click="link"
                     data-gtm-label="note_article"
                     data-gtm-location="note_section"
                     className="flex items-center gap-4 py-5 group"
