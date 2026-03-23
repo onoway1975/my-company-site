@@ -190,3 +190,7 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+button svg, a svg, button svg *, a svg * {
+  pointer-events: none;
+}
