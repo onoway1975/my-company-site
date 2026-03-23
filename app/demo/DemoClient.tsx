@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import type { Figure } from "@/app/data/figures";
-import { generateStyleImage, swapFaces } from "./actions";
+import { generateFaceFusion } from "./actions";
 
 type Status = "idle" | "generating" | "done" | "error";
 
@@ -49,7 +49,7 @@ export default function DemoClient({ figure }: { figure: Figure }) {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [fusionOutput, setFusionOutput] = useState<string | null>(null);
   const [fusionStatus, setFusionStatus] = useState<Status>("idle");
-  const [fusionStep, setFusionStep] = useState<1 | 2 | null>(null);
+  const [fusionStep, setFusionStep] = useState<null>(null);
   const [fusionError, setFusionError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,25 +78,15 @@ export default function DemoClient({ figure }: { figure: Figure }) {
   const handleFaceFusion = async () => {
     if (!uploadedImage) return;
     setFusionStatus("generating");
-    setFusionStep(1);
     setFusionError(null);
     setFusionOutput(null);
     try {
-      // Step 1: 偉人スタイル画像を生成
-      const { styleImageUrl } = await generateStyleImage(figure.id);
-      if (!styleImageUrl) throw new Error("スタイル画像の生成に失敗しました");
-
-      // Step 2: 顔合成
-      setFusionStep(2);
-      const { output } = await swapFaces(styleImageUrl, uploadedImage);
+      const { output } = await generateFaceFusion(figure.id, uploadedImage);
       if (!output?.[0]) throw new Error("生成結果が取得できませんでした");
-
       setFusionOutput(output[0]);
       setFusionStatus("done");
-      setFusionStep(null);
     } catch (e) {
       setFusionStatus("error");
-      setFusionStep(null);
       setFusionError(e instanceof Error ? e.message : "エラーが発生しました");
     }
   };
@@ -216,18 +206,8 @@ export default function DemoClient({ figure }: { figure: Figure }) {
               ) : fusionStatus === "generating" ? (
                 <div className="flex flex-col items-center gap-4 text-muted">
                   <LoadingDots />
-                  {fusionStep === 1 ? (
-                    <>
-                      <p className="text-xs font-mono">Step 1 / 2</p>
-                      <p className="text-xs">偉人スタイル画像を生成中…</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-xs font-mono">Step 2 / 2</p>
-                      <p className="text-xs">顔合成中…</p>
-                    </>
-                  )}
-                  <p className="text-xs text-muted/60">約 60〜120 秒かかります</p>
+                  <p className="text-xs">顔合成中…</p>
+                  <p className="text-xs text-muted/60">約 30〜60 秒かかります</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-3 text-muted">
@@ -254,7 +234,7 @@ export default function DemoClient({ figure }: { figure: Figure }) {
             {fusionStatus === "generating" ? (
               <span className="flex items-center justify-center gap-2">
                 <SpinnerIcon />
-                {fusionStep === 1 ? "Step 1/2: スタイル画像生成中…" : "Step 2/2: 顔合成中…"}
+                顔合成中…
               </span>
             ) : fusionOutput ? (
               "もう一度合成する"

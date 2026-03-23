@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import Replicate from "replicate";
 import { fal } from "@/app/lib/falClient";
 import { figures } from "@/app/data/figures";
@@ -98,6 +99,38 @@ export async function testFalConnection(): Promise<{ ok: boolean; url?: string; 
     console.error(`[fal-test] ERROR: ${msg}`);
     return { ok: false, error: msg };
   }
+}
+
+// 事前生成方式: portraitUrl を直接 face-swap の base_image_url に使用（Step1スキップ）
+export async function generateFaceFusion(
+  figureId: string,
+  userImageDataUrl: string
+): Promise<{ output: string[] }> {
+  const figure = figures.find((f) => f.id === figureId);
+  if (!figure) throw new Error("偉人データが見つかりません");
+  if (!figure.portraitUrl) throw new Error("この偉人の肖像画が設定されていません");
+
+  // FAL.ai は絶対URLが必要なためホストから構築
+  const headersList = await headers();
+  const host = headersList.get("host") ?? "localhost:3000";
+  const protocol = host.includes("localhost") ? "http" : "https";
+  const baseImageUrl = `${protocol}://${host}${figure.portraitUrl}`;
+
+  const t0 = Date.now();
+  console.log(`[face-fusion] START fal-ai/face-swap | figure=${figureId} | ${new Date().toISOString()}`);
+  console.log(`[face-fusion] base_image_url=${baseImageUrl}`);
+
+  const result = await fal.subscribe("fal-ai/face-swap", {
+    input: {
+      base_image_url: baseImageUrl,
+      swap_image_url: userImageDataUrl,
+    },
+  });
+
+  const fusedImageUrl = (result.data as { image: { url: string } }).image.url;
+  console.log(`[face-fusion] DONE | ${Date.now() - t0}ms | url=${fusedImageUrl}`);
+
+  return { output: [fusedImageUrl] };
 }
 
 // Step 2: ユーザー顔を偉人スタイル画像に合成 (FAL.ai face-swap)

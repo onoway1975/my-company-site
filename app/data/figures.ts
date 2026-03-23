@@ -10,6 +10,7 @@ export type Figure = {
   tagline: string;
   description: string;
   image_url?: string;
+  portraitUrl?: string; // ローカル保存済み肖像画（face-swap の base_image_url に使用）
 };
 
 export const figures: Figure[] = [
@@ -66,6 +67,7 @@ export const figures: Figure[] = [
       "第一国立銀行をはじめ500以上の企業を設立した、近代日本資本主義の礎を築いた実業家。新一万円札の肖像にも選ばれた。",
     image_url:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Shibusawa_Eiichi_1916.jpg/440px-Shibusawa_Eiichi_1916.jpg",
+    portraitUrl: "/figures/shibusawa-eiichi.jpg",
   },
   {
     id: "uemura-shoen",
