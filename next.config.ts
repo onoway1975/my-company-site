@@ -31,6 +31,22 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
+  // 本番環境では /demo を非公開にする
+  async redirects() {
+    if (process.env.NODE_ENV !== "production") return [];
+    return [
+      {
+        source: "/demo",
+        destination: "/",
+        permanent: false,
+      },
+      {
+        source: "/demo/:path*",
+        destination: "/",
+        permanent: false,
+      },
+    ];
+  },
   // HTTPヘッダー（キャッシュ設定）
   async headers() {
     return [
