@@ -149,9 +149,6 @@ export function HeroChat() {
               key={s}
               onClick={() => send(s)}
               disabled={loading}
-              data-gtm-click="cta_ai_suggest"
-              data-gtm-label={s}
-              data-gtm-location="hero"
               className="text-xs text-white bg-ink rounded-full px-4 py-2 hover:opacity-70 transition-opacity duration-200 disabled:opacity-40 tracking-wide"
             >
               {s}
@@ -179,9 +176,6 @@ export function HeroChat() {
           <button
             onClick={() => send(input)}
             disabled={!input.trim() || loading}
-            data-gtm-click="cta_ai_chat"
-            data-gtm-label="chat_send"
-            data-gtm-location="hero"
             className="shrink-0 text-xs font-bold text-white bg-ink rounded-full px-4 py-1.5 disabled:opacity-30 hover:opacity-70 transition-opacity duration-200"
           >
             {loading ? "…" : "送信"}

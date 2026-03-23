@@ -53,9 +53,6 @@ export function Footer() {
           <div>
             <Link
               href="/"
-              data-gtm-click="link"
-              data-gtm-label="logo"
-              data-gtm-location="footer"
               className="text-ink hover:opacity-70 transition-opacity duration-200 inline-block mb-6"
             >
               <Logo className="h-[20px] w-auto" />
@@ -74,9 +71,6 @@ export function Footer() {
                 TEL&ensp;
                 <a
                   href="tel:0345407546"
-                  data-gtm-click="phone_link"
-                  data-gtm-label="phone"
-                  data-gtm-location="footer"
                   className="hover:text-ink transition-colors duration-200"
                 >
                   03-4540-7546
@@ -94,9 +88,6 @@ export function Footer() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  data-gtm-click="nav"
-                  data-gtm-label={item.gtmLabel}
-                  data-gtm-location="footer"
                   className="text-xs tracking-[0.15em] text-ink uppercase hover:opacity-60 transition-opacity duration-200"
                 >
                   {item.label}
@@ -109,9 +100,6 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Note"
-                data-gtm-click="external_link"
-                data-gtm-label="note"
-                data-gtm-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
                 <NoteIcon />
@@ -121,9 +109,6 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X"
-                data-gtm-click="external_link"
-                data-gtm-label="x"
-                data-gtm-location="footer"
                 className="text-ink hover:opacity-60 transition-opacity duration-200"
               >
                 <XIcon />
@@ -139,9 +124,6 @@ export function Footer() {
           <div className="flex items-center gap-6">
             <Link
               href="/privacy"
-              data-gtm-click="internal_link"
-              data-gtm-label="privacy"
-              data-gtm-location="footer"
               className="text-xs text-muted hover:text-ink transition-colors duration-200"
             >
               プライバシーポリシー

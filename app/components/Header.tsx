@@ -78,9 +78,6 @@ export function Header() {
         {/* Logo */}
         <Link
           href="/"
-          data-gtm-click="link"
-          data-gtm-label="logo"
-          data-gtm-location="header"
           className="text-ink hover:opacity-70 transition-opacity duration-200"
         >
           <Logo className="h-[18px] w-auto" />
@@ -97,9 +94,6 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  data-gtm-click={item.gtmClick}
-                  data-gtm-label={item.gtmLabel || item.label.toLowerCase()}
-                  data-gtm-location="header"
                   className={`text-xs tracking-[0.15em] uppercase transition-opacity duration-200 ${
                     isActive ? "text-ink font-bold" : "text-ink hover:opacity-60"
                   }`}
@@ -116,9 +110,6 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Note"
-              data-gtm-click="external_link"
-              data-gtm-label="note"
-              data-gtm-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
               <NoteIcon />
@@ -128,9 +119,6 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X"
-              data-gtm-click="external_link"
-              data-gtm-label="x"
-              data-gtm-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
               <XIcon />
@@ -143,9 +131,6 @@ export function Header() {
           className="md:hidden flex flex-col justify-center gap-[5px] w-10 h-10 -mr-2"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
-          data-gtm-click="button"
-          data-gtm-label="mobile_menu"
-          data-gtm-location="header"
         >
           <span
             className={`block w-5 h-px bg-ink origin-center transition-transform duration-200 ${
@@ -176,9 +161,6 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              data-gtm-click={item.gtmClick}
-              data-gtm-label={item.gtmLabel || item.label.toLowerCase()}
-              data-gtm-location="header"
               className={`flex justify-between items-baseline py-5 ${
                 i < navItems.length - 1 ? "" : ""
               }`}
@@ -195,9 +177,6 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Note"
-              data-gtm-click="external_link"
-              data-gtm-label="note"
-              data-gtm-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
               <NoteIcon />
@@ -207,9 +186,6 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X"
-              data-gtm-click="external_link"
-              data-gtm-label="x"
-              data-gtm-location="header"
               className="text-ink hover:opacity-60 transition-opacity duration-200"
             >
               <XIcon />

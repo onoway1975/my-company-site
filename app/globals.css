@@ -191,10 +191,3 @@ body {
   display: none;
 }
 
-button svg, a svg, button svg *, a svg * {
-  pointer-events: none;
-}
-
-img {
-  pointer-events: none;
-}
