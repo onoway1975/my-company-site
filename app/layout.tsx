@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { ChatWidget } from "./components/ChatWidget";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ciraf.jp"),
@@ -68,6 +69,7 @@ export default function RootLayout({
         <main className="pt-16">{children}</main>
         <Footer />
         <ChatWidget />
+        <SpeedInsights />
       </body>
     </html>
   );
