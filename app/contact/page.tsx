@@ -6,6 +6,12 @@ export const metadata: Metadata = {
   title: "お問い合わせ",
   description:
     "シラフ株式会社へのお問い合わせ。サービスに関するご質問・ご相談はこちらからお気軽にどうぞ。",
+  alternates: {
+    canonical: "https://ciraf.jp/contact/",
+  },
+  openGraph: {
+    url: "https://ciraf.jp/contact/",
+  },
 };
 
 const faqs = [

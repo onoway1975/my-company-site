@@ -4,6 +4,12 @@ import { BodyPageType } from "../components/BodyPageType";
 export const metadata: Metadata = {
   title: "プライバシーポリシー",
   description: "シラフ株式会社のプライバシーポリシーページです。",
+  alternates: {
+    canonical: "https://ciraf.jp/privacy/",
+  },
+  openGraph: {
+    url: "https://ciraf.jp/privacy/",
+  },
 };
 
 const sections = [

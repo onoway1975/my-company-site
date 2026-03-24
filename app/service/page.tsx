@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: "サービス",
   description:
     "シラフ株式会社のサービス。企画・設計・制作・運用の4フェーズで、つくりたい人のビジョンを形にします。",
+  alternates: {
+    canonical: "https://ciraf.jp/service/",
+  },
+  openGraph: {
+    url: "https://ciraf.jp/service/",
+  },
 };
 
 const services = [

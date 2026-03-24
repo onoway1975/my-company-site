@@ -9,14 +9,14 @@ export const metadata: Metadata = {
   description:
     "シラフ株式会社の制作実績一覧。ウェブ制作、ブランディング、クリエイティブディレクション、受賞歴など。",
   alternates: {
-    canonical: "https://ciraf.jp/works",
+    canonical: "https://ciraf.jp/works/",
   },
   openGraph: {
     type: "website",
     title: "実績 | ciraf inc.",
     description:
       "シラフ株式会社の制作実績一覧。ウェブ制作、ブランディング、クリエイティブディレクション、受賞歴など。",
-    url: "https://ciraf.jp/works",
+    url: "https://ciraf.jp/works/",
   },
   twitter: {
     card: "summary_large_image",

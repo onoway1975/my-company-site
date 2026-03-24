@@ -6,6 +6,12 @@ export const metadata: Metadata = {
   title: "シラフについて",
   description:
     "シラフ株式会社について。私たちは、誰よりも、つくりたい人の味方です。",
+  alternates: {
+    canonical: "https://ciraf.jp/about/",
+  },
+  openGraph: {
+    url: "https://ciraf.jp/about/",
+  },
 };
 
 const values = [

@@ -32,19 +32,38 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
-  // 本番環境では /demo を非公開にする
   async redirects() {
-    if (process.env.NODE_ENV !== "production") return [];
+    const productionOnly =
+      process.env.NODE_ENV === "production"
+        ? [
+            // 本番環境では /demo を非公開にする
+            { source: "/demo", destination: "/", permanent: false },
+            { source: "/demo/:path*", destination: "/", permanent: false },
+          ]
+        : [];
+
     return [
+      ...productionOnly,
+      // 旧URLの404対策
       {
-        source: "/demo",
-        destination: "/",
-        permanent: false,
+        source: "/works/good-design-award-2024",
+        destination: "/works/",
+        permanent: true,
       },
       {
-        source: "/demo/:path*",
-        destination: "/",
-        permanent: false,
+        source: "/works/good-design-award-2024/",
+        destination: "/works/",
+        permanent: true,
+      },
+      {
+        source: "/works/studio-brand-identity",
+        destination: "/works/",
+        permanent: true,
+      },
+      {
+        source: "/works/studio-brand-identity/",
+        destination: "/works/",
+        permanent: true,
       },
     ];
   },
