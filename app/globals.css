@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "./demo";
 
 /* ─── LINE Seed Sans EN (Latin) ─── */
 @font-face {
