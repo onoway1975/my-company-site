@@ -33,17 +33,7 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === "production",
   },
   async redirects() {
-    const productionOnly =
-      process.env.NODE_ENV === "production"
-        ? [
-            // 本番環境では /demo を非公開にする
-            { source: "/demo", destination: "/", permanent: false },
-            { source: "/demo/:path*", destination: "/", permanent: false },
-          ]
-        : [];
-
     return [
-      ...productionOnly,
       // 旧URLの404対策
       {
         source: "/works/good-design-award-2024",
