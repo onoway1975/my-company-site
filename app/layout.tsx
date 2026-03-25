@@ -9,8 +9,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 export const metadata: Metadata = {
   metadataBase: new URL("https://ciraf.jp"),
   title: {
-    default: "シラフ株式会社 | ciraf inc.",
-    template: "%s | ciraf inc.",
+    default: "シラフ株式会社 | Webデザイン・映像・デジタルクリエイティブ 東京",
+    template: "%s | シラフ株式会社",
   },
   description:
     "シラフ株式会社（ciraf inc.）は、東京のWeb制作・ブランディング・映像制作会社です。クライアントのビジネス成長を実行力とホスピタリティで支えます。",
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: "ciraf inc.",
+    siteName: "シラフ株式会社",
     locale: "ja_JP",
-    title: "シラフ株式会社 | ciraf inc.",
+    title: "シラフ株式会社 | Webデザイン・映像・デジタルクリエイティブ 東京",
     description:
       "シラフ株式会社（ciraf inc.）は、東京のWeb制作・ブランディング・映像制作会社です。クライアントのビジネス成長を実行力とホスピタリティで支えます。",
     url: "https://ciraf.jp",

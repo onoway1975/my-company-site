@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./components/Button";
@@ -6,6 +7,12 @@ import { NoteSection } from "./components/NoteSection";
 import { works } from "./data/works";
 import { HeroChat } from "./components/HeroChat";
 import { BodyPageType } from "./components/BodyPageType";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "シラフ株式会社 | Webデザイン・映像・デジタルクリエイティブ 東京",
+  },
+};
 
 const services = [
   {

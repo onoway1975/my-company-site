@@ -86,7 +86,7 @@ export async function generateMetadata({
   const work = works.find((w) => w.slug === slug);
   if (!work) return {};
   return {
-    title: `${work.title} | ciraf inc.`,
+    title: work.title,
     alternates: { canonical: `https://ciraf.jp/works/${slug}/` },
     openGraph: { url: `https://ciraf.jp/works/${slug}/` },
   };

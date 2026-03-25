@@ -3,7 +3,7 @@ import { ContactSection } from "../components/ContactSection";
 import { BodyPageType } from "../components/BodyPageType";
 
 export const metadata: Metadata = {
-  title: "シラフについて",
+  title: "シラフ株式会社について",
   description:
     "シラフ株式会社について。私たちは、誰よりも、つくりたい人の味方です。",
   alternates: {

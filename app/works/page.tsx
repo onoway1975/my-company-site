@@ -5,7 +5,7 @@ import { works } from "../data/works";
 import { BodyPageType } from "../components/BodyPageType";
 
 export const metadata: Metadata = {
-  title: "実績",
+  title: "制作実績",
   description:
     "シラフ株式会社の制作実績一覧。ウェブ制作、ブランディング、クリエイティブディレクション、受賞歴など。",
   alternates: {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "実績 | ciraf inc.",
+    title: "制作実績",
     description:
       "シラフ株式会社の制作実績一覧。ウェブ制作、ブランディング、クリエイティブディレクション、受賞歴など。",
     url: "https://ciraf.jp/works/",
