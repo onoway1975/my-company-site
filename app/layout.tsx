@@ -25,9 +25,18 @@ export const metadata: Metadata = {
     description:
       "シラフ株式会社（ciraf inc.）は、東京のWeb制作・ブランディング・映像制作会社です。クライアントのビジネス成長を実行力とホスピタリティで支えます。",
     url: "https://ciraf.jp",
+    images: [
+      {
+        url: "https://ciraf.jp/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "シラフ株式会社 | ciraf inc.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
+    images: ["https://ciraf.jp/og-image.jpg"],
   },
   robots: {
     index: true,
@@ -39,6 +48,45 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://ciraf.jp/#website",
+      url: "https://ciraf.jp/",
+      name: "シラフ株式会社",
+      alternateName: "ciraf inc.",
+      description:
+        "シラフ株式会社（ciraf inc.）は、東京のWeb制作・ブランディング・映像制作会社です。クライアントのビジネス成長を実行力とホスピタリティで支えます。",
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://ciraf.jp/#organization",
+      name: "シラフ株式会社",
+      alternateName: "ciraf inc.",
+      url: "https://ciraf.jp/",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://ciraf.jp/icon.png",
+        width: 512,
+        height: 512,
+      },
+      image: "https://ciraf.jp/og-image.jpg",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "神宮前3-25-18 205 THE SHARE",
+        addressLocality: "渋谷区",
+        addressRegion: "東京都",
+        postalCode: "150-0001",
+        addressCountry: "JP",
+      },
+      telephone: "03-4540-7546",
+      sameAs: ["https://note.com/ciraf"],
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -47,6 +95,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className="font-sans">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {/* Google Tag Manager */}
         <Script
           id="gtm"
