@@ -5,7 +5,7 @@ import { BodyPageType } from "../components/BodyPageType";
 export const metadata: Metadata = {
   title: "お問い合わせ",
   description:
-    "シラフ株式会社へのお問い合わせ。サービスに関するご質問・ご相談はこちらからお気軽にどうぞ。",
+    "Web制作・ブランディング・映像制作のご相談は、シラフ株式会社へ。企画から運用まで一気通貫でサポートします。ご質問・お見積りのご依頼はお気軽にどうぞ。通常5営業日以内にご返信します。",
   alternates: {
     canonical: "https://ciraf.jp/contact/",
   },

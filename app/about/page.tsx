@@ -5,7 +5,7 @@ import { BodyPageType } from "../components/BodyPageType";
 export const metadata: Metadata = {
   title: "シラフ株式会社について",
   description:
-    "シラフ株式会社について。私たちは、誰よりも、つくりたい人の味方です。",
+    "シラフ株式会社（ciraf inc.）は、東京・渋谷を拠点にWeb制作・ブランディング・映像制作を手がけるクリエイティブ会社です。デジタルを軸としたプロデュースとディレクションで、未知なるプロジェクトを形にします。",
   alternates: {
     canonical: "https://ciraf.jp/about/",
   },
