@@ -98,7 +98,7 @@ export default function AboutPage() {
             About
           </p>
           <h1 className="text-3xl md:text-5xl font-bold text-ink mb-6">
-            シラフについて
+            シラフ株式会社について
           </h1>
           <p className="text-base text-[#333333] leading-[1.9] max-w-lg">
             私たちは、誰よりも、つくりたい人の味方。
