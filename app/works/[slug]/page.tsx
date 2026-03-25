@@ -77,6 +77,9 @@ export async function generateStaticParams() {
   return works.map((w) => ({ slug: w.slug }));
 }
 
+const DEFAULT_DESCRIPTION =
+  "シラフ株式会社（ciraf inc.）は、東京のWeb制作・ブランディング・映像制作会社です。クライアントのビジネス成長を実行力とホスピタリティで支えます。";
+
 export async function generateMetadata({
   params,
 }: {
@@ -85,10 +88,18 @@ export async function generateMetadata({
   const { slug } = await params;
   const work = works.find((w) => w.slug === slug);
   if (!work) return {};
+  const description = work.description
+    ? work.description.substring(0, 200)
+    : DEFAULT_DESCRIPTION;
   return {
     title: work.title,
+    description,
     alternates: { canonical: `https://ciraf.jp/works/${slug}/` },
-    openGraph: { url: `https://ciraf.jp/works/${slug}/` },
+    openGraph: {
+      title: `${work.title} | シラフ株式会社`,
+      description,
+      url: `https://ciraf.jp/works/${slug}/`,
+    },
   };
 }
 
