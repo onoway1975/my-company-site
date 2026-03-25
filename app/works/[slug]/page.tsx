@@ -99,6 +99,18 @@ export async function generateMetadata({
       title: `${work.title} | シラフ株式会社`,
       description,
       url: `https://ciraf.jp/works/${slug}/`,
+      images: [
+        {
+          url: "https://ciraf.jp/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: "シラフ株式会社 | ciraf inc.",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: ["https://ciraf.jp/og-image.jpg"],
     },
   };
 }
