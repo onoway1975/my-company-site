@@ -408,11 +408,46 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
   const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
 
   const handleDownload = async () => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || !fusedImageUrl) return;
     setDownloading(true);
     try {
+      // 1. 外部画像をfetchしてbase64に変換（CORSエラー回避）
+      const response = await fetch(fusedImageUrl);
+      const blob = await response.blob();
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+
+      // 2. imgタグのsrcを一時的にbase64に差し替え
+      const imgEl = cardRef.current.querySelector("img");
+      const originalSrc = imgEl?.src;
+      if (imgEl) imgEl.src = base64;
+
+      // 3. 画像反映を待ってからキャプチャ
+      await new Promise((r) => setTimeout(r, 500));
+
       const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, cacheBust: true });
+
+      // 4. srcを元に戻す
+      if (imgEl && originalSrc) imgEl.src = originalSrc;
+
+      // 5. スマホ：Web Share API、PC：直接ダウンロード
+      if (navigator.canShare) {
+        const res = await fetch(dataUrl);
+        const blobData = await res.blob();
+        const file = new File([blobData], "tenshoku_result.png", { type: "image/png" });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "これがホントの天職占い",
+            text: `私の天職は${vocation.name}でした！`,
+          });
+          return;
+        }
+      }
       const link = document.createElement("a");
       link.download = "tenshoku_result.png";
       link.href = dataUrl;
