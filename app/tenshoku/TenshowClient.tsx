@@ -85,116 +85,6 @@ function resizeToDataUrl(file: File, maxPx = 768): Promise<string> {
   });
 }
 
-// ── Collage slot (hero / loading background) ─────────────────────────────────────
-
-type SlotStyle = {
-  top?: string; bottom?: string; left?: string; right?: string;
-  width: string; height: string;
-  transform?: string;
-};
-
-function CollageSlot({
-  images, startIdx, grayscale, style, intervalMs = 3000,
-}: {
-  images: string[];
-  startIdx: number;
-  grayscale?: boolean;
-  style: SlotStyle;
-  intervalMs?: number;
-}) {
-  const safeStart = images.length > 0 ? startIdx % images.length : 0;
-  const [idx, setIdx] = useState(safeStart);
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    if (images.length === 0) return;
-    const t = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setIdx((i) => (i + 7) % images.length);
-        setVisible(true);
-      }, 600);
-    }, intervalMs);
-    return () => clearInterval(t);
-  }, [images, intervalMs]);
-
-  if (images.length === 0) return null;
-
-  return (
-    <div style={{ position: "absolute", overflow: "hidden", ...style }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={images[idx]}
-        alt=""
-        style={{
-          width: "100%", height: "100%", objectFit: "cover",
-          filter: grayscale ? "grayscale(100%)" : "none",
-          opacity: visible ? 1 : 0,
-          transition: "opacity 0.7s ease",
-        }}
-      />
-    </div>
-  );
-}
-
-// ── Loading background slideshow ─────────────────────────────────────────────────
-
-function LoadingSlideshow({ images }: { images: string[] }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [nextIndex, setNextIndex] = useState(1 % Math.max(images.length, 1));
-  const [isFading, setIsFading] = useState(false);
-
-  useEffect(() => {
-    if (images.length === 0) return;
-    const t = setInterval(() => {
-      setIsFading(true);
-      setTimeout(() => {
-        setCurrentIndex(nextIndex);
-        setNextIndex(Math.floor(Math.random() * images.length));
-        setIsFading(false);
-      }, 1000);
-    }, 3000);
-    return () => clearInterval(t);
-  }, [nextIndex, images.length]);
-
-  if (images.length === 0) return null;
-
-  return (
-    <>
-      <div style={{ position: "absolute", inset: 0 }}>
-        {/* 次の画像（下に待機） */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={images[nextIndex]}
-          alt=""
-          style={{
-            position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover",
-            opacity: isFading ? 1 : 0,
-            transition: "opacity 1s ease-in-out",
-            zIndex: 0,
-          }}
-        />
-        {/* 現在の画像（上に表示） */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={images[currentIndex]}
-          alt=""
-          style={{
-            position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover",
-            opacity: isFading ? 0 : 1,
-            transition: "opacity 1s ease-in-out",
-            zIndex: 1,
-          }}
-        />
-      </div>
-      {/* Dark overlay */}
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.82)", zIndex: 2 }} />
-    </>
-  );
-}
-
 // ── Fake progress bar ────────────────────────────────────────────────────────────
 
 function FakeProgressBar() {
@@ -224,7 +114,7 @@ function FakeProgressBar() {
 
 // ── Main component ───────────────────────────────────────────────────────────────
 
-export default function TenshowClient({ images }: { images: string[] }) {
+export default function TenshowClient() {
   const [step, setStep] = useState<Step>("form");
   const [nickname, setNickname] = useState("");
   const [birthYear, setBirthYear] = useState("");
@@ -285,9 +175,8 @@ export default function TenshowClient({ images }: { images: string[] }) {
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (step === "loading") {
     return (
-      <div style={{ position: "relative", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-        <LoadingSlideshow images={images} />
-        <div style={{ position: "relative", zIndex: 10, textAlign: "center", padding: "0 24px" }}>
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)" }}>
+        <div style={{ textAlign: "center", padding: "0 24px" }}>
           <div style={{ fontSize: "48px", marginBottom: "24px" }}>✨</div>
           <p style={{ color: "white", fontSize: "22px", fontWeight: 700, marginBottom: "8px" }}>
             あなたの天職を分析中...
@@ -312,7 +201,6 @@ export default function TenshowClient({ images }: { images: string[] }) {
         fusedImageUrl={fusedImageUrl}
         description={description}
         onReset={handleReset}
-        images={images}
       />
     );
   }
@@ -338,16 +226,9 @@ export default function TenshowClient({ images }: { images: string[] }) {
       </div>
 
       {/* Hero */}
-      <div style={{ position: "relative", minHeight: "60vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0a" }}>
-        {/* Collage slots — 4 corners */}
-        <CollageSlot images={images} startIdx={0}  grayscale={false} style={{ top: "-10%", left: "-5%",  width: "44%", height: "62%" }} intervalMs={3200} />
-        <CollageSlot images={images} startIdx={5}  grayscale={true}  style={{ top: "-10%", right: "-5%", width: "36%", height: "52%" }} intervalMs={3700} />
-        <CollageSlot images={images} startIdx={10} grayscale={true}  style={{ bottom: "-10%", left: "-5%",  width: "34%", height: "50%" }} intervalMs={4100} />
-        <CollageSlot images={images} startIdx={15} grayscale={false} style={{ bottom: "-10%", right: "-5%", width: "42%", height: "58%" }} intervalMs={3500} />
-        {/* Dark overlay */}
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.80)", zIndex: 2 }} />
+      <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)" }}>
         {/* Text */}
-        <div style={{ position: "relative", zIndex: 10, textAlign: "center", padding: "80px 24px 80px" }}>
+        <div style={{ textAlign: "center", padding: "80px 24px 80px" }}>
           <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.5em", color: "#d4af37", marginBottom: "16px" }}>
             TENSHOKU
           </p>
@@ -515,10 +396,9 @@ type ResultProps = {
   fusedImageUrl: string | null;
   description: string;
   onReset: () => void;
-  images: string[];
 };
 
-function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset, images }: ResultProps) {
+function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }: ResultProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [sharing, setSharing] = useState(false);
 
@@ -552,13 +432,8 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset, i
 
   return (
     <div>
-      <div style={{ position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "64px 24px" }}>
-        <CollageSlot images={images} startIdx={2}  grayscale style={{ top: "-10%", left: "-5%",  width: "44%", height: "62%" }} />
-        <CollageSlot images={images} startIdx={9}  grayscale={false} style={{ top: "-10%", right: "-5%", width: "36%", height: "52%" }} />
-        <CollageSlot images={images} startIdx={16} grayscale style={{ bottom: "-10%", left: "-5%",  width: "34%", height: "50%" }} />
-        <CollageSlot images={images} startIdx={21} grayscale={false} style={{ bottom: "-10%", right: "-5%", width: "42%", height: "58%" }} />
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.80)", zIndex: 2 }} />
-        <div style={{ position: "relative", zIndex: 10 }}>
+      <div style={{ background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "64px 24px" }}>
+        <div>
           <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.5em", color: "#d4af37", marginBottom: "12px" }}>RESULT</p>
           <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px", marginBottom: "4px" }}>{nickname}さんの天職は…</p>
           <h2 style={{ color: "white", fontSize: "2.5rem", fontWeight: 700 }}>{vocation.name}</h2>
