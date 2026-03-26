@@ -50,5 +50,4 @@ app/data/figures.ts
 # large binary assets (local only)
 public/tenshoku/male/
 public/tenshoku/female/
-public/videos/
 
