@@ -3,7 +3,8 @@
 import fs from "fs";
 import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
-import { fal } from "@/app/lib/falClient";
+import { fal } from "@fal-ai/client";
+fal.config({ credentials: process.env.FAL_KEY });
 import { VOCATIONS, getImagePath, type Vocation, type Gender } from "./data";
 
 export async function generateTenshowResult(
