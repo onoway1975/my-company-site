@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @source "./demo";
+@source "./tenshoku";
 
 /* ─── LINE Seed Sans EN (Latin) ─── */
 @font-face {
@@ -120,6 +121,46 @@
 @media (prefers-reduced-motion: reduce) {
   .chara-yellow,
   .chara-green {
+    animation: none;
+  }
+}
+
+/* ── Tenshow hero animations ── */
+@keyframes tenshoku-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.8); }
+  50%       { opacity: 1;    transform: scale(1.4); }
+}
+
+@keyframes tenshoku-scroll-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(10px); }
+}
+
+@keyframes tenshoku-glow-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.tenshoku-star {
+  animation: tenshoku-twinkle var(--twinkle-dur, 2.5s) ease-in-out infinite;
+  animation-delay: var(--twinkle-delay, 0s);
+}
+
+.tenshoku-scroll-arrow {
+  animation: tenshoku-scroll-bounce 1.6s ease-in-out infinite;
+}
+
+.tenshoku-hero-bg {
+  background: linear-gradient(135deg, #0a0814 0%, #1a0a2e 40%, #0d1a2e 70%, #0a0814 100%);
+  background-size: 300% 300%;
+  animation: tenshoku-glow-shift 12s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tenshoku-star,
+  .tenshoku-scroll-arrow,
+  .tenshoku-hero-bg {
     animation: none;
   }
 }

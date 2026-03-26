@@ -47,6 +47,6 @@ app/demo/
 app/lib/falClient.ts
 app/data/figures.ts
 
-# tenshow (local only)
-app/tenshow/
-public/tenshow/
+# tenshoku (local only)
+app/tenshoku/
+public/tenshoku/
