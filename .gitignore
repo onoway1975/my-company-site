@@ -47,6 +47,3 @@ app/demo/
 app/lib/falClient.ts
 app/data/figures.ts
 
-# tenshoku (local only)
-app/tenshoku/
-public/tenshoku/
