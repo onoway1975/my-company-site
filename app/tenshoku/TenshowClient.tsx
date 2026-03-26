@@ -401,10 +401,28 @@ type ResultProps = {
 function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }: ResultProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [sharing, setSharing] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const shareText = `${nickname}さんの天職は「${vocation.name}」でした！\nこれがホントの天職占い`;
   const shareUrl = "https://ciraf.jp/tenshoku/";
   const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+
+  const handleDownload = async () => {
+    if (!cardRef.current) return;
+    setDownloading(true);
+    try {
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
+      const link = document.createElement("a");
+      link.download = "tenshoku_result.png";
+      link.href = dataUrl;
+      link.click();
+    } catch {
+      // silent fail
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const handleShare = async () => {
     if (!cardRef.current || !fusedImageUrl) { window.open(tweetIntentUrl, "_blank"); return; }
@@ -472,6 +490,11 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
           <button onClick={handleShare} disabled={sharing}
             className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-black text-white text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-60 cursor-pointer">
             {sharing ? <><SpinnerIcon />画像を生成中…</> : <><XIcon />Xに投稿する</>}
+          </button>
+
+          <button onClick={handleDownload} disabled={downloading}
+            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl border-2 border-border text-sm font-bold text-ink hover:border-[#1a0a2e] transition-colors bg-white shadow-sm disabled:opacity-60 cursor-pointer">
+            {downloading ? <><SpinnerIcon />画像を生成中…</> : <>⬇ 画像をダウンロード</>}
           </button>
 
           <button onClick={onReset}
