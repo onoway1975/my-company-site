@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
 import { fal } from "@fal-ai/client";
-fal.config({ credentials: process.env.FAL_KEY });
 import { VOCATIONS, getImagePath, type Vocation, type Gender } from "./data";
 
 export async function generateTenshowResult(
@@ -30,6 +29,8 @@ async function runFaceSwap(
   gender: Gender,
   userImageDataUrl: string
 ): Promise<string> {
+  fal.config({ credentials: process.env.FAL_KEY });
+
   const isFemale = gender === "female";
 
   const GENDER_PREFIX = isFemale
