@@ -451,45 +451,24 @@ type ResultProps = {
 };
 
 function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }: ResultProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
-    if (!cardRef.current || !fusedImageUrl) return;
+    if (!fusedImageUrl) return;
     setDownloading(true);
     try {
-      // 外部画像をbase64に変換（CORSエラー回避）
       const response = await fetch(fusedImageUrl);
       const blob = await response.blob();
-      const base64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
+      const blobUrl = URL.createObjectURL(blob);
 
-      // imgタグのsrcを一時的にbase64に差し替え
-      const imgEl = cardRef.current.querySelector("img");
-      const originalSrc = imgEl?.src;
-      if (imgEl) imgEl.src = base64;
-      await new Promise((r) => setTimeout(r, 500));
-
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, {
-        pixelRatio: 2,
-        cacheBust: true,
-      });
-
-      // srcを元に戻す
-      if (imgEl && originalSrc) imgEl.src = originalSrc;
-
-      // 全デバイス共通：aタグでダウンロード
       const link = document.createElement("a");
-      link.href = dataUrl;
+      link.href = blobUrl;
       link.download = "tenshoku_result.png";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     } catch (e) {
       console.error("Download error:", e);
     } finally {
@@ -509,7 +488,7 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
 
       <div className="bg-[#f7f7f7] pb-24">
         <div className="max-w-lg mx-auto px-5 pt-8 space-y-4">
-          <div ref={cardRef} style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: "16px", overflow: "hidden", background: "white" }}>
+          <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: "16px", overflow: "hidden", background: "white" }}>
             {fusedImageUrl ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
