@@ -455,24 +455,93 @@ type ResultProps = {
 };
 
 function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }: ResultProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
-    if (!fusedImageUrl) return;
+    if (!cardRef.current || !fusedImageUrl) return;
     setDownloading(true);
     try {
+      // 外部画像をbase64に変換（CORS回避）
       const response = await fetch(fusedImageUrl);
       const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
 
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = "tenshoku_result.png";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // imgタグのsrcを一時的にbase64に差し替え
+      const imgEl = cardRef.current.querySelector("img");
+      const originalSrc = imgEl?.src;
+      if (imgEl) imgEl.src = base64;
+      await new Promise((r) => setTimeout(r, 500));
 
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+      });
+
+      // srcを元に戻す
+      if (imgEl && originalSrc) imgEl.src = originalSrc;
+
+      // デバイス判定（タッチデバイス = スマホ・タブレット）
+      const isTouchDevice = navigator.maxTouchPoints > 0;
+
+      if (isTouchDevice) {
+        // スマホ：別ウィンドウで開いて長押し保存を案内
+        const newWindow = window.open("", "_blank");
+        if (newWindow) {
+          newWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>天職占い結果</title>
+                <style>
+                  * { margin: 0; padding: 0; box-sizing: border-box; }
+                  body {
+                    background: #111;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    padding: 24px;
+                    gap: 16px;
+                  }
+                  img {
+                    max-width: 100%;
+                    border-radius: 16px;
+                    display: block;
+                  }
+                  p {
+                    color: rgba(255,255,255,0.6);
+                    font-size: 14px;
+                    text-align: center;
+                    font-family: sans-serif;
+                    line-height: 1.8;
+                  }
+                </style>
+              </head>
+              <body>
+                <img src="${dataUrl}" alt="天職占い結果" />
+                <p>画像を長押しして<br>「写真に追加」で保存できます 📱</p>
+              </body>
+            </html>
+          `);
+          newWindow.document.close();
+        }
+      } else {
+        // PC：自動ダウンロード
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = "tenshoku_result.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } catch (e) {
       console.error("Download error:", e);
     } finally {
@@ -492,7 +561,7 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
 
       <div className="bg-[#f7f7f7] pb-24">
         <div className="max-w-lg mx-auto px-5 pt-8 space-y-4">
-          <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: "16px", overflow: "hidden", background: "white" }}>
+          <div ref={cardRef} style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: "16px", overflow: "hidden", background: "white" }}>
             {fusedImageUrl ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -521,7 +590,7 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
 
           <button onClick={handleDownload} disabled={downloading}
             className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl border-2 border-border text-sm font-bold text-ink hover:border-[#1a0a2e] transition-colors bg-white shadow-sm disabled:opacity-60 cursor-pointer">
-            {downloading ? <><SpinnerIcon />画像を生成中…</> : <>⬇ 画像をダウンロード</>}
+            {downloading ? <><SpinnerIcon />画像を生成中…</> : <>⬇ 画像を保存する</>}
           </button>
 
           <button onClick={onReset}
