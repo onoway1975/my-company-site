@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
 import { fal } from "@fal-ai/client";
-import { kv } from "@vercel/kv";
 import { VOCATIONS, getImagePath, type Vocation, type Gender } from "./data";
 
 const DAILY_LIMIT = 50;
@@ -20,6 +19,7 @@ function getJSTDateKey(): string {
 }
 
 async function checkAndIncrementDailyLimit(): Promise<{ ok: boolean; remaining: number }> {
+  const { kv } = await import("@vercel/kv");
   const key = getJSTDateKey();
   const current = (await kv.get<number>(key)) ?? 0;
   if (current >= DAILY_LIMIT) {
