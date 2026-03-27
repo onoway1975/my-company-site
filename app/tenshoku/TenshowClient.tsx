@@ -148,6 +148,9 @@ export default function TenshowClient() {
     if (!formComplete || !gender) return;
     setError(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    await new Promise((r) => setTimeout(r, 100));
     const birthdate = `${birthYear}-${String(birthMonth).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`;
     const resolved = resolveVocation(answers as Answers);
     setVocation(resolved);
@@ -323,6 +326,9 @@ export default function TenshowClient() {
                 </div>
               )}
             </div>
+            <p style={{ fontSize: "12px", color: "#888888", textAlign: "center", marginTop: "8px" }}>
+              ※顔がはっきり写った写真を使用してください
+            </p>
             {photo && (
               <button onClick={() => fileInputRef.current?.click()}
                 className="mt-2 text-xs text-muted hover:text-ink transition-colors">
