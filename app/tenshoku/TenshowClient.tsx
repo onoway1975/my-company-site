@@ -482,24 +482,7 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
       // srcを元に戻す
       if (imgEl && originalSrc) imgEl.src = originalSrc;
 
-      // スマホでファイル共有が使える場合はWeb Share APIを使う
-      const blobData = await (await fetch(dataUrl)).blob();
-      const file = new File([blobData], "tenshoku_result.png", { type: "image/png" });
-
-      if (
-        typeof navigator.share === "function" &&
-        typeof navigator.canShare === "function" &&
-        navigator.canShare({ files: [file] })
-      ) {
-        await navigator.share({
-          files: [file],
-          title: "これがホントの天職占い",
-          text: `私の天職は${vocation.name}でした！`,
-        });
-        return;
-      }
-
-      // PC・その他：aタグでダウンロード
+      // 全デバイス共通：aタグでダウンロード
       const link = document.createElement("a");
       link.href = dataUrl;
       link.download = "tenshoku_result.png";
