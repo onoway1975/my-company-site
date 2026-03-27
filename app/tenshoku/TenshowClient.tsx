@@ -461,14 +461,13 @@ type ResultProps = {
 };
 
 function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }: ResultProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
-    if (!cardRef.current || !fusedImageUrl) return;
+    if (!fusedImageUrl || !vocation) return;
     setDownloading(true);
     try {
-      // 外部画像をbase64に変換（CORS回避）
+      // 1. FAL.aiの画像をfetchしてbase64化
       const response = await fetch(fusedImageUrl);
       const blob = await response.blob();
       const base64 = await new Promise<string>((resolve) => {
@@ -477,79 +476,77 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
         reader.readAsDataURL(blob);
       });
 
-      // imgタグのsrcを一時的にbase64に差し替え
-      const imgEl = cardRef.current.querySelector("img");
-      const originalSrc = imgEl?.src;
-      if (imgEl) imgEl.src = base64;
-      await new Promise((r) => setTimeout(r, 500));
-
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, {
-        pixelRatio: 2,
-        cacheBust: true,
+      // 2. Canvasで天職名テキストをオーバーレイ描画
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = reject;
+        img.src = base64;
       });
 
-      // srcを元に戻す
-      if (imgEl && originalSrc) imgEl.src = originalSrc;
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d")!;
 
-      // デバイス判定（タッチデバイス = スマホ・タブレット）
+      // 画像を描画
+      ctx.drawImage(img, 0, 0);
+
+      // グラデーションオーバーレイ（下部）
+      const grad = ctx.createLinearGradient(0, canvas.height * 0.55, 0, canvas.height);
+      grad.addColorStop(0, "rgba(0,0,0,0)");
+      grad.addColorStop(1, "rgba(0,0,0,0.72)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 「あなたの天職は」テキスト
+      const scale = canvas.width / 400;
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.font = `${14 * scale}px sans-serif`;
+      ctx.fillText("あなたの天職は", 24 * scale, canvas.height - 72 * scale);
+
+      // 天職名テキスト
+      ctx.fillStyle = "white";
+      ctx.font = `bold ${40 * scale}px sans-serif`;
+      ctx.fillText(vocation.name, 24 * scale, canvas.height - 28 * scale);
+
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+
+      // 3. PCはダウンロード、スマホは新しいタブで画像表示
       const isTouchDevice = navigator.maxTouchPoints > 0;
 
       if (isTouchDevice) {
-        // iOSのpopupブロック回避：window.openではなくlocation.hrefで遷移
-        const html = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta name="viewport" content="width=device-width, initial-scale=1">
-              <title>天職占い結果</title>
-              <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body {
-                  background: #111;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  min-height: 100vh;
-                  padding: 24px;
-                  gap: 16px;
-                }
-                img {
-                  max-width: 100%;
-                  border-radius: 16px;
-                  display: block;
-                }
-                p {
-                  color: rgba(255,255,255,0.6);
-                  font-size: 14px;
-                  text-align: center;
-                  font-family: sans-serif;
-                  line-height: 1.8;
-                }
-                .back {
-                  color: rgba(255,255,255,0.4);
-                  font-size: 12px;
-                  text-decoration: underline;
-                  cursor: pointer;
-                }
-              </style>
-            </head>
-            <body>
-              <img src="${dataUrl}" alt="天職占い結果" />
-              <p>画像を長押しして<br>「写真に追加」で保存できます 📱</p>
-              <span class="back" onclick="history.back()">← 結果に戻る</span>
-            </body>
-          </html>
-        `;
-        const blob = new Blob([html], { type: "text/html" });
-        const blobUrl = URL.createObjectURL(blob);
+        // BlobURLのHTMLにcharset=utf-8を明記して文字化けを防ぐ
+        // data:URLで画像を埋め込むのでCORSの問題なし
+        const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>天職占い結果</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;gap:16px}
+img{max-width:100%;border-radius:16px;display:block}
+p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-serif;line-height:1.8}
+a{color:rgba(255,255,255,0.4);font-size:12px;font-family:sans-serif}
+</style>
+</head>
+<body>
+<img src="${dataUrl}" alt="天職占い結果">
+<p>画像を長押しして<br>「写真に追加」で保存できます 📱</p>
+<a href="javascript:history.back()">← 結果に戻る</a>
+</body>
+</html>`;
+        // UTF-8を明示してBlobを作成
+        const htmlBlob = new Blob([html], { type: "text/html;charset=utf-8" });
+        const blobUrl = URL.createObjectURL(htmlBlob);
         window.location.href = blobUrl;
       } else {
-        // PC：自動ダウンロード
+        // PCはそのままダウンロード
         const link = document.createElement("a");
         link.href = dataUrl;
-        link.download = "tenshoku_result.png";
+        link.download = "tenshoku_result.jpg";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -573,7 +570,7 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
 
       <div className="bg-[#f7f7f7] pb-24">
         <div className="max-w-lg mx-auto px-5 pt-8 space-y-4">
-          <div ref={cardRef} style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: "16px", overflow: "hidden", background: "white" }}>
+          <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: "16px", overflow: "hidden", background: "white" }}>
             {fusedImageUrl ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
