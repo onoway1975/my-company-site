@@ -458,7 +458,7 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
     if (!cardRef.current || !fusedImageUrl) return;
     setDownloading(true);
     try {
-      // 1. 外部画像をfetchしてbase64に変換（CORSエラー回避）
+      // 外部画像をbase64に変換（CORSエラー回避）
       const response = await fetch(fusedImageUrl);
       const blob = await response.blob();
       const base64 = await new Promise<string>((resolve) => {
@@ -467,40 +467,48 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
         reader.readAsDataURL(blob);
       });
 
-      // 2. imgタグのsrcを一時的にbase64に差し替え
+      // imgタグのsrcを一時的にbase64に差し替え
       const imgEl = cardRef.current.querySelector("img");
       const originalSrc = imgEl?.src;
       if (imgEl) imgEl.src = base64;
-
-      // 3. 画像反映を待ってからキャプチャ
       await new Promise((r) => setTimeout(r, 500));
 
       const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, cacheBust: true });
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+      });
 
-      // 4. srcを元に戻す
+      // srcを元に戻す
       if (imgEl && originalSrc) imgEl.src = originalSrc;
 
-      // 5. スマホ：Web Share API、PC：直接ダウンロード
-      if (navigator.canShare) {
-        const res = await fetch(dataUrl);
-        const blobData = await res.blob();
-        const file = new File([blobData], "tenshoku_result.png", { type: "image/png" });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: "これがホントの天職占い",
-            text: `私の天職は${vocation.name}でした！`,
-          });
-          return;
-        }
+      // スマホでファイル共有が使える場合はWeb Share APIを使う
+      const blobData = await (await fetch(dataUrl)).blob();
+      const file = new File([blobData], "tenshoku_result.png", { type: "image/png" });
+
+      if (
+        typeof navigator.share === "function" &&
+        typeof navigator.canShare === "function" &&
+        navigator.canShare({ files: [file] })
+      ) {
+        await navigator.share({
+          files: [file],
+          title: "これがホントの天職占い",
+          text: `私の天職は${vocation.name}でした！`,
+        });
+        return;
       }
+
+      // PC・その他：aタグでダウンロード
       const link = document.createElement("a");
-      link.download = "tenshoku_result.png";
       link.href = dataUrl;
+      link.download = "tenshoku_result.png";
+      document.body.appendChild(link);
       link.click();
-    } catch {
-      // silent fail
+      document.body.removeChild(link);
+
+    } catch (e) {
+      console.error("Download error:", e);
     } finally {
       setDownloading(false);
     }
