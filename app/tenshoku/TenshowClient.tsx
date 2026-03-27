@@ -147,13 +147,19 @@ export default function TenshowClient() {
   const handleSubmit = async () => {
     if (!formComplete || !gender) return;
     setError(null);
+    // iOS Safari対応のスクロール
     window.scrollTo(0, 0);
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    // iOSのSafari対応
-    if (window.scrollY !== 0) {
+    // iOS Safariでは少し遅延させてから再度実行
+    setTimeout(() => {
       window.scrollTo(0, 0);
-    }
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    }, 100);
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 300);
     await new Promise((r) => setTimeout(r, 100));
     const birthdate = `${birthYear}-${String(birthMonth).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`;
     const resolved = resolveVocation(answers as Answers);
@@ -490,49 +496,55 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
       const isTouchDevice = navigator.maxTouchPoints > 0;
 
       if (isTouchDevice) {
-        // スマホ：別ウィンドウで開いて長押し保存を案内
-        const newWindow = window.open("", "_blank");
-        if (newWindow) {
-          newWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>天職占い結果</title>
-                <style>
-                  * { margin: 0; padding: 0; box-sizing: border-box; }
-                  body {
-                    background: #111;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    min-height: 100vh;
-                    padding: 24px;
-                    gap: 16px;
-                  }
-                  img {
-                    max-width: 100%;
-                    border-radius: 16px;
-                    display: block;
-                  }
-                  p {
-                    color: rgba(255,255,255,0.6);
-                    font-size: 14px;
-                    text-align: center;
-                    font-family: sans-serif;
-                    line-height: 1.8;
-                  }
-                </style>
-              </head>
-              <body>
-                <img src="${dataUrl}" alt="天職占い結果" />
-                <p>画像を長押しして<br>「写真に追加」で保存できます 📱</p>
-              </body>
-            </html>
-          `);
-          newWindow.document.close();
-        }
+        // iOSのpopupブロック回避：window.openではなくlocation.hrefで遷移
+        const html = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <title>天職占い結果</title>
+              <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body {
+                  background: #111;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  min-height: 100vh;
+                  padding: 24px;
+                  gap: 16px;
+                }
+                img {
+                  max-width: 100%;
+                  border-radius: 16px;
+                  display: block;
+                }
+                p {
+                  color: rgba(255,255,255,0.6);
+                  font-size: 14px;
+                  text-align: center;
+                  font-family: sans-serif;
+                  line-height: 1.8;
+                }
+                .back {
+                  color: rgba(255,255,255,0.4);
+                  font-size: 12px;
+                  text-decoration: underline;
+                  cursor: pointer;
+                }
+              </style>
+            </head>
+            <body>
+              <img src="${dataUrl}" alt="天職占い結果" />
+              <p>画像を長押しして<br>「写真に追加」で保存できます 📱</p>
+              <span class="back" onclick="history.back()">← 結果に戻る</span>
+            </body>
+          </html>
+        `;
+        const blob = new Blob([html], { type: "text/html" });
+        const blobUrl = URL.createObjectURL(blob);
+        window.location.href = blobUrl;
       } else {
         // PC：自動ダウンロード
         const link = document.createElement("a");
