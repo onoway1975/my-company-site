@@ -454,6 +454,7 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
   const cardRef = useRef<HTMLDivElement>(null);
   const [sharing, setSharing] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [toast, setToast] = useState(false);
 
   const shareText = `${nickname}さんの天職は「${vocation.name}」でした！\nこれがホントの天職占い`;
   const shareUrl = "https://ciraf.jp/tenshoku/";
@@ -512,22 +513,51 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
   };
 
   const handleShare = async () => {
-    if (!cardRef.current || !fusedImageUrl) { window.open(tweetIntentUrl, "_blank"); return; }
+    if (!cardRef.current || !fusedImageUrl) {
+      window.open(tweetIntentUrl, "_blank");
+      return;
+    }
     setSharing(true);
     try {
+      // 外部画像をbase64に変換してからキャプチャ（CORS回避）
+      const response = await fetch(fusedImageUrl);
+      const blob = await response.blob();
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+      const imgEl = cardRef.current.querySelector("img");
+      const originalSrc = imgEl?.src;
+      if (imgEl) imgEl.src = base64;
+      await new Promise((r) => setTimeout(r, 500));
+
       const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, cacheBust: true });
+      if (imgEl && originalSrc) imgEl.src = originalSrc;
+
+      // スマホでWeb Share API（ファイル共有）が使える場合はそちらを優先
       if (navigator.canShare) {
-        const blob = await (await fetch(dataUrl)).blob();
-        const file = new File([blob], "tenshoku-result.png", { type: "image/png" });
+        const blobData = await (await fetch(dataUrl)).blob();
+        const file = new File([blobData], "tenshoku_result.png", { type: "image/png" });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], text: shareText, url: shareUrl });
           return;
         }
       }
+
+      // PC・その他：画像をダウンロード → トースト → Xを開く
       const a = document.createElement("a");
-      a.href = dataUrl; a.download = "tenshoku-result.png"; a.click();
-      setTimeout(() => window.open(tweetIntentUrl, "_blank"), 300);
+      a.href = dataUrl;
+      a.download = "tenshoku_result.png";
+      a.click();
+
+      setToast(true);
+      setTimeout(() => {
+        setToast(false);
+        window.open(tweetIntentUrl, "_blank");
+      }, 2000);
+
     } catch {
       window.open(tweetIntentUrl, "_blank");
     } finally {
@@ -576,7 +606,7 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
 
           <button onClick={handleShare} disabled={sharing}
             className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-black text-white text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-60 cursor-pointer">
-            {sharing ? <><SpinnerIcon />画像を生成中…</> : <><XIcon />Xに投稿する</>}
+            {sharing ? <><SpinnerIcon />画像を生成中…</> : <><XIcon />📸 Xに投稿する（画像を保存）</>}
           </button>
 
           <button onClick={handleDownload} disabled={downloading}
@@ -590,6 +620,25 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
           </button>
         </div>
       </div>
+
+      {toast && (
+        <div style={{
+          position: "fixed",
+          bottom: "24px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "#1a1a1a",
+          color: "white",
+          padding: "12px 20px",
+          borderRadius: "16px",
+          fontSize: "13px",
+          zIndex: 9999,
+          whiteSpace: "nowrap",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+        }}>
+          📎 画像を保存しました！Xに添付して投稿してください
+        </div>
+      )}
     </div>
   );
 }
