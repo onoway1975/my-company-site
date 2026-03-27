@@ -529,13 +529,13 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
 body{background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;gap:16px}
 img{max-width:100%;border-radius:16px;display:block}
 p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-serif;line-height:1.8}
-a{color:rgba(255,255,255,0.4);font-size:12px;font-family:sans-serif}
+.btn{display:inline-block;margin-top:8px;padding:14px 32px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:100px;color:white;font-size:15px;font-family:sans-serif;font-weight:bold;text-decoration:none;cursor:pointer}
 </style>
 </head>
 <body>
 <img src="${dataUrl}" alt="天職占い結果">
 <p>画像を長押しして<br>「写真に追加」で保存できます 📱</p>
-<a href="javascript:history.back()">← 結果に戻る</a>
+<a class="btn" href="javascript:history.back()">← 結果に戻る</a>
 </body>
 </html>`;
         // UTF-8を明示してBlobを作成
