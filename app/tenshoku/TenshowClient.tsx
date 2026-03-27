@@ -147,9 +147,13 @@ export default function TenshowClient() {
   const handleSubmit = async () => {
     if (!formComplete || !gender) return;
     setError(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
+    // iOSのSafari対応
+    if (window.scrollY !== 0) {
+      window.scrollTo(0, 0);
+    }
     await new Promise((r) => setTimeout(r, 100));
     const birthdate = `${birthYear}-${String(birthMonth).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`;
     const resolved = resolveVocation(answers as Answers);
