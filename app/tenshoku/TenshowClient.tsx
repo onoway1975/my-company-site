@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { resolveVocation, type Vocation, type Answers, type Gender } from "./data";
 import { generateTenshowResult } from "./actions";
 
-type Step = "form" | "loading" | "result";
+type Step = "form" | "loading" | "result" | "limit";
 
 // ── Questions / Options ─────────────────────────────────────────────────────────
 
@@ -156,11 +156,20 @@ export default function TenshowClient() {
     setVocation(resolved);
     setStep("loading");
     try {
-      const { fusedImageUrl: fused, description: desc } = await generateTenshowResult(
+      const result = await generateTenshowResult(
         resolved.id, gender, nickname, birthdate, photo!
       );
-      setFusedImageUrl(fused);
-      setDescription(desc);
+      if ("error" in result) {
+        if (result.error === "DAILY_LIMIT_EXCEEDED") {
+          setStep("limit");
+        } else {
+          setError(result.error);
+          setStep("form");
+        }
+        return;
+      }
+      setFusedImageUrl(result.fusedImageUrl);
+      setDescription(result.description);
       setStep("result");
     } catch (e) {
       setError(e instanceof Error ? e.message : "エラーが発生しました");
@@ -190,6 +199,43 @@ export default function TenshowClient() {
           <div style={{ display: "flex", justifyContent: "center" }}>
             <FakeProgressBar />
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Limit ────────────────────────────────────────────────────────────────────
+  if (step === "limit") {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)", padding: "24px" }}>
+        <div style={{ textAlign: "center", maxWidth: "360px" }}>
+          <div style={{ fontSize: "56px", marginBottom: "24px" }}>🙏</div>
+          <p style={{ color: "#d4af37", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.5em", marginBottom: "16px" }}>
+            DAILY LIMIT
+          </p>
+          <h2 style={{ color: "white", fontSize: "1.5rem", fontWeight: 700, marginBottom: "16px", lineHeight: 1.4 }}>
+            本日の診断回数が<br />上限に達しました
+          </h2>
+          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "14px", lineHeight: 1.8, marginBottom: "32px" }}>
+            このサービスはデモ版のため、<br />
+            1日あたりの生成回数に上限を設けています。<br />
+            日本時間0時にリセットされます。<br />
+            明日またお試しください🌟
+          </p>
+          <button
+            onClick={() => setStep("form")}
+            style={{
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: "12px",
+              color: "white",
+              fontSize: "14px",
+              padding: "12px 32px",
+              cursor: "pointer",
+            }}
+          >
+            フォームに戻る
+          </button>
         </div>
       </div>
     );

@@ -4,7 +4,31 @@ import fs from "fs";
 import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
 import { fal } from "@fal-ai/client";
+import { kv } from "@vercel/kv";
 import { VOCATIONS, getImagePath, type Vocation, type Gender } from "./data";
+
+const DAILY_LIMIT = 50;
+
+function getJSTDateKey(): string {
+  const now = new Date();
+  // JST = UTC+9
+  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const yyyy = jst.getUTCFullYear();
+  const mm = String(jst.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(jst.getUTCDate()).padStart(2, "0");
+  return `tenshoku:count:${yyyy}-${mm}-${dd}`;
+}
+
+async function checkAndIncrementDailyLimit(): Promise<{ ok: boolean; remaining: number }> {
+  const key = getJSTDateKey();
+  const current = (await kv.get<number>(key)) ?? 0;
+  if (current >= DAILY_LIMIT) {
+    return { ok: false, remaining: 0 };
+  }
+  // 25時間でexpire（翌日JST 0時以降も確実にリセットされるよう余裕を持たせる）
+  await kv.set(key, current + 1, { ex: 90000 });
+  return { ok: true, remaining: DAILY_LIMIT - current - 1 };
+}
 
 export async function generateTenshowResult(
   vocationId: string,
@@ -12,7 +36,12 @@ export async function generateTenshowResult(
   nickname: string,
   birthdate: string,
   userImageDataUrl: string
-): Promise<{ fusedImageUrl: string; description: string }> {
+): Promise<{ fusedImageUrl: string; description: string } | { error: string }> {
+  const limit = await checkAndIncrementDailyLimit();
+  if (!limit.ok) {
+    return { error: "DAILY_LIMIT_EXCEEDED" };
+  }
+
   const vocation = VOCATIONS.find((v) => v.id === vocationId);
   if (!vocation) throw new Error("天職データが見つかりません");
 
