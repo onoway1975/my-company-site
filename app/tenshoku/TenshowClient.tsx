@@ -452,13 +452,7 @@ type ResultProps = {
 
 function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }: ResultProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [sharing, setSharing] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const [toast, setToast] = useState(false);
-
-  const shareText = `${nickname}さんの天職は「${vocation.name}」でした！\nこれがホントの天職占い`;
-  const shareUrl = "https://ciraf.jp/tenshoku/";
-  const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
 
   const handleDownload = async () => {
     if (!cardRef.current || !fusedImageUrl) return;
@@ -512,59 +506,6 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
     }
   };
 
-  const handleShare = async () => {
-    if (!cardRef.current || !fusedImageUrl) {
-      window.open(tweetIntentUrl, "_blank");
-      return;
-    }
-    setSharing(true);
-    try {
-      // 外部画像をbase64に変換してからキャプチャ（CORS回避）
-      const response = await fetch(fusedImageUrl);
-      const blob = await response.blob();
-      const base64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
-      const imgEl = cardRef.current.querySelector("img");
-      const originalSrc = imgEl?.src;
-      if (imgEl) imgEl.src = base64;
-      await new Promise((r) => setTimeout(r, 500));
-
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, cacheBust: true });
-      if (imgEl && originalSrc) imgEl.src = originalSrc;
-
-      // スマホでWeb Share API（ファイル共有）が使える場合はそちらを優先
-      if (navigator.canShare) {
-        const blobData = await (await fetch(dataUrl)).blob();
-        const file = new File([blobData], "tenshoku_result.png", { type: "image/png" });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], text: shareText, url: shareUrl });
-          return;
-        }
-      }
-
-      // PC・その他：画像をダウンロード → トースト → Xを開く
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = "tenshoku_result.png";
-      a.click();
-
-      setToast(true);
-      setTimeout(() => {
-        setToast(false);
-        window.open(tweetIntentUrl, "_blank");
-      }, 2000);
-
-    } catch {
-      window.open(tweetIntentUrl, "_blank");
-    } finally {
-      setSharing(false);
-    }
-  };
-
   return (
     <div>
       <div style={{ background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "64px 24px" }}>
@@ -604,11 +545,6 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
             </div>
           )}
 
-          <button onClick={handleShare} disabled={sharing}
-            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-black text-white text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-60 cursor-pointer">
-            {sharing ? <><SpinnerIcon />画像を生成中…</> : <><XIcon />📸 Xに投稿する（画像を保存）</>}
-          </button>
-
           <button onClick={handleDownload} disabled={downloading}
             className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl border-2 border-border text-sm font-bold text-ink hover:border-[#1a0a2e] transition-colors bg-white shadow-sm disabled:opacity-60 cursor-pointer">
             {downloading ? <><SpinnerIcon />画像を生成中…</> : <>⬇ 画像をダウンロード</>}
@@ -621,24 +557,6 @@ function ResultStep({ nickname, vocation, fusedImageUrl, description, onReset }:
         </div>
       </div>
 
-      {toast && (
-        <div style={{
-          position: "fixed",
-          bottom: "24px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          background: "#1a1a1a",
-          color: "white",
-          padding: "12px 20px",
-          borderRadius: "16px",
-          fontSize: "13px",
-          zIndex: 9999,
-          whiteSpace: "nowrap",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
-        }}>
-          📎 画像を保存しました！Xに添付して投稿してください
-        </div>
-      )}
     </div>
   );
 }
@@ -651,14 +569,6 @@ function UploadIcon() {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="17 8 12 3 7 8" />
       <line x1="12" y1="3" x2="12" y2="15" />
-    </svg>
-  );
-}
-
-function XIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.736-8.856L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
     </svg>
   );
 }
