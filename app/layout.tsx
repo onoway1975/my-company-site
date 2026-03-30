@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Script from "next/script";
+import { Bebas_Neue } from "next/font/google";
+
+const bebas = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-bebas",
+});
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { ChatWidget } from "./components/ChatWidget";
@@ -93,7 +100,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" className={bebas.variable}>
       <body className="font-sans">
         <script
           type="application/ld+json"

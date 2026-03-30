@@ -13,31 +13,9 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // /tenshoku 以下へのアクセスにBasic認証を適用
-  if (request.nextUrl.pathname.startsWith("/tenshoku")) {
-    const authHeader = request.headers.get("authorization");
-
-    if (authHeader) {
-      const base64 = authHeader.split(" ")[1];
-      const decoded = Buffer.from(base64, "base64").toString("utf-8");
-      const [id, pass] = decoded.split(":");
-
-      if (id === "demo" && pass === "demo") {
-        return NextResponse.next();
-      }
-    }
-
-    return new NextResponse("Unauthorized", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="Secure Area"',
-      },
-    });
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/demo/:path*", "/tenshoku/:path*"],
+  matcher: ["/demo/:path*"],
 };

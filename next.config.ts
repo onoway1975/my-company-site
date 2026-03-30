@@ -26,6 +26,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.replicate.com",
       },
+      {
+        protocol: "https",
+        hostname: "is1-ssl.mzstatic.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.mzstatic.com",
+      },
     ],
   },
   // 本番ビルドでconsole.logを除去
