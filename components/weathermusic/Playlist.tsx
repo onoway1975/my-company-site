@@ -17,7 +17,7 @@ export default function Playlist({ tracks, currentIdx, loading, weather, onSelec
   return (
     <div
       className="mx-3 mt-3 rounded-[22px] px-4 pt-5 pb-3"
-      style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(12px)' }}
+      style={{ background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(12px)' }}
     >
       {/* header */}
       <div className="mb-4">

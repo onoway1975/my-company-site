@@ -166,7 +166,8 @@
       "Bash(git add . && git commit -m \"feat: add weather music page\" && git push origin main)",
       "Bash(echo \".agents/\" >> .gitignore && git rm -r --cached .agents/)",
       "Bash(git commit -m \"chore: remove .agents skills from repo, add to gitignore\" && git push origin main)",
-      "Bash(git add . && git commit -m \"fix: weather hero mobile layout\" && git push origin main)"
+      "Bash(git add . && git commit -m \"fix: weather hero mobile layout\" && git push origin main)",
+      "Bash(git add . && git commit -m \"fix: hero 2-column layout\" && git push origin main)"
     ]
   }
 }
