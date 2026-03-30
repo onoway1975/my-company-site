@@ -38,44 +38,43 @@ export default function WeatherHero({ weather, city, loading = false }: Props) {
 
   return (
     <div className="relative w-full overflow-hidden px-6 pt-6 pb-8 min-h-[170px]">
-      {/* rain は WeatherMusicClient の FullRainLayer で全画面表示 */}
 
-      {/* date */}
-      <p className="relative z-10 text-white tracking-widest text-[clamp(20px,5vw,28px)] leading-none drop-shadow-sm font-semibold">
-        {dateStr}
-      </p>
-
-      {/* weather icon */}
-      <div
-        className="absolute right-4 top-4 z-10 w-[100px] h-[80px]"
-        style={{ background: 'transparent' }}
-      >
-        <WeatherIcon type={weather} />
+      {/* 上段：日付 + アイコン */}
+      <div className="relative z-10 flex items-start justify-between">
+        <p className="text-white tracking-widest text-[clamp(14px,4vw,22px)] leading-none drop-shadow-sm font-semibold">
+          {dateStr}
+        </p>
+        <div className="w-[80px] h-[64px] flex-shrink-0 ml-4" style={{ background: 'transparent' }}>
+          <WeatherIcon type={weather} />
+        </div>
       </div>
 
-      {/* time + loc */}
-      <div className="relative z-10 flex items-end justify-between mt-3">
-        <div className="flex items-center gap-0">
-          <span className="text-white text-[clamp(52px,13vw,72px)] leading-none tracking-widest drop-shadow-sm font-bold">
-            {hours}
-          </span>
-          <span
-            className="text-white text-[clamp(52px,13vw,72px)] leading-none mx-1 transition-opacity duration-100 font-bold"
-            style={{ opacity: blink ? 1 : 0, lineHeight: 1, transform: 'translateY(-4px)' }}
-          >
-            ·
-          </span>
-          <span className="text-white text-[clamp(52px,13vw,72px)] leading-none tracking-widest drop-shadow-sm font-bold">
-            {minutes}
-          </span>
-          <span className="text-white/70 text-xl tracking-widest ml-1.5 font-semibold" style={{ transform: 'translateY(-8px)' }}>{ampm}</span>
-        </div>
+      {/* 中段：時刻 */}
+      <div className="relative z-10 flex items-center gap-0 mt-2">
+        <span className="text-white text-[clamp(48px,12vw,68px)] leading-none tracking-widest drop-shadow-sm font-bold">
+          {hours}
+        </span>
+        <span
+          className="text-white text-[clamp(48px,12vw,68px)] leading-none mx-1 transition-opacity duration-100 font-bold"
+          style={{ opacity: blink ? 1 : 0, transform: 'translateY(-3px)' }}
+        >
+          ·
+        </span>
+        <span className="text-white text-[clamp(48px,12vw,68px)] leading-none tracking-widest drop-shadow-sm font-bold">
+          {minutes}
+        </span>
+        <span className="text-white/70 text-lg tracking-widest ml-2 font-semibold" style={{ transform: 'translateY(-6px)' }}>{ampm}</span>
+      </div>
+
+      {/* 下段：都市名 + 気温 */}
+      <div className="relative z-10 flex items-end justify-between mt-2">
+        <div />
         <div className="text-right">
           <div className="flex items-center justify-end gap-1.5">
-            <p className="text-white/90 text-[15px] font-semibold tracking-[.1em] uppercase">{city}</p>
+            <p className="text-white/90 text-[13px] font-semibold tracking-[.1em] uppercase">{city}</p>
             {loading && <div className="w-2 h-2 rounded-full bg-white/60 animate-pulse" />}
           </div>
-          <p className="text-white text-[22px] tracking-widest leading-tight mt-0.5 font-bold">
+          <p className="text-white text-[20px] tracking-widest leading-tight font-bold">
             {cfg.temp}
           </p>
         </div>
