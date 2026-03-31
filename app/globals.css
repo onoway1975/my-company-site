@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @source "./demo";
 @source "./tenshoku";
+@source "./menucard";
 
 /* ─── LINE Seed Sans EN (Latin) ─── */
 @font-face {

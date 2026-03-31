@@ -167,7 +167,10 @@
       "Bash(echo \".agents/\" >> .gitignore && git rm -r --cached .agents/)",
       "Bash(git commit -m \"chore: remove .agents skills from repo, add to gitignore\" && git push origin main)",
       "Bash(git add . && git commit -m \"fix: weather hero mobile layout\" && git push origin main)",
-      "Bash(git add . && git commit -m \"fix: hero 2-column layout\" && git push origin main)"
+      "Bash(git add . && git commit -m \"fix: hero 2-column layout\" && git push origin main)",
+      "Bash(curl -sI \"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=600&h=600&fit=crop\" | grep -i \"http\\\\|content-type\\\\|location\" | head -5\necho \"---\"\ncurl -sI \"https://images.unsplash.com/photo-1567171466295-4efa2501b5a3?w=600&h=600&fit=crop\" | grep -i \"http\\\\|content-type\\\\|location\" | head -5\necho \"---\"\ncurl -sI \"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&h=600&fit=crop\" | grep -i \"http\\\\|content-type\\\\|location\" | head -5)",
+      "Bash(curl -sI \"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=600&h=600&fit=crop\" 2>&1 | grep -E \"^HTTP|^content-type|^location\" | head -5)",
+      "Bash(git add . && git commit -m \"add menucard page\" && git push)"
     ]
   }
 }
