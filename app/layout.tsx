@@ -16,11 +16,11 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 export const metadata: Metadata = {
   metadataBase: new URL("https://ciraf.jp"),
   title: {
-    default: "シラフ株式会社 | Webデザイン・映像・デジタルクリエイティブ 東京",
+    default: "東京のWeb・映像制作 シラフ株式会社 | ブランドを、もっと強くする",
     template: "%s | シラフ株式会社",
   },
   description:
-    "シラフ株式会社（ciraf inc.）は、東京のWeb制作・ブランディング・映像制作会社です。クライアントのビジネス成長を実行力とホスピタリティで支えます。",
+    "Webサイト・映像・ブランディングで、あなたのビジネスを前に進めます。東京・シラフ株式会社。ロマンある丸投げOK。まず実績をご覧ください。",
   alternates: {
     canonical: "https://ciraf.jp",
   },
@@ -28,9 +28,9 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "シラフ株式会社",
     locale: "ja_JP",
-    title: "シラフ株式会社 | Webデザイン・映像・デジタルクリエイティブ 東京",
+    title: "東京のWeb・映像制作 シラフ株式会社 | ブランドを、もっと強くする",
     description:
-      "シラフ株式会社（ciraf inc.）は、東京のWeb制作・ブランディング・映像制作会社です。クライアントのビジネス成長を実行力とホスピタリティで支えます。",
+      "Webサイト・映像・ブランディングで、あなたのビジネスを前に進めます。東京・シラフ株式会社。ロマンある丸投げOK。まず実績をご覧ください。",
     url: "https://ciraf.jp",
     images: [
       {

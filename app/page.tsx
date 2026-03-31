@@ -10,7 +10,12 @@ import { BodyPageType } from "./components/BodyPageType";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "シラフ株式会社 | Webデザイン・映像・デジタルクリエイティブ 東京",
+    absolute: "東京のWeb・映像制作 シラフ株式会社 | ブランドを、もっと強くする",
+  },
+  description: "Webサイト・映像・ブランディングで、あなたのビジネスを前に進めます。東京・シラフ株式会社。ロマンある丸投げOK。まず実績をご覧ください。",
+  openGraph: {
+    title: "東京のWeb・映像制作 シラフ株式会社 | ブランドを、もっと強くする",
+    description: "Webサイト・映像・ブランディングで、あなたのビジネスを前に進めます。東京・シラフ株式会社。ロマンある丸投げOK。まず実績をご覧ください。",
   },
 };
 
