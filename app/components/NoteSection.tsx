@@ -1,14 +1,30 @@
+import Image from "next/image";
 import { Button } from "./Button";
 
-type NoteItem = {
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+type NoteCard = {
   title: string;
   url: string;
   date: string;
-  thumbnail: string | null;
+  eyecatch: string;
 };
 
-function parseRSS(xml: string): NoteItem[] {
-  const items: NoteItem[] = [];
+type NoteListItem = {
+  title: string;
+  url: string;
+  date: string;
+};
+
+type FetchResult =
+  | { mode: "cards"; articles: NoteCard[] }
+  | { mode: "list"; articles: NoteListItem[] }
+  | { mode: "empty" };
+
+// ── RSS fallback parser ───────────────────────────────────────────────────────
+
+function parseRSS(xml: string): NoteListItem[] {
+  const items: NoteListItem[] = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/g;
   let match;
 
@@ -35,34 +51,159 @@ function parseRSS(xml: string): NoteItem[] {
         })
       : "";
 
-    // note.com は <media:thumbnail> タグでサムネイルURLを提供する
-    const thumbnail =
-      item.match(/<media:thumbnail>\s*(https?:\/\/[^\s<]+)\s*<\/media:thumbnail>/)?.[1] ??
-      item.match(/<media:thumbnail[^>]+url=["']([^"']+)["']/i)?.[1] ??
-      null;
-
-    items.push({ title, url, date, thumbnail });
+    items.push({ title, url, date });
   }
 
   return items;
 }
 
-async function fetchNoteArticles(): Promise<NoteItem[]> {
+// ── Data fetching ─────────────────────────────────────────────────────────────
+
+async function fetchNoteData(): Promise<FetchResult> {
+  // Primary: note.com API v2 → card grid
+  try {
+    const res = await fetch(
+      "https://note.com/api/v2/creators/ciraf_inc/contents?kind=note&page=1",
+      { next: { revalidate: 3600 } }
+    );
+    if (res.ok) {
+      const json = await res.json();
+      const contents: Array<{
+        name?: string;
+        publishAt?: string;
+        eyecatch?: string;
+        noteUrl?: string;
+      }> = json?.data?.contents ?? [];
+
+      if (contents.length > 0) {
+        const articles: NoteCard[] = contents.slice(0, 6).map((item) => ({
+          title: item.name ?? "",
+          url: item.noteUrl ?? "#",
+          date: item.publishAt
+            ? new Date(item.publishAt).toLocaleDateString("ja-JP", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })
+            : "",
+          eyecatch: item.eyecatch ?? "",
+        }));
+        return { mode: "cards", articles };
+      }
+    }
+  } catch {
+    // fall through to RSS fallback
+  }
+
+  // Fallback: RSS → text list
   try {
     const res = await fetch("https://note.com/ciraf_inc/rss", {
       next: { revalidate: 3600 },
     });
-    if (!res.ok) return [];
-    const xml = await res.text();
-    return parseRSS(xml);
+    if (res.ok) {
+      const xml = await res.text();
+      const articles = parseRSS(xml);
+      if (articles.length > 0) return { mode: "list", articles };
+    }
   } catch {
-    return [];
+    // both failed
   }
+
+  return { mode: "empty" };
 }
 
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function CardGrid({ articles }: { articles: NoteCard[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {articles.map((article, i) => (
+        <a
+          key={i}
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-gtm-click="external_link"
+          data-gtm-location="note_section"
+          data-gtm-label="note_article_card"
+          className="group flex flex-col gap-3"
+        >
+          {/* Thumbnail */}
+          <div className="overflow-hidden rounded-lg aspect-video bg-surface">
+            {article.eyecatch ? (
+              <Image
+                src={article.eyecatch}
+                alt={article.title}
+                width={640}
+                height={360}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                loading={i < 3 ? "eager" : "lazy"}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-[#eeeeee]">
+                <span className="text-[9px] tracking-widest text-muted uppercase">note</span>
+              </div>
+            )}
+          </div>
+
+          {/* Meta */}
+          <div className="flex flex-col gap-1.5">
+            {article.date && (
+              <p className="text-[0.7rem] text-[#aaaaaa]">{article.date}</p>
+            )}
+            <p className="text-sm font-semibold text-ink leading-[1.6] line-clamp-2 group-hover:underline underline-offset-2 transition-all">
+              {article.title}
+            </p>
+          </div>
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function TextList({ articles }: { articles: NoteListItem[] }) {
+  return (
+    <ul>
+      {articles.map((article, i) => (
+        <li
+          key={i}
+          className={
+            i < articles.length - 1
+              ? "border-b border-dashed border-[#e2e2e2]"
+              : ""
+          }
+        >
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-gtm-click="external_link"
+            data-gtm-location="note_section"
+            data-gtm-label="note_article"
+            className="flex items-center gap-4 py-5 group"
+          >
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[0.75rem] text-[#888]">{article.date}</span>
+                <span className="text-[0.85rem] font-bold text-ink">note</span>
+              </div>
+              <p className="text-[0.9rem] text-ink leading-[1.6] line-clamp-2 group-hover:underline underline-offset-2 transition-all">
+                {article.title}
+              </p>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ── Main export ───────────────────────────────────────────────────────────────
+
 export async function NoteSection() {
-  const articles = await fetchNoteArticles();
-  if (articles.length === 0) return null;
+  const result = await fetchNoteData();
+  if (result.mode === "empty") return null;
 
   return (
     <section className="py-3 px-4 lg:px-6">
@@ -88,46 +229,13 @@ export async function NoteSection() {
             </Button>
           </div>
 
-          {/* ── Right column: article list ── */}
+          {/* ── Right column ── */}
           <div className="flex-1 min-w-0">
-            <ul>
-              {articles.map((article, i) => (
-                <li
-                  key={i}
-                  className={
-                    i < articles.length - 1
-                      ? "border-b border-dashed border-[#e2e2e2]"
-                      : ""
-                  }
-                >
-                  <a
-                    href={article.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-gtm-click="external_link"
-                    data-gtm-location="note_section"
-                    data-gtm-label="note_article"
-                    className="flex items-center gap-4 py-5 group"
-                  >
-                    {/* Text */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[0.75rem] text-[#888]">
-                          {article.date}
-                        </span>
-                        <span className="text-[0.85rem] font-bold text-ink">
-                          note
-                        </span>
-                      </div>
-                      <p className="text-[0.9rem] text-ink leading-[1.6] line-clamp-2 group-hover:underline underline-offset-2 transition-all">
-                        {article.title}
-                      </p>
-                    </div>
-
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {result.mode === "cards" ? (
+              <CardGrid articles={result.articles} />
+            ) : (
+              <TextList articles={result.articles} />
+            )}
           </div>
 
         </div>

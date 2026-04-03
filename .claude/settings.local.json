@@ -178,7 +178,9 @@
       "Bash(npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities 2>&1 | tail -5)",
       "Bash(npm install lucide-react 2>&1 | tail -3)",
       "Bash(npm install pptxgenjs 2>&1 | tail -3)",
-      "Bash(git add . && git status)"
+      "Bash(git add . && git status)",
+      "Bash(git commit -m \"fix: ランキングページ スマホ版スコア表示\" && git push)",
+      "Bash(git add -A && git status)"
     ]
   }
 }
