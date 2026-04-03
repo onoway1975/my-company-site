@@ -287,7 +287,7 @@ export default function DYBRankingPage() {
         .rk-card.r1{border-color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.04)}
         .rk-card.r3{border-color:rgba(255,255,255,0.18)}
         .rk-ci{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:start}
-        @media(max-width:600px){.rk-ci{grid-template-columns:36px 1fr}.rk-sc-col{display:none}}
+        @media(max-width:600px){.rk-ci{grid-template-columns:36px 1fr auto}.rk-sc-big{font-size:18px}.rk-sc-unit{font-size:8px}}
         .rk-rk{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:26px;color:rgba(255,255,255,0.15);line-height:1;padding-top:3px}
         .rk-card.r1 .rk-rk{color:rgba(255,255,255,0.5);font-size:30px}
         .rk-card.r3 .rk-rk{color:rgba(255,255,255,0.25)}
