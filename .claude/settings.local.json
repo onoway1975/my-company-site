@@ -170,7 +170,14 @@
       "Bash(git add . && git commit -m \"fix: hero 2-column layout\" && git push origin main)",
       "Bash(curl -sI \"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=600&h=600&fit=crop\" | grep -i \"http\\\\|content-type\\\\|location\" | head -5\necho \"---\"\ncurl -sI \"https://images.unsplash.com/photo-1567171466295-4efa2501b5a3?w=600&h=600&fit=crop\" | grep -i \"http\\\\|content-type\\\\|location\" | head -5\necho \"---\"\ncurl -sI \"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&h=600&fit=crop\" | grep -i \"http\\\\|content-type\\\\|location\" | head -5)",
       "Bash(curl -sI \"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=600&h=600&fit=crop\" 2>&1 | grep -E \"^HTTP|^content-type|^location\" | head -5)",
-      "Bash(git add . && git commit -m \"add menucard page\" && git push)"
+      "Bash(git add . && git commit -m \"add menucard page\" && git push)",
+      "Bash(git add app/layout.tsx app/page.tsx && git commit -m \"feat: update site title and meta description\" && git push)",
+      "Bash(ls ~/Downloads/b06d6e54* 2>/dev/null || ls ~/Downloads/*.jpg 2>/dev/null | head -10)",
+      "Bash(npm install fast-xml-parser 2>&1 | tail -5)",
+      "Bash(pkill -f \"next dev\" 2>/dev/null; sleep 1; npm run dev)",
+      "Bash(npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities 2>&1 | tail -5)",
+      "Bash(npm install lucide-react 2>&1 | tail -3)",
+      "Bash(npm install pptxgenjs 2>&1 | tail -3)"
     ]
   }
 }
