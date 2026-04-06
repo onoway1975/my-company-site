@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type FormData = {
   name: string;
@@ -20,6 +20,7 @@ export function ContactSection() {
   });
   const [status, setStatus] = useState<Status>("idle");
   const [agreed, setAgreed] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
 
   function update(field: keyof FormData, value: string) {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -39,14 +40,16 @@ export function ContactSection() {
         setFormData({ name: "", company: "", email: "", message: "" });
       } else {
         setStatus("error");
+        nameRef.current?.focus();
       }
     } catch {
       setStatus("error");
+      nameRef.current?.focus();
     }
   }
 
   const inputClass =
-    "w-full border border-white/30 bg-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/70 transition-colors duration-200";
+    "w-full border border-white/30 bg-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:border-white/70 transition-colors duration-200";
   const labelClass =
     "block text-xs tracking-[0.15em] text-white/70 uppercase mb-2";
 
@@ -92,22 +95,30 @@ export function ContactSection() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className={labelClass}>
+                    <label htmlFor="contact-name" className={labelClass}>
                       お名前 <span className="text-white/50">*</span>
                     </label>
                     <input
+                      id="contact-name"
+                      name="name"
                       type="text"
+                      autoComplete="name"
                       required
+                      ref={nameRef}
                       value={formData.name}
                       onChange={(e) => update("name", e.target.value)}
                       className={inputClass}
                       placeholder="山田 太郎"
+                      aria-describedby={status === "error" ? "contact-error" : undefined}
                     />
                   </div>
                   <div>
-                    <label className={labelClass}>会社名</label>
+                    <label htmlFor="contact-company" className={labelClass}>会社名</label>
                     <input
+                      id="contact-company"
+                      name="company"
                       type="text"
+                      autoComplete="organization"
                       value={formData.company}
                       onChange={(e) => update("company", e.target.value)}
                       className={inputClass}
@@ -117,11 +128,14 @@ export function ContactSection() {
                 </div>
 
                 <div>
-                  <label className={labelClass}>
+                  <label htmlFor="contact-email" className={labelClass}>
                     メールアドレス <span className="text-white/50">*</span>
                   </label>
                   <input
+                    id="contact-email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
                     required
                     value={formData.email}
                     onChange={(e) => update("email", e.target.value)}
@@ -131,10 +145,12 @@ export function ContactSection() {
                 </div>
 
                 <div>
-                  <label className={labelClass}>
+                  <label htmlFor="contact-message" className={labelClass}>
                     お問い合わせ内容 <span className="text-white/50">*</span>
                   </label>
                   <textarea
+                    id="contact-message"
+                    name="message"
                     required
                     rows={6}
                     value={formData.message}
@@ -145,8 +161,8 @@ export function ContactSection() {
                 </div>
 
                 {status === "error" && (
-                  <p className="text-xs text-red-400">
-                    送信に失敗しました。再度お試しください。
+                  <p id="contact-error" className="text-xs text-red-400" role="alert">
+                    送信に失敗しました。内容をご確認の上、再度お試しください。
                   </p>
                 )}
 
@@ -158,7 +174,7 @@ export function ContactSection() {
                         type="checkbox"
                         checked={agreed}
                         onChange={(e) => setAgreed(e.target.checked)}
-                        className="peer appearance-none w-5 h-5 rounded border border-white/40 bg-white/10 checked:bg-white checked:border-white transition-colors duration-200 cursor-pointer"
+                        className="peer appearance-none w-5 h-5 rounded border border-white/40 bg-white/10 checked:bg-white checked:border-white focus-visible:ring-2 focus-visible:ring-white/60 transition-colors duration-200 cursor-pointer"
                       />
                       <svg
                         className="pointer-events-none absolute inset-0 w-5 h-5 opacity-0 peer-checked:opacity-100 transition-opacity duration-200"
@@ -198,9 +214,9 @@ export function ContactSection() {
                   data-gtm-click="cta_contact_submit"
                   data-gtm-location="contact_form"
                   data-gtm-label="contact_submit"
-                  className="inline-flex items-center gap-2 rounded-full bg-white text-ink border border-white text-[0.8rem] tracking-[0.1em] py-3 px-7 hover:bg-white/80 transition-all duration-[250ms] disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 rounded-full bg-white text-ink border border-white text-[0.8rem] tracking-[0.1em] py-3 px-7 hover:bg-white/80 transition-colors duration-[250ms] disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  {status === "loading" ? "送信中..." : "送信する →"}
+                  {status === "loading" ? "送信中\u2026" : "送信する →"}
                 </button>
               </form>
             )}

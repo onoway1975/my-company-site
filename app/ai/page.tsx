@@ -444,10 +444,7 @@ export default function AiPage() {
               <div className="md:mb-[50px]">
                 <a
                   href="#final-cta"
-                  className="inline-flex items-center gap-2 text-base font-bold transition-colors"
-                  style={{ background: '#FFFFFF', color: '#111111', border: '1px solid #111111', borderRadius: 9999, padding: '14px 40px' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#111111'; e.currentTarget.style.color = '#FFFFFF' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.color = '#111111' }}
+                  className="inline-flex items-center gap-2 text-base font-bold transition-colors bg-white text-[#111111] border border-[#111111] rounded-full py-[14px] px-10 hover:bg-[#111111] hover:text-white"
                 >
                   まず相談してみる →
                 </a>
@@ -478,10 +475,7 @@ export default function AiPage() {
             </p>
             <a
               href="#service"
-              className="inline-flex items-center gap-2 text-base font-bold transition-colors"
-              style={{ background: '#FFFFFF', color: '#111111', border: '1px solid #111111', borderRadius: 9999, padding: '14px 48px' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#111111'; e.currentTarget.style.color = '#FFFFFF' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.color = '#111111' }}
+              className="inline-flex items-center gap-2 text-base font-bold transition-colors bg-white text-[#111111] border border-[#111111] rounded-full py-[14px] px-12 hover:bg-[#111111] hover:text-white"
             >
               → 詳しくはこちら
             </a>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./components/Button";
@@ -167,7 +168,9 @@ export default function Home() {
       </section>
 
       {/* ── News / Note ── */}
-      <NoteSection />
+      <Suspense>
+        <NoteSection />
+      </Suspense>
 
       {/* ── Mission ── */}
       <section className="py-3 px-4 lg:px-6">

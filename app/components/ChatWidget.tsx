@@ -84,20 +84,8 @@ export function ChatWidget() {
   const isComposing = useRef(false);
 
   useEffect(() => {
-    if (open && messages.length === 0) {
-      setMessages([GREETING]);
-    }
-  }, [open, messages.length]);
-
-  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
-
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [open]);
 
   function handleReset() {
     setMessages([GREETING]);
@@ -261,7 +249,14 @@ export function ChatWidget() {
 
       {/* Toggle button */}
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          const next = !open;
+          setOpen(next);
+          if (next) {
+            if (messages.length === 0) setMessages([GREETING]);
+            setTimeout(() => inputRef.current?.focus(), 100);
+          }
+        }}
         aria-label={open ? "チャットを閉じる" : "AIアシスタントに聞く"}
         data-gtm-click="chat_toggle"
         data-gtm-location="chat_widget"

@@ -29,6 +29,48 @@ function renderBubble(text: string) {
   );
 }
 
+function BubbleArea({
+  side,
+  bubble,
+  loading,
+  nextSide,
+}: {
+  side: "left" | "right";
+  bubble: Bubble | null;
+  loading: boolean;
+  nextSide: "left" | "right";
+}) {
+  const isNext = nextSide === side;
+  const isActive = bubble?.side === side;
+
+  return (
+    <div className="relative z-10 flex items-end justify-center mb-2">
+      {loading && isNext ? (
+        <div
+          className="speech-bubble bubble-fade-in relative bg-white rounded-2xl px-4 py-3"
+          style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.10))" }}
+        >
+          <span className="inline-flex gap-1">
+            <span className="chat-dot" />
+            <span className="chat-dot chat-dot-delay-1" />
+            <span className="chat-dot chat-dot-delay-2" />
+          </span>
+        </div>
+      ) : isActive && bubble ? (
+        <div
+          key={bubble.key}
+          className="speech-bubble bubble-fade-in relative bg-white rounded-2xl px-4 py-3 max-w-[200px] md:max-w-[240px]"
+          style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.10))" }}
+        >
+          <p className="text-xs md:text-sm text-ink leading-relaxed whitespace-pre-wrap">
+            {renderBubble(bubble.text)}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function HeroChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -69,45 +111,13 @@ export function HeroChat() {
     }
   }
 
-  function BubbleArea({ side }: { side: "left" | "right" }) {
-    const isNext = nextSide === side;
-    const isActive = bubble?.side === side;
-
-    return (
-      <div className="relative z-10 flex items-end justify-center mb-2">
-        {loading && isNext ? (
-          <div
-            className="speech-bubble bubble-fade-in relative bg-white rounded-2xl px-4 py-3"
-            style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.10))" }}
-          >
-            <span className="inline-flex gap-1">
-              <span className="chat-dot" />
-              <span className="chat-dot chat-dot-delay-1" />
-              <span className="chat-dot chat-dot-delay-2" />
-            </span>
-          </div>
-        ) : isActive && bubble ? (
-          <div
-            key={bubble.key}
-            className="speech-bubble bubble-fade-in relative bg-white rounded-2xl px-4 py-3 max-w-[200px] md:max-w-[240px]"
-            style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.10))" }}
-          >
-            <p className="text-xs md:text-sm text-ink leading-relaxed whitespace-pre-wrap">
-              {renderBubble(bubble.text)}
-            </p>
-          </div>
-        ) : null}
-      </div>
-    );
-  }
-
   return (
     <div className="w-full flex flex-col items-center">
       {/* Characters */}
       <div className="flex items-end justify-center gap-10 md:gap-20">
         {/* Left: chara-yellow */}
         <div className="flex flex-col items-center">
-          <BubbleArea side="left" />
+          <BubbleArea side="left" bubble={bubble} loading={loading} nextSide={nextSide} />
           <div className="chara-yellow relative z-0">
             <Image
               src="/images/chara-yellow.png"
@@ -124,7 +134,7 @@ export function HeroChat() {
 
         {/* Right: chara-green */}
         <div className="flex flex-col items-center">
-          <BubbleArea side="right" />
+          <BubbleArea side="right" bubble={bubble} loading={loading} nextSide={nextSide} />
           <div className="chara-green md:-translate-y-4 relative z-0">
             <Image
               src="/images/chara-green.png"

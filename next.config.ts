@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   experimental: {
     optimizeCss: true,
+    optimizePackageImports: ['lucide-react'],
   },
   // 画像最適化
   images: {

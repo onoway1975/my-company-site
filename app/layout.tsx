@@ -10,8 +10,7 @@ const bebas = Bebas_Neue({
 });
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { ChatWidget } from "./components/ChatWidget";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { DeferredWidgets } from "./components/DeferredWidgets";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ciraf.jp"),
@@ -127,8 +126,7 @@ export default function RootLayout({
         <Header />
         <main className="pt-16">{children}</main>
         <Footer />
-        <ChatWidget />
-        <SpeedInsights />
+        <DeferredWidgets />
       </body>
     </html>
   );

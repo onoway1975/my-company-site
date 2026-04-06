@@ -32,13 +32,19 @@ type PartId =
   | 'hero-center' | 'hero-split' | 'hero-dark-split' | 'hero-minimal' | 'hero-with-video'
   | 'hero-slider'
   | 'image-fullwidth' | 'image-gallery' | 'image-text' | 'image-text-right' | 'video-embed'
+  | 'bullet-points' | 'icon-cards-2x2' | 'timeline-steps' | 'quote-fullscreen'
+  | 'quote-side-accent' | 'before-after' | 'compare-two-option' | 'problem-background'
+  | 'mission-statement'
+  | 'image-caption' | 'image-three-grid'
+  | 'big-number' | 'chart-bar' | 'chart-donut' | 'chart-line' | 'kpi-dashboard' | 'compare-table'
+  | 'closing-thankyou' | 'closing-contact-card' | 'speaker-bio' | 'agenda-toc'
   | 'btn-outline' | 'btn-filled' | 'btn-ghost' | 'btn-rounded' | 'btn-icon' | 'btn-cta-lg'
   | 'fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right'
   | 'text-fade-in' | 'text-slide-up' | 'text-stagger' | 'text-typewriter'
   | 'btn-hover-fill' | 'btn-hover-slide'
   | 'parallax' | 'counter-up'
 
-type ActiveTab  = 'area' | 'hero' | 'media' | 'button' | 'animation' | 'font'
+type ActiveTab  = 'area' | 'hero' | 'media' | 'data' | 'closing' | 'button' | 'animation' | 'font'
 type PromptTab  = 'chat' | 'code' | 'pptx'
 
 interface Part {
@@ -94,14 +100,14 @@ const PARTS: Part[] = [
   { id: 'testimonial',  tab: 'area',   name: 'お客様の声',             description: '利用者のレビューや感想を掲載' },
   { id: 'faq',          tab: 'area',   name: 'よくある質問',           description: '疑問を解消するQ&Aセクション' },
   { id: 'logos',        tab: 'area',   name: 'ロゴ一覧',              description: '導入企業や実績のロゴを並べる' },
-  { id: 'pricing',      tab: 'area',   name: '料金プラン',             description: '2〜3カラムの料金比較テーブル' },
-  { id: 'stats',        tab: 'area',   name: '実績・数値',             description: '大きな数字で成果を訴求するセクション' },
+  { id: 'pricing',      tab: 'data',   name: '料金プラン',             description: '2〜3カラムの料金比較テーブル' },
+  { id: 'stats',        tab: 'data',   name: '実績・数値',             description: '大きな数字で成果を訴求するセクション' },
   { id: 'team',         tab: 'area',   name: 'チーム紹介',             description: 'メンバーの顔写真・名前・役職カード' },
   { id: 'blog',         tab: 'area',   name: 'ブログ・ニュース',       description: '記事カードを3カラムで表示' },
   { id: 'newsletter',   tab: 'area',   name: 'メルマガ登録',           description: 'メールアドレス入力＋登録ボタン' },
   { id: 'steps',        tab: 'area',   name: '導入ステップ',           description: '番号付きの手順説明（3〜4ステップ）' },
   { id: 'contact',      tab: 'area',   name: 'お問い合わせ',           description: '名前・メール・メッセージのフォーム' },
-  { id: 'footer',       tab: 'area',   name: 'フッター',               description: 'ロゴ・ナビ・コピーライトのフッター' },
+  { id: 'footer',       tab: 'closing', name: 'フッター',               description: 'ロゴ・ナビ・コピーライトのフッター' },
   // ① Area 追加
   { id: 'text-2col',            tab: 'area', name: 'テキスト2カラム',            description: '本文を左右2カラムに分けて表示' },
   { id: 'features-4col-image',  tab: 'area', name: '特徴（4カラム・画像付き）',  description: '画像＋タイトル＋説明の4カラムグリッド' },
@@ -113,6 +119,31 @@ const PARTS: Part[] = [
   { id: 'map',                  tab: 'area', name: 'Googleマップ',               description: '店舗・会社の地図を埋め込み表示' },
   { id: 'services-labeled',     tab: 'area', name: 'サービス（ラベル付き4カラム）', description: 'カテゴリラベル＋タイトル＋説明の4カラム' },
   { id: 'mission-split',        tab: 'area', name: 'ミッション文（左右分割）',    description: '左に大きな日本語テキスト・右に説明文' },
+  // ① Area 追加（新規9個）
+  { id: 'bullet-points',        tab: 'area', name: '箇条書きリスト',             description: 'チェックマーク付きの箇条書きセクション' },
+  { id: 'icon-cards-2x2',       tab: 'area', name: 'アイコンカード（2×2）',      description: '2×2グリッドのアイコン付きカード' },
+  { id: 'timeline-steps',       tab: 'area', name: 'タイムライン / ステップ',    description: '縦型タイムラインでプロセスを表示' },
+  { id: 'quote-fullscreen',     tab: 'area', name: '引用（フルスクリーン）',      description: '大きな引用テキストを全画面で表示' },
+  { id: 'quote-side-accent',    tab: 'area', name: '引用（サイドアクセント）',    description: '左にアクセント線付きの引用テキスト' },
+  { id: 'before-after',         tab: 'area', name: 'Before / After比較',         description: '導入前後のビフォーアフター比較' },
+  { id: 'compare-two-option',   tab: 'area', name: '2択比較',                    description: '2つの選択肢を左右に並べて比較' },
+  { id: 'problem-background',   tab: 'area', name: '課題提示',                   description: '解決すべき課題・背景を提示するセクション' },
+  { id: 'mission-statement',    tab: 'area', name: 'ミッションステートメント',    description: '企業のミッション・ビジョンを大きく表示' },
+  // メディア追加（新規2個）
+  { id: 'image-caption',        tab: 'media', name: '画像＋キャプション',         description: '画像の下にキャプション付きで表示' },
+  { id: 'image-three-grid',     tab: 'media', name: '3枚フォトギャラリー',        description: '3枚の画像を横並びで表示' },
+  // データタブ（新規6個）
+  { id: 'big-number',           tab: 'data', name: '大きな数値インパクト',        description: '巨大な数値で印象を与えるセクション' },
+  { id: 'chart-bar',            tab: 'data', name: '棒グラフ',                   description: '棒グラフでデータを視覚化' },
+  { id: 'chart-donut',          tab: 'data', name: 'ドーナツ / 円グラフ',        description: 'ドーナツチャートで割合を表示' },
+  { id: 'chart-line',           tab: 'data', name: '折れ線グラフ',               description: '折れ線グラフで推移を表示' },
+  { id: 'kpi-dashboard',        tab: 'data', name: 'KPIダッシュボード',          description: 'KPI指標をダッシュボード形式で表示' },
+  { id: 'compare-table',        tab: 'data', name: '比較テーブル',               description: '機能比較を表形式で表示' },
+  // クロージングタブ（新規4個）
+  { id: 'closing-thankyou',     tab: 'closing', name: 'Thank You',               description: '感謝のメッセージを大きく表示' },
+  { id: 'closing-contact-card', tab: 'closing', name: '連絡先カード',             description: '担当者の連絡先情報をカード表示' },
+  { id: 'speaker-bio',          tab: 'closing', name: 'スピーカー紹介',           description: '講演者のプロフィールを紹介' },
+  { id: 'agenda-toc',           tab: 'closing', name: 'アジェンダ / 目次',        description: 'プレゼンの目次やアジェンダを表示' },
   // ② Hero
   { id: 'hero-center',      tab: 'hero', name: 'ヒーロー（中央寄せ）',       description: 'テキストとCTAを中央配置' },
   { id: 'hero-split',       tab: 'hero', name: 'ヒーロー（左右分割）',       description: '左テキスト・右画像の2カラム' },
@@ -155,6 +186,8 @@ const TABS: { id: ActiveTab; label: string; disabled?: boolean }[] = [
   { id: 'area',      label: 'エリア' },
   { id: 'hero',      label: 'ヒーロー' },
   { id: 'media',     label: 'メディア' },
+  { id: 'data',      label: 'データ' },
+  { id: 'closing',   label: 'クロージング' },
   { id: 'button',    label: 'ボタン' },
   { id: 'animation', label: 'アニメーション' },
   { id: 'font',      label: 'フォント' },
@@ -216,6 +249,31 @@ const PPTX_BULLETS: Record<PartId, string[]> = {
   'btn-hover-slide': ['CSS: ::before 疑似要素でbackground をscaleX(0)→scaleX(1)', 'overflow:hidden + position:relative必須'],
   parallax:          ['onScrollイベントでtranslateYを速度0.5倍で設定', 'useEffect内でwindow.addEventListener("scroll", handler)'],
   'counter-up':      ['Intersection Observer 発火時にsetIntervalで数値を増加', '終了値に達したらclearInterval'],
+  // Area 追加
+  'bullet-points':       ['チェックマーク付き箇条書き', '4〜6項目のリスト', '左アイコン＋テキストの横並び'],
+  'icon-cards-2x2':      ['2×2グリッド（4枚）', '各カードにアイコン＋タイトル＋説明', 'カード間に均等な余白'],
+  'timeline-steps':      ['縦型タイムライン', '左に丸番号・右にタイトル＋説明', '縦線で各ステップを接続'],
+  'quote-fullscreen':    ['全画面ダーク背景', '中央に大きな引用テキスト（白）', '下部に引用元の名前・肩書き'],
+  'quote-side-accent':   ['左に太いアクセント線（border-left）', '右に引用テキスト＋引用元', '白背景・控えめなデザイン'],
+  'before-after':        ['左右2カラム（Before / After）', '各カラムにラベル＋内容', 'ダーク←→ライトのコントラスト'],
+  'compare-two-option':  ['2カラムカード比較', '各カードにタイトル＋特徴リスト', '片方を推奨として強調可能'],
+  'problem-background':  ['課題・背景を提示', '大きなh2見出し＋説明テキスト', 'アイコンまたは番号付きリスト'],
+  'mission-statement':   ['ダーク全画面背景', '中央に大きなミッションテキスト', '企業理念・ビジョンの訴求'],
+  // Media 追加
+  'image-caption':       ['画像エリア＋下部キャプション', 'ダーク背景に白テキスト', 'aspect-ratio 16/9の画像コンテナ'],
+  'image-three-grid':    ['3枚の画像を横並び', '均等幅・同一高さ', 'hover時にoverlay表示推奨'],
+  // Data
+  'big-number':          ['超大型数値（80px以上）を中央配置', 'サブテキストで補足説明', '1〜3個の数値を横並び'],
+  'chart-bar':           ['縦棒グラフ（4〜6本）', '各バーにラベル＋数値', 'CSSのみで実装（SVG不要）'],
+  'chart-donut':         ['ドーナツチャート（CSS conic-gradient）', '中央に数値表示', '凡例を下部に配置'],
+  'chart-line':          ['折れ線グラフ（SVG polyline）', '5〜7ポイント', 'X軸Y軸のラベル付き'],
+  'kpi-dashboard':       ['ダーク背景のダッシュボード', '4つのKPI指標カード', '各カードに数値＋ラベル＋トレンド矢印'],
+  'compare-table':       ['機能比較テーブル', '3カラム（プラン名）×5行（機能）', '○×または✓で比較表示'],
+  // Closing
+  'closing-thankyou':    ['ダーク全画面背景', '大きな「Thank You」テキスト', 'サブテキストで次のアクションを案内'],
+  'closing-contact-card':['連絡先情報カード', '名前・メール・電話・住所', 'アイコン付きの整列されたレイアウト'],
+  'speaker-bio':         ['講演者プロフィール', '左に顔写真・右にバイオグラフィー', '名前・肩書き・SNSリンク'],
+  'agenda-toc':          ['ダーク背景の目次', '番号付きリスト形式', '各項目にタイトル＋時間'],
 }
 
 const PART_GUIDES: Record<PartId, string> = {
@@ -273,6 +331,31 @@ const PART_GUIDES: Record<PartId, string> = {
   'btn-hover-slide': 'ボタンホバー（スライド）: ::before 疑似要素でbackground を scaleX(0)→scaleX(1) でスライド。overflow:hidden + position:relative必須',
   parallax:          'パララックス: onScrollイベントで translateY を速度0.5倍で設定。useEffect内で window.addEventListener("scroll", handler)',
   'counter-up':      'カウントアップ: Intersection Observer 発火時に setInterval で数値を増加。終了値に達したら clearInterval',
+  // Area 追加
+  'bullet-points':       '箇条書きリスト: 白背景、チェックマーク付き4〜6項目のリスト。左にアイコン、右にテキスト。',
+  'icon-cards-2x2':      'アイコンカード2×2: 白背景、2×2グリッドで4枚のカード。各カードにアイコン＋タイトル＋説明文。',
+  'timeline-steps':      'タイムライン: 白背景、縦型タイムライン。左に丸番号、右にタイトル＋説明。縦線で各ステップを接続。',
+  'quote-fullscreen':    '引用フルスクリーン: ダーク背景、中央に大きな引用テキスト（白・italic）。下部に引用元の名前と肩書き。',
+  'quote-side-accent':   '引用サイドアクセント: 白背景、左に太い縦線（border-left 4px）。右に引用テキスト＋引用元。',
+  'before-after':        'Before/After: 白背景、左右2カラム。左（Before）はグレー系、右（After）はアクセント色で対比。',
+  'compare-two-option':  '2択比較: ライトグレー背景、2カラムのカード。各カードにタイトル＋特徴リスト。片方を推奨強調。',
+  'problem-background':  '課題提示: 白背景、大きなh2見出し「こんな課題ありませんか？」＋アイコン付きリストで課題を列挙。',
+  'mission-statement':   'ミッションステートメント: ダーク背景、中央に大きなミッションテキスト（白・font-weight 300）。',
+  // Media 追加
+  'image-caption':       '画像＋キャプション: ダーク背景、16:9画像エリア＋下部に白テキストのキャプション。',
+  'image-three-grid':    '3枚フォトギャラリー: 白背景、3枚の画像を横並びグリッド。均等幅・同一高さ。',
+  // Data
+  'big-number':          '大きな数値: 白背景、超大型数値（font-size 64px以上）を中央配置。サブテキストで補足。',
+  'chart-bar':           '棒グラフ: 白背景、CSSのみで縦棒グラフ（4〜6本）。各バーにラベル＋数値。',
+  'chart-donut':         'ドーナツグラフ: 白背景、CSS conic-gradientでドーナツチャート。中央に数値、下部に凡例。',
+  'chart-line':          '折れ線グラフ: 白背景、SVG polylineで5〜7ポイントの折れ線。X軸Y軸ラベル付き。',
+  'kpi-dashboard':       'KPIダッシュボード: ダーク背景、4つのKPIカード。各カードに数値＋ラベル＋トレンド矢印。',
+  'compare-table':       '比較テーブル: 白背景、3カラム×5行の機能比較テーブル。✓/×で比較表示。ヘッダー行を強調。',
+  // Closing
+  'closing-thankyou':    'Thank You: ダーク背景、中央に大きな「Thank You」テキスト（白）。サブテキストで次のアクション案内。',
+  'closing-contact-card':'連絡先カード: 白背景、名前・メール・電話・住所の連絡先情報をアイコン付きカードで表示。',
+  'speaker-bio':         'スピーカー紹介: 白背景、左に顔写真プレースホルダー・右にバイオグラフィー。名前・肩書き・SNS。',
+  'agenda-toc':          'アジェンダ: ダーク背景、番号付きリスト形式の目次。各項目にタイトル＋時間。',
 }
 
 // ── Font List ─────────────────────────────────────────────────────────────
@@ -830,6 +913,268 @@ function PreviewHeroSlider() {
   )
 }
 
+// Area 追加パーツ Preview（新規9個）──────────────────────────────────────────
+function PreviewBulletPoints() {
+  return (
+    <div className="h-[160px] flex flex-col justify-center px-5 gap-2" style={{ background: C.card }}>
+      {['導入コスト削減', '運用効率アップ', 'サポート充実', '高い拡張性'].map((t, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span style={{ fontSize: 10, color: '#4CAF50' }}>✓</span>
+          <span style={{ fontSize: 10, color: C.main }}>{t}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+function PreviewIconCards2x2() {
+  return (
+    <div className="h-[160px] p-3" style={{ background: C.card }}>
+      <div className="grid grid-cols-2 gap-2 h-full">
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="flex flex-col items-center justify-center gap-1" style={{ background: C.bg, borderRadius: 2, border: `1px solid ${C.bd}` }}>
+            <div style={{ width: 20, height: 20, borderRadius: '50%', background: C.muted }} />
+            <div style={{ width: 32, height: 4, background: C.bd, borderRadius: 1 }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+function PreviewTimelineSteps() {
+  return (
+    <div className="h-[160px] flex flex-col justify-center px-5 gap-0" style={{ background: C.card }}>
+      {[1, 2, 3].map(n => (
+        <div key={n} className="flex items-start gap-3" style={{ paddingBottom: n < 3 ? 8 : 0 }}>
+          <div className="flex flex-col items-center">
+            <div style={{ width: 18, height: 18, borderRadius: '50%', border: `1px solid ${C.main}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, color: C.main, flexShrink: 0 }}>{n}</div>
+            {n < 3 && <div style={{ width: 1, height: 16, background: C.bd }} />}
+          </div>
+          <div>
+            <div style={{ width: 50, height: 5, background: C.main, borderRadius: 1, marginBottom: 3 }} />
+            <div style={{ width: 70, height: 4, background: C.bd, borderRadius: 1 }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+function PreviewQuoteFullscreen() {
+  return (
+    <div className="h-[160px] flex flex-col items-center justify-center gap-2 px-5" style={{ background: '#2C2C2C' }}>
+      <span style={{ fontSize: 22, color: 'rgba(244,244,244,0.2)', lineHeight: 1, fontFamily: 'serif' }}>"</span>
+      <p style={{ fontSize: 10, color: '#F4F4F4', textAlign: 'center', lineHeight: 1.6, fontStyle: 'italic' }}>お客様の声やキャッチコピーが<br />ここに入ります</p>
+      <div style={{ width: 40, height: 3, background: 'rgba(244,244,244,0.15)', borderRadius: 1 }} />
+    </div>
+  )
+}
+function PreviewQuoteSideAccent() {
+  return (
+    <div className="h-[160px] flex items-center px-5" style={{ background: C.card }}>
+      <div style={{ borderLeft: `3px solid ${C.main}`, paddingLeft: 12 }}>
+        <p style={{ fontSize: 10, color: C.sub, fontStyle: 'italic', lineHeight: 1.7, marginBottom: 6 }}>"素晴らしいサービスでした。<br />チーム全員が満足しています。"</p>
+        <div style={{ width: 50, height: 4, background: C.bd, borderRadius: 1 }} />
+      </div>
+    </div>
+  )
+}
+function PreviewBeforeAfter() {
+  return (
+    <div className="h-[160px] flex" style={{ background: C.card }}>
+      <div className="flex-1 flex flex-col items-center justify-center gap-2" style={{ background: '#E8E8E8' }}>
+        <p style={{ fontSize: 9, fontWeight: 600, color: C.sub, letterSpacing: '0.1em' }}>BEFORE</p>
+        <div style={{ width: '60%', height: 50, background: C.bd, borderRadius: 2 }} />
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center gap-2" style={{ background: C.card }}>
+        <p style={{ fontSize: 9, fontWeight: 600, color: C.main, letterSpacing: '0.1em' }}>AFTER</p>
+        <div style={{ width: '60%', height: 50, background: C.main, borderRadius: 2 }} />
+      </div>
+    </div>
+  )
+}
+function PreviewCompareTwoOption() {
+  return (
+    <div className="h-[160px] flex items-center justify-center px-3 gap-2" style={{ background: C.bg }}>
+      {[false, true].map((featured, i) => (
+        <div key={i} className="flex-1 h-32 flex flex-col justify-between p-2.5"
+          style={{ background: C.card, border: featured ? `1.5px solid ${C.main}` : `1px solid ${C.bd}`, borderRadius: 2 }}>
+          <div>
+            <div className="w-12 h-1.5 rounded mb-1.5" style={{ background: featured ? C.main : C.bd }} />
+            <div className="w-8 h-1 rounded" style={{ background: C.muted }} />
+          </div>
+          <div className="space-y-1">
+            {[0, 1, 2].map(j => (<div key={j} className="h-1 rounded" style={{ background: C.muted }} />))}
+          </div>
+          {featured && <div className="h-4 rounded" style={{ background: C.main, borderRadius: 2 }} />}
+        </div>
+      ))}
+    </div>
+  )
+}
+function PreviewProblemBackground() {
+  return (
+    <div className="h-[160px] flex flex-col justify-center px-5 gap-3" style={{ background: C.card }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color: C.main }}>こんな課題ありませんか？</p>
+      {['集客が伸びない', 'CVRが低い', '運用コストが高い'].map((t, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span style={{ fontSize: 10, color: '#D32F2F' }}>!</span>
+          <span style={{ fontSize: 9, color: C.sub }}>{t}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+function PreviewMissionStatement() {
+  return (
+    <div className="h-[160px] flex flex-col items-center justify-center gap-2 px-5" style={{ background: '#2C2C2C' }}>
+      <p style={{ fontSize: 14, fontWeight: 300, color: '#F4F4F4', textAlign: 'center', lineHeight: 1.5, letterSpacing: '0.05em' }}>デザインの力で<br />社会を変える</p>
+      <div style={{ width: 30, height: 1, background: 'rgba(244,244,244,0.2)' }} />
+    </div>
+  )
+}
+// Media 追加 Preview（新規2個）────────────────────────────────────────────────
+function PreviewImageCaption() {
+  return (
+    <div className="h-[160px] flex flex-col" style={{ background: '#2C2C2C' }}>
+      <div className="flex-1 flex items-center justify-center" style={{ background: C.muted }}>
+        <ImageIcon size={22} color={C.hint} />
+      </div>
+      <div style={{ padding: '8px 12px' }}>
+        <div style={{ width: '70%', height: 4, background: 'rgba(244,244,244,0.3)', borderRadius: 1 }} />
+      </div>
+    </div>
+  )
+}
+function PreviewImageThreeGrid() {
+  return (
+    <div className="h-[160px] p-3 flex gap-2" style={{ background: C.card }}>
+      {[0, 1, 2].map(i => (
+        <div key={i} className="flex-1" style={{ background: C.muted, borderRadius: 2 }} />
+      ))}
+    </div>
+  )
+}
+// Data Preview（新規6個）──────────────────────────────────────────────────────
+function PreviewBigNumber() {
+  return (
+    <div className="h-[160px] flex flex-col items-center justify-center gap-1" style={{ background: C.card }}>
+      <p style={{ fontSize: 36, fontWeight: 700, color: C.main, lineHeight: 1 }}>98%</p>
+      <p style={{ fontSize: 9, color: C.sub }}>顧客満足度</p>
+    </div>
+  )
+}
+function PreviewChartBar() {
+  return (
+    <div className="h-[160px] flex items-end justify-center gap-3 px-5 pb-5 pt-4" style={{ background: C.card }}>
+      {[60, 85, 45, 95, 70].map((h, i) => (
+        <div key={i} className="flex flex-col items-center gap-1" style={{ flex: 1 }}>
+          <div style={{ width: '100%', height: h, background: i === 3 ? C.main : C.bd, borderRadius: '2px 2px 0 0' }} />
+          <span style={{ fontSize: 7, color: C.sub }}>{'ABCDE'[i]}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+function PreviewChartDonut() {
+  return (
+    <div className="h-[160px] flex items-center justify-center" style={{ background: C.card }}>
+      <div style={{ position: 'relative', width: 80, height: 80 }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: `conic-gradient(${C.main} 0% 65%, ${C.bd} 65% 100%)` }} />
+        <div style={{ position: 'absolute', inset: 18, borderRadius: '50%', background: C.card, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: C.main }}>65%</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+function PreviewChartLine() {
+  return (
+    <div className="h-[160px] flex items-center justify-center px-4 py-4" style={{ background: C.card }}>
+      <svg viewBox="0 0 120 60" width="120" height="60" style={{ overflow: 'visible' }}>
+        <polyline points="0,50 20,40 40,45 60,25 80,30 100,10 120,15" fill="none" stroke={C.main} strokeWidth="2" />
+        <line x1="0" y1="55" x2="120" y2="55" stroke={C.bd} strokeWidth="0.5" />
+        <line x1="0" y1="0" x2="0" y2="55" stroke={C.bd} strokeWidth="0.5" />
+      </svg>
+    </div>
+  )
+}
+function PreviewKpiDashboard() {
+  return (
+    <div className="h-[160px] grid grid-cols-2 gap-1.5 p-3" style={{ background: '#2C2C2C' }}>
+      {[['1,200', '導入数', '↑'], ['98%', '継続率', '↑'], ['¥2.4M', '月次売上', '↑'], ['4.8', '満足度', '→']].map(([n, l, t], i) => (
+        <div key={i} className="flex flex-col items-center justify-center gap-0.5" style={{ background: '#3C3C3C', borderRadius: 2 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#F4F4F4' }}>{n}</span>
+          <span style={{ fontSize: 7, color: '#888' }}>{l}</span>
+          <span style={{ fontSize: 8, color: t === '↑' ? '#4CAF50' : '#888' }}>{t}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+function PreviewCompareTable() {
+  return (
+    <div className="h-[160px] flex flex-col px-3 py-3 gap-0" style={{ background: C.card }}>
+      <div className="flex mb-1">
+        <div style={{ flex: 1 }} />
+        {['Free', 'Pro', 'Biz'].map(p => (
+          <div key={p} style={{ flex: 1, textAlign: 'center', fontSize: 8, fontWeight: 600, color: C.main }}>{p}</div>
+        ))}
+      </div>
+      {['機能A', '機能B', '機能C', '機能D'].map((f, i) => (
+        <div key={i} className="flex items-center" style={{ borderTop: `1px solid ${C.muted}`, padding: '4px 0' }}>
+          <div style={{ flex: 1, fontSize: 8, color: C.sub }}>{f}</div>
+          <div style={{ flex: 1, textAlign: 'center', fontSize: 9, color: i < 1 ? '#4CAF50' : C.bd }}>✓</div>
+          <div style={{ flex: 1, textAlign: 'center', fontSize: 9, color: '#4CAF50' }}>✓</div>
+          <div style={{ flex: 1, textAlign: 'center', fontSize: 9, color: '#4CAF50' }}>✓</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+// Closing Preview（新規4個）───────────────────────────────────────────────────
+function PreviewClosingThankyou() {
+  return (
+    <div className="h-[160px] flex flex-col items-center justify-center gap-2 px-4" style={{ background: '#2C2C2C' }}>
+      <p style={{ fontSize: 18, fontWeight: 300, color: '#F4F4F4', letterSpacing: '0.1em' }}>Thank You</p>
+      <p style={{ fontSize: 9, color: 'rgba(244,244,244,0.35)' }}>お問い合わせをお待ちしています</p>
+    </div>
+  )
+}
+function PreviewClosingContactCard() {
+  return (
+    <div className="h-[160px] flex flex-col justify-center px-5 gap-2" style={{ background: C.card }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color: C.main }}>お問い合わせ</p>
+      {['✉ info@example.com', '☎ 03-1234-5678', '📍 東京都千代田区'].map((t, i) => (
+        <p key={i} style={{ fontSize: 9, color: C.sub }}>{t}</p>
+      ))}
+    </div>
+  )
+}
+function PreviewSpeakerBio() {
+  return (
+    <div className="h-[160px] flex items-center px-4 gap-3" style={{ background: C.card }}>
+      <div style={{ width: 56, height: 56, background: C.muted, borderRadius: '50%', flexShrink: 0 }} />
+      <div className="flex flex-col gap-1.5">
+        <div style={{ width: 50, height: 6, background: C.main, borderRadius: 1 }} />
+        <div style={{ width: 70, height: 4, background: C.bd, borderRadius: 1 }} />
+        <div style={{ width: 60, height: 4, background: C.muted, borderRadius: 1 }} />
+      </div>
+    </div>
+  )
+}
+function PreviewAgendaToc() {
+  return (
+    <div className="h-[160px] flex flex-col justify-center px-5 gap-2" style={{ background: '#2C2C2C' }}>
+      {[['01', 'はじめに', '5 min'], ['02', 'サービス紹介', '15 min'], ['03', 'Q&A', '10 min']].map(([n, t, d], i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(244,244,244,0.3)', fontFamily: 'monospace' }}>{n}</span>
+          <span style={{ fontSize: 10, color: '#F4F4F4', flex: 1 }}>{t}</span>
+          <span style={{ fontSize: 8, color: 'rgba(244,244,244,0.3)' }}>{d}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ── Animation Card Previews (interactive) ────────────────────────────────
 function PlayBtn({ playing, onClick, dark }: { playing: boolean; onClick: () => void; dark?: boolean }) {
   return (
@@ -1084,6 +1429,31 @@ const CARD_PREVIEW_MAP: Record<PartId, React.FC> = {
   'btn-hover-slide': PreviewBtnHoverSlide,
   parallax: PreviewParallax,
   'counter-up': PreviewCounterUp,
+  // Area 追加
+  'bullet-points': PreviewBulletPoints,
+  'icon-cards-2x2': PreviewIconCards2x2,
+  'timeline-steps': PreviewTimelineSteps,
+  'quote-fullscreen': PreviewQuoteFullscreen,
+  'quote-side-accent': PreviewQuoteSideAccent,
+  'before-after': PreviewBeforeAfter,
+  'compare-two-option': PreviewCompareTwoOption,
+  'problem-background': PreviewProblemBackground,
+  'mission-statement': PreviewMissionStatement,
+  // Media 追加
+  'image-caption': PreviewImageCaption,
+  'image-three-grid': PreviewImageThreeGrid,
+  // Data
+  'big-number': PreviewBigNumber,
+  'chart-bar': PreviewChartBar,
+  'chart-donut': PreviewChartDonut,
+  'chart-line': PreviewChartLine,
+  'kpi-dashboard': PreviewKpiDashboard,
+  'compare-table': PreviewCompareTable,
+  // Closing
+  'closing-thankyou': PreviewClosingThankyou,
+  'closing-contact-card': PreviewClosingContactCard,
+  'speaker-bio': PreviewSpeakerBio,
+  'agenda-toc': PreviewAgendaToc,
 }
 
 // ── Section render helpers ────────────────────────────────────────────────
@@ -1822,6 +2192,486 @@ function SectionMissionSplit({ options }: { options: PartOptions }) {
     </section>
   )
 }
+// ── Area 追加セクション（新規9個）──────────────────────────────────────────────
+function SectionBulletPoints({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>FEATURES</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>選ばれる理由</h2>
+      </div>
+      <div className="max-w-xl mx-auto flex flex-col gap-5">
+        {['導入コストを大幅に削減', '運用効率が3倍にアップ', '24時間のサポート体制', '高い拡張性とカスタマイズ性', '充実したドキュメント'].map((t, i) => (
+          <div key={i} className="flex items-center gap-4">
+            <span style={{ fontSize: 16, color: subColor }}>✓</span>
+            <span style={{ fontSize: 14, color }}>{ t }</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>{renderButton(options.buttonStyle, color)}</div>
+    </section>
+  )
+}
+function SectionIconCards2x2({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor, cardBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>FEATURES</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>4つの特徴</h2>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 700, margin: '0 auto' }}>
+        {([
+          [Zap, '高速パフォーマンス', 'ページ読み込みが圧倒的に速い'],
+          [Shield, 'セキュリティ', 'エンタープライズ級の安全性'],
+          [Star, '高い満足度', '業界平均4.8の評価'],
+          [Layout, '柔軟な設計', '自由なカスタマイズ性'],
+        ] as const).map(([Icon, title, desc], i) => (
+          <div key={i} className="p-6 flex flex-col items-center text-center gap-3" style={{ background: cardBg, border: `1px solid ${bdColor}`, borderRadius: 4 }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon size={22} color={subColor} />
+            </div>
+            <p style={{ fontSize: 14, fontWeight: 600, color }}>{title}</p>
+            <p style={{ fontSize: 12, color: subColor, lineHeight: 1.7 }}>{desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionTimelineSteps({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const steps = [
+    ['お申し込み', 'Webフォームから簡単にお申し込みいただけます。'],
+    ['ヒアリング', 'ご要望や課題を丁寧にヒアリングいたします。'],
+    ['ご提案', 'カスタマイズされたプランをご提案します。'],
+    ['導入開始', 'スムーズな導入をサポートいたします。'],
+  ]
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>PROCESS</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>導入の流れ</h2>
+      </div>
+      <div className="max-w-lg mx-auto flex flex-col">
+        {steps.map(([title, desc], i) => (
+          <div key={i} className="flex gap-5">
+            <div className="flex flex-col items-center">
+              <div style={{ width: 36, height: 36, borderRadius: '50%', border: `1.5px solid ${color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color, flexShrink: 0 }}>{i + 1}</div>
+              {i < steps.length - 1 && <div style={{ width: 1, flex: 1, background: bdColor }} />}
+            </div>
+            <div style={{ paddingBottom: i < steps.length - 1 ? 28 : 0 }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color, marginBottom: 4 }}>{title}</p>
+              <p style={{ fontSize: 12, color: subColor, lineHeight: 1.8 }}>{desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>{renderButton(options.buttonStyle, color)}</div>
+    </section>
+  )
+}
+function SectionQuoteFullscreen({ options }: { options: PartOptions }) {
+  const { bg, color, subColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="flex flex-col items-center justify-center text-center gap-8 px-10" style={{ background: bg, minHeight: 400, paddingTop: py, paddingBottom: py }}>
+      <span style={{ fontSize: 48, color: subColor, lineHeight: 1, fontFamily: 'serif', opacity: 0.3 }}>"</span>
+      <p style={{ fontSize: 22, color, lineHeight: 1.7, maxWidth: 600, fontStyle: 'italic', fontWeight: 300 }}>
+        このサービスのおかげで、私たちのビジネスは大きく変わりました。心からおすすめします。
+      </p>
+      <div>
+        <p style={{ fontSize: 13, fontWeight: 600, color }}>山田 太郎</p>
+        <p style={{ fontSize: 11, color: subColor, marginTop: 4 }}>株式会社A CEO</p>
+      </div>
+    </section>
+  )
+}
+function SectionQuoteSideAccent({ options }: { options: PartOptions }) {
+  const { bg, color, subColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="max-w-2xl mx-auto" style={{ borderLeft: `4px solid ${color}`, paddingLeft: 32 }}>
+        <p style={{ fontSize: 18, color, lineHeight: 1.8, fontStyle: 'italic', marginBottom: 16 }}>
+          "導入後3ヶ月で問い合わせが2倍に増えました。サポートも手厚く、安心して利用しています。"
+        </p>
+        <p style={{ fontSize: 13, fontWeight: 600, color }}>鈴木 花子</p>
+        <p style={{ fontSize: 11, color: subColor, marginTop: 2 }}>合同会社B マーケティング部長</p>
+      </div>
+    </section>
+  )
+}
+function SectionBeforeAfter({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, mutedBg, cardBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>Before / After</h2>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 800, margin: '0 auto' }}>
+        <div className="p-6 flex flex-col gap-4" style={{ background: mutedBg, borderRadius: 4 }}>
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, fontWeight: 600 }}>BEFORE</p>
+          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}>作業に時間がかかり、チーム間の連携もスムーズではありませんでした。</p>
+        </div>
+        <div className="p-6 flex flex-col gap-4" style={{ background: cardBg, border: `1.5px solid ${color}`, borderRadius: 4 }}>
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', color, fontWeight: 600 }}>AFTER</p>
+          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}>導入後、作業時間は半減。チームの生産性が大幅に向上しました。</p>
+        </div>
+      </div>
+    </section>
+  )
+}
+function SectionCompareTwoOption({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor, cardBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>プランを選ぶ</h2>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 700, margin: '0 auto' }}>
+        {[
+          { name: 'スタンダード', price: '¥980/月', featured: false, items: ['基本機能', 'メールサポート', '5GBストレージ'] },
+          { name: 'プレミアム', price: '¥2,980/月', featured: true, items: ['全機能', '優先サポート', '無制限ストレージ'] },
+        ].map((plan, i) => (
+          <div key={i} className="p-6 flex flex-col gap-4" style={{ background: cardBg, border: plan.featured ? `1.5px solid ${color}` : `1px solid ${bdColor}`, borderRadius: 4 }}>
+            {plan.featured && <p style={{ fontSize: 9, fontWeight: 700, color, letterSpacing: '0.1em' }}>RECOMMENDED</p>}
+            <p style={{ fontSize: 16, fontWeight: 600, color }}>{plan.name}</p>
+            <p style={{ fontSize: 22, fontWeight: 700, color }}>{plan.price}</p>
+            <div className="flex flex-col gap-2">
+              {plan.items.map(f => (<p key={f} style={{ fontSize: 12, color: subColor }}>✓ {f}</p>))}
+            </div>
+            <button style={{ padding: '10px 0', background: plan.featured ? color : 'transparent', border: `1px solid ${color}`, borderRadius: 2, fontSize: 13, color: plan.featured ? bg : color, cursor: 'pointer', marginTop: 'auto' }}>選択する</button>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionProblemBackground({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>PROBLEM</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>こんな課題ありませんか？</h2>
+      </div>
+      <div className="max-w-xl mx-auto flex flex-col gap-6">
+        {['集客が思うように伸びない', 'コンバージョン率が低い', '運用コストが高すぎる', 'チーム間の連携が取れない'].map((t, i) => (
+          <div key={i} className="flex items-start gap-4">
+            <span style={{ fontSize: 14, fontWeight: 700, color: subColor, flexShrink: 0 }}>!</span>
+            <p style={{ fontSize: 14, color, lineHeight: 1.7 }}>{t}</p>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>{renderButton(options.buttonStyle, color)}</div>
+    </section>
+  )
+}
+function SectionMissionStatement({ options }: { options: PartOptions }) {
+  const { bg, color, subColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="flex flex-col items-center justify-center text-center gap-6 px-10" style={{ background: bg, minHeight: 400, paddingTop: py, paddingBottom: py }}>
+      <h1 style={{ fontSize: 36, fontWeight: 300, color, lineHeight: 1.4, letterSpacing: '0.05em', maxWidth: 600 }}>
+        デザインの力で、<br />社会を変える。
+      </h1>
+      <div style={{ width: 40, height: 1, background: subColor, opacity: 0.3 }} />
+      <p style={{ fontSize: 13, color: subColor, maxWidth: 420, lineHeight: 1.8 }}>
+        私たちは、テクノロジーとクリエイティビティの融合で、より良い未来を創造します。
+      </p>
+    </section>
+  )
+}
+// ── Media 追加セクション（新規2個）────────────────────────────────────────────
+function SectionImageCaption({ options }: { options: PartOptions }) {
+  const { bg, hintColor, color } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="max-w-3xl mx-auto px-8">
+        <div style={{ aspectRatio: '16/9', background: getBgStyle('light').mutedBg, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+          <ImageIcon size={36} color={hintColor} />
+        </div>
+        <p style={{ fontSize: 12, color, lineHeight: 1.7 }}>画像のキャプションテキストがここに入ります。撮影場所や説明を記載できます。</p>
+      </div>
+    </section>
+  )
+}
+function SectionImageThreeGrid({ options }: { options: PartOptions }) {
+  const { bg, color, hintColor, mutedBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>GALLERY</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>フォトギャラリー</h2>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, maxWidth: 900, margin: '0 auto' }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} style={{ aspectRatio: '4/3', background: mutedBg, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ImageIcon size={24} color={hintColor} />
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+// ── Data セクション（新規6個）─────────────────────────────────────────────────
+function SectionBigNumber({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="flex justify-center gap-16 max-w-3xl mx-auto text-center">
+        {[['98%', '顧客満足度'], ['3x', '成果向上'], ['24h', 'サポート対応']].map(([n, l], i) => (
+          <div key={i}>
+            <p style={{ fontSize: 64, fontWeight: 700, color, lineHeight: 1 }}>{n}</p>
+            <p style={{ fontSize: 13, color: subColor, marginTop: 12 }}>{l}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionChartBar({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const data = [{ label: '1月', value: 60 }, { label: '2月', value: 75 }, { label: '3月', value: 45 }, { label: '4月', value: 90 }, { label: '5月', value: 80 }, { label: '6月', value: 95 }]
+  const max = 100
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>DATA</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>月別推移</h2>
+      </div>
+      <div className="max-w-xl mx-auto flex items-end gap-4" style={{ height: 200, borderBottom: `1px solid ${bdColor}` }}>
+        {data.map((d, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center gap-2">
+            <p style={{ fontSize: 10, fontWeight: 600, color }}>{d.value}</p>
+            <div style={{ width: '70%', height: `${(d.value / max) * 150}px`, background: d.value === Math.max(...data.map(x => x.value)) ? color : bdColor, borderRadius: '2px 2px 0 0' }} />
+            <p style={{ fontSize: 10, color: subColor, marginTop: 4 }}>{d.label}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionChartDonut({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>DATA</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>顧客満足度</h2>
+      </div>
+      <div className="flex flex-col items-center gap-8">
+        <div style={{ position: 'relative', width: 180, height: 180 }}>
+          <div style={{ width: 180, height: 180, borderRadius: '50%', background: `conic-gradient(${color} 0% 65%, ${subColor} 65% 85%, ${hintColor} 85% 100%)` }} />
+          <div style={{ position: 'absolute', inset: 40, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 32, fontWeight: 700, color }}>65%</span>
+          </div>
+        </div>
+        <div className="flex gap-6">
+          {[['満足', '65%', color], ['普通', '20%', subColor], ['不満', '15%', hintColor]].map(([l, v, c], i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: c }} />
+              <span style={{ fontSize: 12, color: subColor }}>{l} {v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+function SectionChartLine({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const points = [30, 45, 35, 55, 50, 70, 65]
+  const labels = ['1月', '2月', '3月', '4月', '5月', '6月', '7月']
+  const max = 80
+  const w = 400, h = 180
+  const polyPoints = points.map((v, i) => `${(i / (points.length - 1)) * w},${h - (v / max) * h}`).join(' ')
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>TREND</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>成長推移</h2>
+      </div>
+      <div className="flex justify-center">
+        <svg viewBox={`-30 -10 ${w + 40} ${h + 30}`} width={w + 40} height={h + 40} style={{ maxWidth: '100%' }}>
+          <line x1="0" y1={h} x2={w} y2={h} stroke={bdColor} strokeWidth="1" />
+          <line x1="0" y1="0" x2="0" y2={h} stroke={bdColor} strokeWidth="1" />
+          <polyline points={polyPoints} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" />
+          {points.map((v, i) => (
+            <circle key={i} cx={(i / (points.length - 1)) * w} cy={h - (v / max) * h} r="3.5" fill={color} />
+          ))}
+          {labels.map((l, i) => (
+            <text key={i} x={(i / (labels.length - 1)) * w} y={h + 18} textAnchor="middle" fontSize="10" fill={subColor}>{l}</text>
+          ))}
+        </svg>
+      </div>
+    </section>
+  )
+}
+function SectionKpiDashboard({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, bdColor, cardBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, maxWidth: 900, margin: '0 auto' }}>
+        {[
+          ['1,200+', '導入企業数', '+12%', true],
+          ['98%', '継続率', '+2.3%', true],
+          ['¥2.4M', '月次売上', '+18%', true],
+          ['4.8', '顧客満足度', '±0', false],
+        ].map(([n, l, t, up], i) => (
+          <div key={i} className="p-5 flex flex-col gap-3 text-center" style={{ background: cardBg, borderRadius: 4, border: `1px solid ${bdColor}` }}>
+            <p style={{ fontSize: 28, fontWeight: 700, color }}>{n as string}</p>
+            <p style={{ fontSize: 11, color: subColor }}>{l as string}</p>
+            <p style={{ fontSize: 11, color: up ? '#4CAF50' : subColor, fontWeight: 600 }}>{t as string}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionCompareTable({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor, cardBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const plans = ['Free', 'Pro', 'Business']
+  const features = [
+    ['基本機能', true, true, true],
+    ['カスタムドメイン', false, true, true],
+    ['優先サポート', false, true, true],
+    ['分析ダッシュボード', false, false, true],
+    ['API連携', false, false, true],
+  ]
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>COMPARE</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>プラン比較</h2>
+      </div>
+      <div className="max-w-2xl mx-auto" style={{ background: cardBg, borderRadius: 4, border: `1px solid ${bdColor}`, overflow: 'hidden' }}>
+        <div className="flex" style={{ borderBottom: `1px solid ${bdColor}`, background: bg }}>
+          <div style={{ flex: 2, padding: '12px 16px', fontSize: 12, fontWeight: 600, color: hintColor }}>機能</div>
+          {plans.map(p => (
+            <div key={p} style={{ flex: 1, padding: '12px 8px', fontSize: 12, fontWeight: 600, color, textAlign: 'center' }}>{p}</div>
+          ))}
+        </div>
+        {features.map(([name, ...vals], i) => (
+          <div key={i} className="flex" style={{ borderBottom: i < features.length - 1 ? `1px solid ${bdColor}` : 'none' }}>
+            <div style={{ flex: 2, padding: '10px 16px', fontSize: 12, color: subColor }}>{name as string}</div>
+            {(vals as boolean[]).map((v, j) => (
+              <div key={j} style={{ flex: 1, padding: '10px 8px', fontSize: 13, textAlign: 'center', color: v ? '#4CAF50' : bdColor }}>
+                {v ? '✓' : '—'}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+// ── Closing セクション（新規4個）──────────────────────────────────────────────
+function SectionClosingThankyou({ options }: { options: PartOptions }) {
+  const { bg, color, subColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="flex flex-col items-center justify-center text-center gap-6 px-10" style={{ background: bg, minHeight: 400, paddingTop: py, paddingBottom: py }}>
+      <h1 style={{ fontSize: 40, fontWeight: 300, color, letterSpacing: '0.1em' }}>Thank You</h1>
+      <p style={{ fontSize: 13, color: subColor, maxWidth: 400, lineHeight: 1.8 }}>
+        ご清聴ありがとうございました。<br />ご不明点がございましたら、お気軽にお問い合わせください。
+      </p>
+      {renderButton(options.buttonStyle, color)}
+    </section>
+  )
+}
+function SectionClosingContactCard({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor, cardBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="max-w-md mx-auto p-8 flex flex-col gap-5" style={{ background: cardBg, border: `1px solid ${bdColor}`, borderRadius: 4 }}>
+        <div className="text-center mb-4">
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>CONTACT</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color }}>お問い合わせ</h2>
+        </div>
+        {[
+          ['✉', 'info@example.com'],
+          ['☎', '03-1234-5678'],
+          ['📍', '東京都千代田区〇〇1-2-3'],
+          ['🌐', 'https://example.com'],
+        ].map(([icon, text], i) => (
+          <div key={i} className="flex items-center gap-4" style={{ borderBottom: `1px solid ${bdColor}`, paddingBottom: 12 }}>
+            <span style={{ fontSize: 16 }}>{icon}</span>
+            <span style={{ fontSize: 13, color: subColor }}>{text}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionSpeakerBio({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, mutedBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>SPEAKER</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>スピーカー紹介</h2>
+      </div>
+      <div className="max-w-xl mx-auto flex gap-8 items-center">
+        <div style={{ width: 120, height: 120, borderRadius: '50%', background: mutedBg, flexShrink: 0 }} />
+        <div className="flex flex-col gap-3">
+          <div>
+            <p style={{ fontSize: 18, fontWeight: 700, color }}>山田 太郎</p>
+            <p style={{ fontSize: 12, color: subColor, marginTop: 4 }}>株式会社A 代表取締役</p>
+          </div>
+          <p style={{ fontSize: 12, color: subColor, lineHeight: 1.8 }}>
+            2010年に創業。デザインとテクノロジーの融合を通じて、多くの企業のDXを支援してきた。講演多数。
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+function SectionAgendaToc({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, bdColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const items = [
+    ['01', 'はじめに', '5 min'],
+    ['02', 'サービス紹介', '15 min'],
+    ['03', '導入事例', '10 min'],
+    ['04', '料金プラン', '5 min'],
+    ['05', 'Q&A', '10 min'],
+  ]
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>Agenda</h2>
+      </div>
+      <div className="max-w-lg mx-auto flex flex-col">
+        {items.map(([num, title, time], i) => (
+          <div key={i} className="flex items-center gap-6 py-4" style={{ borderBottom: i < items.length - 1 ? `1px solid ${bdColor}` : 'none' }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: subColor, fontFamily: 'monospace', opacity: 0.4 }}>{num}</span>
+            <span style={{ fontSize: 14, color, flex: 1 }}>{title}</span>
+            <span style={{ fontSize: 11, color: subColor }}>{time}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
 // ── Hero 追加セクション ───────────────────────────────────────────────────────
 function SectionHeroSlider({ options }: { options: PartOptions }) {
   const { bg, color, subColor } = getBgStyle(options.bgColor)
@@ -1898,6 +2748,7 @@ const BUTTON_OPTION_PARTS = new Set<PartId>([
   'cta', 'steps', 'steps-5', 'contact', 'mission-split',
   'image-text', 'image-text-right',
   'team', 'blog', 'text-2col', 'team-horizontal', 'gallery-slider', 'services-labeled',
+  'bullet-points', 'timeline-steps', 'problem-background', 'closing-thankyou',
 ])
 const COLUMN_OPTION_PARTS = new Set<PartId>([
   'features', 'features-4col-image', 'features-icon-circle', 'blog', 'team', 'pricing',
@@ -1946,6 +2797,31 @@ const DEFAULT_BG: Record<string, 'white' | 'light' | 'dark'> = {
   'image-text':          'white',
   'image-text-right':    'white',
   'video-embed':         'dark',
+  // Area 追加
+  'bullet-points':       'white',
+  'icon-cards-2x2':      'white',
+  'timeline-steps':      'white',
+  'quote-fullscreen':    'dark',
+  'quote-side-accent':   'white',
+  'before-after':        'white',
+  'compare-two-option':  'light',
+  'problem-background':  'white',
+  'mission-statement':   'dark',
+  // Media 追加
+  'image-caption':       'dark',
+  'image-three-grid':    'white',
+  // Data
+  'big-number':          'white',
+  'chart-bar':           'white',
+  'chart-donut':         'white',
+  'chart-line':          'white',
+  'kpi-dashboard':       'dark',
+  'compare-table':       'white',
+  // Closing
+  'closing-thankyou':    'dark',
+  'closing-contact-card':'white',
+  'speaker-bio':         'white',
+  'agenda-toc':          'dark',
 }
 function defaultOptions(id: PartId): PartOptions {
   return {
@@ -2032,6 +2908,20 @@ const SECTION_MAP: Record<PartId, React.FC<{ options: PartOptions }>> = {
   'text-stagger': SectionTextStagger, 'text-typewriter': SectionTextTypewriter,
   'btn-hover-fill': SectionBtnHoverFill, 'btn-hover-slide': SectionBtnHoverSlide,
   parallax: SectionParallax, 'counter-up': SectionCounterUp,
+  // Area 追加
+  'bullet-points': SectionBulletPoints, 'icon-cards-2x2': SectionIconCards2x2,
+  'timeline-steps': SectionTimelineSteps, 'quote-fullscreen': SectionQuoteFullscreen,
+  'quote-side-accent': SectionQuoteSideAccent, 'before-after': SectionBeforeAfter,
+  'compare-two-option': SectionCompareTwoOption, 'problem-background': SectionProblemBackground,
+  'mission-statement': SectionMissionStatement,
+  // Media 追加
+  'image-caption': SectionImageCaption, 'image-three-grid': SectionImageThreeGrid,
+  // Data
+  'big-number': SectionBigNumber, 'chart-bar': SectionChartBar, 'chart-donut': SectionChartDonut,
+  'chart-line': SectionChartLine, 'kpi-dashboard': SectionKpiDashboard, 'compare-table': SectionCompareTable,
+  // Closing
+  'closing-thankyou': SectionClosingThankyou, 'closing-contact-card': SectionClosingContactCard,
+  'speaker-bio': SectionSpeakerBio, 'agenda-toc': SectionAgendaToc,
 }
 
 // ── Prompt generators ────────────────────────────────────────────────────
@@ -2799,6 +3689,212 @@ export default function LPlusPage() {
             addRect(slide, rx, ry, rw, 2.8, 'F4F4F4')
             addTxt(slide, '0  →  1,200+', { x: rx, y: ry + 0.75, w: rw, h: 0.9, fontSize: 20, bold: true, color: '1A1A1A', align: 'center', valign: 'middle', fontFace: 'Calibri' })
             addTxt(slide, '導入企業数', { x: rx, y: ry + 1.75, w: rw, h: 0.4, fontSize: 11, color: '888888', align: 'center' })
+            break
+          }
+          // ── 新規21パーツ ───────────────────────────────────────────────
+          case 'bullet-points': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF', 'DCDCDC', 0.5)
+            addHLine(slide, rx + 1.5, ry + 0.28, 2.0, '1A1A1A', 1.5)
+            for (let i = 0; i < 5; i++) {
+              addTxt(slide, '✓', { x: rx + 0.3, y: ry + 0.65 + i * 0.4, w: 0.3, h: 0.3, fontSize: 10, color: '4CAF50', fontFace: 'Calibri' })
+              addHLine(slide, rx + 0.7, ry + 0.77 + i * 0.4, 3.5)
+            }
+            break
+          }
+          case 'icon-cards-2x2': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) {
+              const bx = rx + c * 2.5 + 0.1, by = ry + r * 1.35 + 0.1
+              addRect(slide, bx, by, 2.3, 1.2, 'F4F4F4', 'DCDCDC')
+              addEll(slide, bx + 0.85, by + 0.15, 0.6, 'DCDCDC')
+              addHLine(slide, bx + 0.3, by + 0.9, 1.7)
+            }
+            break
+          }
+          case 'timeline-steps': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            for (let i = 0; i < 4; i++) {
+              const ty = ry + 0.3 + i * 0.6
+              addEll(slide, rx + 0.5, ty, 0.35, 'FFFFFF', '1A1A1A', 1.0)
+              addTxt(slide, String(i+1), { x: rx + 0.5, y: ty, w: 0.35, h: 0.35, fontSize: 9, color: '1A1A1A', align: 'center', valign: 'middle', fontFace: 'Calibri' })
+              addHLine(slide, rx + 1.0, ty + 0.1, 3.5)
+              if (i < 3) slide.addShape('line', { x: rx + 0.675, y: ty + 0.35, w: 0, h: 0.25, line: { color: 'DCDCDC', width: 0.75 } })
+            }
+            break
+          }
+          case 'quote-fullscreen': {
+            addRect(slide, rx, ry, rw, 2.8, '2C2C2C')
+            addTxt(slide, '"', { x: rx, y: ry + 0.2, w: rw, h: 0.8, fontSize: 36, color: '555555', align: 'center', valign: 'middle', fontFace: 'Georgia' })
+            addTxt(slide, '引用テキスト', { x: rx + 0.5, y: ry + 1.0, w: 4.0, h: 0.8, fontSize: 14, color: 'FFFFFF', align: 'center', valign: 'middle', italic: true })
+            addHLine(slide, rx + 2.0, ry + 2.1, 1.0, '555555')
+            addTxt(slide, '引用元', { x: rx, y: ry + 2.2, w: rw, h: 0.4, fontSize: 10, color: '888888', align: 'center' })
+            break
+          }
+          case 'quote-side-accent': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            addRect(slide, rx + 0.5, ry + 0.5, 0.08, 2.0, '1A1A1A')
+            for (let i = 0; i < 3; i++) addHLine(slide, rx + 0.9, ry + 0.7 + i * 0.35, 3.5)
+            addHLine(slide, rx + 0.9, ry + 1.8, 1.5, '1A1A1A', 0.75)
+            addHLine(slide, rx + 0.9, ry + 2.1, 1.2, 'BBBBBB', 0.5)
+            break
+          }
+          case 'before-after': {
+            addRect(slide, rx, ry + 0.2, 2.4, 2.4, 'EBEBEB')
+            addTxt(slide, 'BEFORE', { x: rx, y: ry + 0.3, w: 2.4, h: 0.4, fontSize: 10, color: '888888', align: 'center', fontFace: 'Calibri', charSpacing: 2 })
+            addRect(slide, rx + 2.6, ry + 0.2, 2.4, 2.4, 'FFFFFF', '1A1A1A', 1.0)
+            addTxt(slide, 'AFTER', { x: rx + 2.6, y: ry + 0.3, w: 2.4, h: 0.4, fontSize: 10, color: '1A1A1A', align: 'center', fontFace: 'Calibri', charSpacing: 2 })
+            break
+          }
+          case 'compare-two-option': {
+            addRect(slide, rx, ry, rw, 2.8, 'F4F4F4')
+            for (let i = 0; i < 2; i++) {
+              const bx = rx + i * 2.6 + 0.1
+              const featured = i === 1
+              addRect(slide, bx, ry + 0.3, 2.3, 2.2, 'FFFFFF', featured ? '1A1A1A' : 'DCDCDC', featured ? 1.5 : 0.75)
+              addHLine(slide, bx + 0.15, ry + 0.6, 1.2, featured ? '1A1A1A' : 'DCDCDC', 1.0)
+              addHLine(slide, bx + 0.15, ry + 0.9, 0.6, '1A1A1A', 1.5)
+              for (let j = 0; j < 3; j++) addHLine(slide, bx + 0.15, ry + 1.3 + j * 0.3, 1.8)
+            }
+            break
+          }
+          case 'problem-background': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF', 'DCDCDC', 0.5)
+            addHLine(slide, rx + 1.0, ry + 0.35, 3.0, '1A1A1A', 1.5)
+            for (let i = 0; i < 4; i++) {
+              addTxt(slide, '!', { x: rx + 0.3, y: ry + 0.75 + i * 0.45, w: 0.3, h: 0.3, fontSize: 11, bold: true, color: 'D32F2F', fontFace: 'Calibri' })
+              addHLine(slide, rx + 0.7, ry + 0.87 + i * 0.45, 3.5)
+            }
+            break
+          }
+          case 'mission-statement': {
+            addRect(slide, rx, ry, rw, 2.8, '2C2C2C')
+            addTxt(slide, 'Mission', { x: rx, y: ry + 0.7, w: rw, h: 1.2, fontSize: 22, color: 'FFFFFF', align: 'center', valign: 'middle' })
+            addHLine(slide, rx + 2.0, ry + 2.1, 1.0, '555555')
+            addTxt(slide, 'サブテキスト', { x: rx, y: ry + 2.2, w: rw, h: 0.4, fontSize: 10, color: '888888', align: 'center' })
+            break
+          }
+          case 'image-caption': {
+            addRect(slide, rx, ry, rw, 2.8, '2C2C2C')
+            addRect(slide, rx + 0.2, ry + 0.2, 4.6, 1.8, 'DCDCDC')
+            addTxt(slide, 'IMAGE', { x: rx + 0.2, y: ry + 0.6, w: 4.6, h: 1.0, fontSize: 14, color: '888888', align: 'center', valign: 'middle', fontFace: 'Calibri' })
+            addHLine(slide, rx + 0.3, ry + 2.3, 3.0, '888888', 0.5)
+            break
+          }
+          case 'image-three-grid': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            addHLine(slide, rx + 1.5, ry + 0.28, 2.0, 'DCDCDC', 1.0)
+            for (let i = 0; i < 3; i++) addRect(slide, rx + 0.1 + i * 1.65, ry + 0.6, 1.5, 1.8, 'DCDCDC')
+            break
+          }
+          case 'big-number': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            ;(['98%', '3x', '24h'] as const).forEach((n, i) => {
+              const labels = ['顧客満足度', '成果向上', 'サポート'] as const
+              const bx = rx + 0.3 + i * 1.6
+              addTxt(slide, n, { x: bx, y: ry + 0.5, w: 1.4, h: 1.2, fontSize: 28, bold: true, color: '1A1A1A', align: 'center', valign: 'middle', fontFace: 'Calibri' })
+              addTxt(slide, labels[i], { x: bx, y: ry + 1.7, w: 1.4, h: 0.4, fontSize: 10, color: '888888', align: 'center' })
+            })
+            break
+          }
+          case 'chart-bar': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            addHLine(slide, rx + 1.5, ry + 0.28, 2.0, 'DCDCDC', 1.0)
+            const heights = [1.0, 1.4, 0.7, 1.6, 1.3, 1.8]
+            for (let i = 0; i < 6; i++) {
+              const bx = rx + 0.3 + i * 0.78
+              addRect(slide, bx, ry + 2.3 - heights[i], 0.55, heights[i], i === 5 ? '1A1A1A' : 'DCDCDC')
+            }
+            addHLine(slide, rx + 0.2, ry + 2.3, 4.6)
+            break
+          }
+          case 'chart-donut': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            addHLine(slide, rx + 1.5, ry + 0.28, 2.0, 'DCDCDC', 1.0)
+            addEll(slide, rx + 1.6, ry + 0.6, 1.8, 'DCDCDC')
+            addEll(slide, rx + 2.0, ry + 1.0, 1.0, 'FFFFFF')
+            addTxt(slide, '65%', { x: rx + 2.0, y: ry + 1.0, w: 1.0, h: 1.0, fontSize: 14, bold: true, color: '1A1A1A', align: 'center', valign: 'middle', fontFace: 'Calibri' })
+            break
+          }
+          case 'chart-line': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            addHLine(slide, rx + 1.5, ry + 0.28, 2.0, 'DCDCDC', 1.0)
+            slide.addShape('line', { x: rx + 0.4, y: ry + 0.6, w: 0, h: 1.8, line: { color: 'DCDCDC', width: 0.5 } })
+            addHLine(slide, rx + 0.4, ry + 2.4, 4.2, 'DCDCDC', 0.5)
+            // Simplified line chart as connected segments
+            const pts = [[0, 1.3], [0.7, 1.0], [1.4, 1.1], [2.1, 0.6], [2.8, 0.7], [3.5, 0.3], [4.2, 0.4]]
+            for (let i = 0; i < pts.length - 1; i++) {
+              slide.addShape('line', { x: rx + 0.4 + pts[i][0], y: ry + 0.7 + pts[i][1], w: pts[i+1][0] - pts[i][0], h: pts[i+1][1] - pts[i][1], line: { color: '1A1A1A', width: 1.5 } })
+            }
+            break
+          }
+          case 'kpi-dashboard': {
+            addRect(slide, rx, ry, rw, 2.8, '2C2C2C')
+            ;(['1,200+', '98%', '¥2.4M', '4.8'] as const).forEach((n, i) => {
+              const labels = ['導入数', '継続率', '月次売上', '満足度'] as const
+              const bx = rx + (i % 2) * 2.5 + 0.1
+              const by = ry + Math.floor(i / 2) * 1.35 + 0.1
+              addRect(slide, bx, by, 2.3, 1.2, '3C3C3C')
+              addTxt(slide, n, { x: bx, y: by + 0.1, w: 2.3, h: 0.7, fontSize: 18, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', fontFace: 'Calibri' })
+              addTxt(slide, labels[i], { x: bx, y: by + 0.85, w: 2.3, h: 0.3, fontSize: 9, color: '888888', align: 'center' })
+            })
+            break
+          }
+          case 'compare-table': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF', 'DCDCDC', 0.5)
+            addRect(slide, rx, ry, rw, 0.4, 'F4F4F4')
+            addHLine(slide, rx + 1.2, ry + 0.13, 0.8, '1A1A1A', 0.75)
+            addHLine(slide, rx + 2.3, ry + 0.13, 0.8, '1A1A1A', 0.75)
+            addHLine(slide, rx + 3.5, ry + 0.13, 0.8, '1A1A1A', 0.75)
+            for (let i = 0; i < 5; i++) {
+              addHLine(slide, rx, ry + 0.4 + i * 0.45, rw, 'EBEBEB', 0.5)
+              addHLine(slide, rx + 0.1, ry + 0.55 + i * 0.45, 0.9)
+              for (let j = 0; j < 3; j++) {
+                const cx = rx + 1.45 + j * 1.15
+                addTxt(slide, i < 2 + j ? '✓' : '—', { x: cx, y: ry + 0.5 + i * 0.45, w: 0.5, h: 0.3, fontSize: 10, color: i < 2 + j ? '4CAF50' : 'DCDCDC', align: 'center', valign: 'middle', fontFace: 'Calibri' })
+              }
+            }
+            break
+          }
+          case 'closing-thankyou': {
+            addRect(slide, rx, ry, rw, 2.8, '2C2C2C')
+            addTxt(slide, 'Thank You', { x: rx, y: ry + 0.7, w: rw, h: 1.2, fontSize: 26, color: 'FFFFFF', align: 'center', valign: 'middle' })
+            addHLine(slide, rx + 1.5, ry + 2.1, 2.0, '555555')
+            addTxt(slide, 'お問い合わせをお待ちしています', { x: rx, y: ry + 2.2, w: rw, h: 0.4, fontSize: 10, color: '888888', align: 'center' })
+            break
+          }
+          case 'closing-contact-card': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            addRect(slide, rx + 0.8, ry + 0.3, 3.4, 2.2, 'F4F4F4', 'DCDCDC')
+            addHLine(slide, rx + 1.5, ry + 0.6, 2.0, '1A1A1A', 1.0)
+            for (let i = 0; i < 4; i++) {
+              addTxt(slide, ['✉', '☎', '📍', '🌐'][i], { x: rx + 1.0, y: ry + 0.95 + i * 0.35, w: 0.3, h: 0.3, fontSize: 10, fontFace: 'Calibri' })
+              addHLine(slide, rx + 1.4, ry + 1.07 + i * 0.35, 2.2)
+            }
+            break
+          }
+          case 'speaker-bio': {
+            addRect(slide, rx, ry, rw, 2.8, 'FFFFFF')
+            addEll(slide, rx + 0.5, ry + 0.7, 1.2, 'DCDCDC')
+            addHLine(slide, rx + 2.0, ry + 0.8, 2.5, '1A1A1A', 1.5)
+            addHLine(slide, rx + 2.0, ry + 1.15, 1.5, 'BBBBBB', 0.5)
+            for (let i = 0; i < 3; i++) addHLine(slide, rx + 2.0, ry + 1.6 + i * 0.3, 2.5)
+            break
+          }
+          case 'agenda-toc': {
+            addRect(slide, rx, ry, rw, 2.8, '2C2C2C')
+            addTxt(slide, 'Agenda', { x: rx, y: ry + 0.15, w: rw, h: 0.5, fontSize: 16, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle' })
+            for (let i = 0; i < 5; i++) {
+              addTxt(slide, String(i+1).padStart(2, '0'), { x: rx + 0.3, y: ry + 0.7 + i * 0.38, w: 0.4, h: 0.3, fontSize: 10, color: '555555', fontFace: 'Courier New' })
+              addHLine(slide, rx + 0.8, ry + 0.82 + i * 0.38, 2.5, 'FFFFFF')
+              addTxt(slide, ['5 min', '15 min', '10 min', '5 min', '10 min'][i], { x: rx + 3.8, y: ry + 0.7 + i * 0.38, w: 0.8, h: 0.3, fontSize: 8, color: '888888', align: 'right', fontFace: 'Calibri' })
+            }
+            break
+          }
+          // image-text-right uses same as image-text but mirrored
+          case 'image-text-right': {
+            for (let i = 0; i < 3; i++) addHLine(slide, rx + 0.2, ry + 0.55 + i * 0.4, 2.2)
+            addRect(slide, rx + 0.2, ry + 1.75, 1.6, 0.38, 'FFFFFF', '1A1A1A', 1.0)
+            addRect(slide, rx + 2.6, ry + 0.2, 2.4, 2.4, 'DCDCDC')
             break
           }
         }
