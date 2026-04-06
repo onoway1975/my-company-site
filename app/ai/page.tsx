@@ -472,12 +472,12 @@ export default function AiPage() {
             </div>
 
             {/* Right column (illustration) */}
-            <div className="w-full md:w-[55%] flex items-center justify-center overflow-visible max-h-[240px] md:max-h-none" style={{ minHeight: 600 }}>
+            <div className="w-full md:w-[55%] flex items-center justify-center overflow-visible h-[300px] md:h-auto">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/ai/hero.webp"
                 alt="AI活用イラスト"
-                className="max-h-[240px] md:max-h-none w-auto object-contain"
+                className="w-auto h-full max-h-[300px] md:max-h-none md:w-full object-contain mx-auto"
               />
             </div>
           </div>
