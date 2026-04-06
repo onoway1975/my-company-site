@@ -96,7 +96,7 @@ export async function generateMetadata({
     description,
     alternates: { canonical: `https://ciraf.jp/works/${slug}/` },
     openGraph: {
-      title: `${work.title} | シラフ株式会社`,
+      title: work.title,
       description,
       url: `https://ciraf.jp/works/${slug}/`,
       images: [

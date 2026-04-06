@@ -192,7 +192,8 @@
       "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nfix: worksセクションのnote記事リンクを個別URLに更新\nEOF\n\\)\" && git push origin main)",
       "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nfix: SPヒーローエリアのイラスト余白調整、worksのnoteリンク更新\nEOF\n\\)\" && git push origin main)",
       "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nfix: SPヒーローエリアのイラスト余白を修正\nEOF\n\\)\" && git push origin main)",
-      "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nadd: グロナビ・ハンバーガー・フッターに「AI活用」リンク追加\nEOF\n\\)\" && git push origin main)"
+      "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nadd: グロナビ・ハンバーガー・フッターに「AI活用」リンク追加\nEOF\n\\)\" && git push origin main)",
+      "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nfix: ページタイトルの重複を修正\nEOF\n\\)\" && git push origin main)"
     ]
   }
 }
