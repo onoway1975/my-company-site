@@ -443,7 +443,7 @@ export default function AiPage() {
           01  Hero
       ──────────────────────────────────────────────────────────────────── */}
       <section
-        className="flex flex-col px-6 lg:px-12 pt-8 pb-0 md:pt-12 md:pb-0"
+        className="flex flex-col px-6 lg:px-12 pt-[50px] pb-0 md:pt-[100px] md:pb-0"
         style={{ background: '#FFFFFF' }}
       >
         <div className="max-w-5xl mx-auto w-full">
@@ -458,7 +458,7 @@ export default function AiPage() {
               <p className="text-base leading-[2.1] mb-12 max-w-xl text-muted">
                 AIは、使う人の経験値で変わります。20年の制作経験を持つプロデューサー・ディレクターが、Web制作・映像・ブランディングの現場でのAI活用を、一緒に考えます。
               </p>
-              <div>
+              <div className="md:mb-[50px]">
                 <a
                   href="#final-cta"
                   className="inline-flex items-center gap-2 text-base font-bold transition-colors"
