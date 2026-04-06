@@ -494,7 +494,7 @@ export default function AiPage() {
               提案用デモサイト、作ります。
             </p>
             <a
-              href="#service-demo"
+              href="#service"
               className="inline-flex items-center gap-2 text-base font-bold transition-colors"
               style={{ background: '#FFFFFF', color: '#111111', border: '1px solid #111111', borderRadius: 9999, padding: '14px 48px' }}
               onMouseEnter={(e) => { e.currentTarget.style.background = '#111111'; e.currentTarget.style.color = '#FFFFFF' }}
@@ -548,7 +548,7 @@ export default function AiPage() {
       {/* ────────────────────────────────────────────────────────────────────
           03  Services
       ──────────────────────────────────────────────────────────────────── */}
-      <section className={`${PY} bg-surface`}>
+      <section id="service" className={`${PY} bg-surface scroll-mt-20`}>
         <div className={C}>
           <SectionLabel>Service</SectionLabel>
           <h2 className="text-3xl md:text-4xl font-bold text-ink leading-snug mb-12">
