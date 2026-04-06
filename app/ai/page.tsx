@@ -863,11 +863,13 @@ export default function AiPage() {
           <div className="flex flex-col md:flex-row md:items-start gap-10 md:gap-14">
             {/* Photo */}
             <div className="shrink-0 flex justify-center md:justify-start">
-              <PlaceholderImage
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/ai/onoe.webp"
                 alt="尾上裕典"
-                label="PHOTO"
-                style={{ width: 160, height: 160, borderRadius: '50%' }}
+                width={160}
+                height={160}
+                style={{ borderRadius: '50%', objectFit: 'cover', width: '160px', height: '160px' }}
               />
             </div>
             {/* Text */}
