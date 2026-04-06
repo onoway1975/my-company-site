@@ -16,14 +16,14 @@ const works = [
   {
     title: '天職占い',
     url: 'https://ciraf.jp/tenshoku/',
-    noteUrl: 'https://note.com/ciraf_inc',
+    noteUrl: 'https://note.com/ciraf_inc/n/na664840104e2',
     desc: '写真をアップ→AIが天職を診断・顔合成画像を生成',
     image: '/ai/works-tenshoku.webp',
   },
   {
     title: 'Weather Music',
     url: 'https://ciraf.jp/weathermusic/',
-    noteUrl: 'https://note.com/ciraf_inc',
+    noteUrl: 'https://note.com/ciraf_inc/n/n2752d0d77637',
     desc: '現在地の天気を取得→AIがプレイリストを自動生成',
     image: '/ai/works-weathermusic.webp',
   },
@@ -37,7 +37,7 @@ const works = [
   {
     title: 'Menu Card',
     url: 'https://ciraf.jp/menucard/',
-    noteUrl: 'https://note.com/ciraf_inc',
+    noteUrl: 'https://note.com/ciraf_inc/n/ned42f467b9a4',
     desc: 'スプレッドシートがそのままメニューページになる仕組み',
     image: '/ai/works-menucard.webp',
   },
