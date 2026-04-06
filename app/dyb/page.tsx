@@ -372,6 +372,7 @@ export default function DYBPage() {
         @media(min-width:900px){.dc-rw{padding:10px 60px 24px}}
         .dc-mb{flex:1;max-width:420px;min-width:180px;padding:14px 24px;background:#ffffff;color:#0a0a0a;border:none;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:15px;letter-spacing:3px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:transform 0.1s,background 0.1s;white-space:nowrap}
         .dc-mb:hover{background:#e0e0e0}
+        @media(max-width:480px){.dc-mb{font-size:12px;letter-spacing:1px;padding:12px 16px;gap:8px}.dc-rb{font-size:12px;letter-spacing:1px;padding:12px 16px;gap:8px}}
         .dc-rb{flex:1;max-width:260px;min-width:130px;padding:14px 24px;background:transparent;color:#ffffff;border:1px solid rgba(255,255,255,0.5);border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:15px;letter-spacing:3px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color 0.15s,background 0.15s;text-decoration:none;white-space:nowrap}
         .dc-rb:hover{border-color:#ffffff;background:rgba(255,255,255,0.06)}
         @keyframes pmIn{0%{opacity:0}100%{opacity:1}}

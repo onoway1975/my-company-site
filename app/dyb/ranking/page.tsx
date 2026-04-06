@@ -73,6 +73,138 @@ function splitPhrases(text: string): string[] {
   const third = Math.floor(len / 3)
   return [text.slice(0, third), text.slice(third, third * 2), text.slice(third * 2)]
 }
+function PostModal({ onClose }: { onClose: () => void }) {
+  const [nickname, setNickname] = useState('')
+  const [content, setContent] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [result, setResult] = useState<{ analysis: { comment: string; total_score: number }; data: P } | null>(null)
+  const [ngWords, setNgWords] = useState<string[]>([])
+
+  useEffect(() => {
+    fetch('/dyb/ng_words.json')
+      .then(r => r.json())
+      .then(setNgWords)
+      .catch(() => {})
+  }, [])
+
+  const NG_WHITELIST = [
+    // 薬物系（ラップ頻出）
+    '大麻', '麻薬', 'マリファナ', 'ガンジャ', 'weed', 'herb', 'blunt', 'smoke',
+    // 一般的な日本語罵倒・スラング（表現として使われる）
+    'クソ', 'くそ', 'shit', 'damn', 'hell', 'ass', 'bastard', 'bitch',
+    // ラップ用語・スラング
+    'kill', 'murder', 'beef', 'diss', 'fuck', 'fucker', 'fucking',
+    'nigga', 'gangsta', 'hustle', 'grind', 'trap', 'plug',
+    // 日本語スラング
+    'ヤバい', 'やばい', 'やばい', 'ヤバ', 'ぶっ殺', 'ぶち殺', 'ぶっ飛ばす',
+    // その他ラップ頻出
+    'sex', 'sexy', 'drug', 'drugs', 'money', 'cash', 'gun', 'gang',
+    'ビッチ', 'クズ', 'カス', 'バカ', '馬鹿', 'アホ',
+  ]
+
+  const checkNgWords = (text: string): string | null => {
+    // ひらがな→カタカナ変換
+    const toKatakana = (str: string) =>
+      str.replace(/[\u3041-\u3096]/g, c => String.fromCharCode(c.charCodeAt(0) + 0x60))
+    const lower = text.toLowerCase()
+    const kata = toKatakana(lower)
+    for (const w of ngWords) {
+      const wLower = w.toLowerCase()
+      const wKata = toKatakana(wLower)
+      // ホワイトリストにある単語はスキップ
+      if (NG_WHITELIST.some(wl => wl.toLowerCase() === wLower)) continue
+      if (lower.includes(wLower) || kata.includes(wKata) || lower.includes(wKata) || kata.includes(wLower)) return w
+    }
+    return null
+  }
+
+  const handleSubmit = async () => {
+    if (!nickname.trim() || !content.trim()) { setError('ニックネームとパンチラインを入力してください'); return }
+    const ngHit = checkNgWords(content.trim())
+    if (ngHit) { setError('不適切な表現が含まれています。内容を変更してください。'); return }
+    setLoading(true); setError('')
+    try {
+      const res = await fetch('/api/dyb/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname: nickname.trim(), content: content.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'エラーが発生しました')
+      setResult(data)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'エラーが発生しました')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const fn = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', fn)
+    return () => window.removeEventListener('keydown', fn)
+  }, [onClose])
+
+  return (
+    <div className="pm-overlay" onClick={onClose}>
+      <div className="pm-box" onClick={e => e.stopPropagation()}>
+        {!result ? (
+          <>
+            <div className="pm-hd">
+              <div className="pm-ttl">DROP YOUR BARS</div>
+              <button className="pm-x" onClick={onClose}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <div className="pm-bd">
+              <div className="pm-fld">
+                <label className="pm-lbl">NICKNAME</label>
+                <input className="pm-inp" type="text" placeholder="YOUR NAME" value={nickname} onChange={e => setNickname(e.target.value)} maxLength={20}/>
+              </div>
+              <div className="pm-fld">
+                <label className="pm-lbl" style={{display:'flex',justifyContent:'space-between'}}>
+                  BARS<span style={{color:'rgba(255,255,255,0.3)'}}>{content.length}/100</span>
+                </label>
+                <textarea className="pm-ta" placeholder="パンチラインを入力（100文字以内）" value={content} onChange={e => setContent(e.target.value)} maxLength={100} rows={4}/>
+              </div>
+              {error && <div className="pm-err">{error}</div>}
+            </div>
+            <div className="pm-ft">
+              <button className="pm-sub" onClick={handleSubmit} disabled={loading}>
+                {loading ? <span className="pm-ld"><span className="pm-sp"/>ANALYZING...</span> : 'DROP IT →'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="pm-hd">
+              <div className="pm-ttl">RESULT</div>
+              <button className="pm-x" onClick={onClose}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <div className="pm-res">
+              <div className="pm-sc">{result.analysis.total_score}</div>
+              <div className="pm-sc-u">POINTS</div>
+              <div className="pm-cmt">{result.analysis.comment}</div>
+              <div className="pm-bars">{result.data.content}</div>
+            </div>
+            <div className="pm-ft" style={{gap:10}}>
+              <Link href="/dyb/ranking/" className="pm-sub" onClick={onClose}>RANKING を見る →</Link>
+              <button className="pm-ag" onClick={() => setResult(null)}>もう一度</button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function buildSegs(text: string, groups: { color_index: number; words: string[] }[]) {
   type Seg = { text: string; rhyme?: number }
   let segs: Seg[] = [{ text }]
@@ -185,6 +317,7 @@ export default function DYBRankingPage() {
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set())
   const [footerVisible, setFooterVisible] = useState(false)
   const [selected, setSelected] = useState<{ item: P; rank: number } | null>(null)
+  const [showPostModal, setShowPostModal] = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -211,6 +344,7 @@ export default function DYBRankingPage() {
   }, [])
 
   const closeModal = useCallback(() => setSelected(null), [])
+  const closePostModal = useCallback(() => setShowPostModal(false), [])
 
   const handleLike = async (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation()
@@ -236,7 +370,7 @@ export default function DYBRankingPage() {
   const CtaBlock = () => (
     <div className="rk-cta">
       <div className="rk-cta-rw">
-        <button className="rk-make" onClick={() => window.location.href='/dyb/'}>MAKE YOUR BARS?<span style={{fontSize:20}}>→</span></button>
+        <button className="rk-make" onClick={() => setShowPostModal(true)}>MAKE YOUR BARS?<span style={{fontSize:20}}>→</span></button>
         <Link href="/dyb/" className="rk-back">← TOP</Link>
       </div>
     </div>
@@ -307,6 +441,7 @@ export default function DYBRankingPage() {
         @media(min-width:900px){.rk-cta-rw{padding:12px 60px 24px}}
         .rk-make{flex:1;max-width:420px;min-width:180px;padding:15px 24px;background:#ffffff;color:#0a0a0a;border:none;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:15px;letter-spacing:3px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap;transition:background 0.15s}
         .rk-make:hover{background:#e0e0e0}
+        @media(max-width:480px){.rk-make{font-size:12px;letter-spacing:1px;padding:12px 16px;gap:8px}.rk-back{font-size:12px;letter-spacing:1px;padding:12px 16px}}
         .rk-back{padding:15px 24px;background:transparent;color:#ffffff;border:1px solid rgba(255,255,255,0.5);border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:15px;letter-spacing:3px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color 0.15s,background 0.15s;text-decoration:none;white-space:nowrap}
         .rk-back:hover{border-color:#ffffff;background:rgba(255,255,255,0.06)}
         .rk-cta-fx{position:fixed;bottom:0;left:0;right:0;z-index:100}
@@ -336,6 +471,34 @@ export default function DYBRankingPage() {
         .mo-ds{display:flex;gap:8px;align-items:center;margin-left:auto}
         .mo-d{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.08s,transform 0.08s}
         .mo-d.act{background:#ffffff;transform:scale(1.5)}
+
+        .pm-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:24px;animation:pmIn 0.2s ease forwards;backdrop-filter:blur(4px)}
+        .pm-box{width:100%;max-width:560px;background:#0a0a0a;border:1px solid rgba(255,255,255,0.25);border-radius:8px;animation:pmSl 0.25s cubic-bezier(.2,.8,.3,1) forwards;overflow:hidden}
+        .pm-hd{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+        .pm-ttl{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:13px;color:#ffffff;letter-spacing:3px}
+        .pm-x{width:32px;height:32px;border:1px solid rgba(255,255,255,0.15);border-radius:50%;background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color 0.15s,color 0.15s}
+        .pm-x:hover{border-color:rgba(255,255,255,0.5);color:#ffffff}
+        .pm-bd{padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+        .pm-fld{display:flex;flex-direction:column;gap:6px}
+        .pm-lbl{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:3px;font-weight:400}
+        .pm-inp,.pm-ta{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:15px;padding:12px 14px;outline:none;transition:border-color 0.15s;resize:none;width:100%}
+        .pm-inp:focus,.pm-ta:focus{border-color:rgba(255,255,255,0.5)}
+        .pm-inp::placeholder,.pm-ta::placeholder{color:rgba(255,255,255,0.2)}
+        .pm-err{font-family:'Noto Sans JP',sans-serif;font-size:12px;color:#FF7043}
+        .pm-ft{padding:0 24px 24px;display:flex;gap:10px;flex-wrap:wrap}
+        .pm-sub{flex:1;padding:16px 24px;background:#ffffff;color:#0a0a0a;border:none;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:15px;letter-spacing:3px;cursor:pointer;transition:background 0.15s;text-decoration:none;display:flex;align-items:center;justify-content:center}
+        .pm-sub:hover:not(:disabled){background:#e0e0e0}
+        .pm-sub:disabled{opacity:0.6;cursor:not-allowed}
+        .pm-ld{display:flex;align-items:center;gap:10px}
+        @keyframes sp{to{transform:rotate(360deg)}}
+        .pm-sp{width:16px;height:16px;border:2px solid rgba(0,0,0,0.2);border-top-color:#0a0a0a;border-radius:50%;animation:sp 0.7s linear infinite}
+        .pm-ag{padding:16px 20px;background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.15);border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:14px;letter-spacing:2px;cursor:pointer;transition:border-color 0.15s}
+        .pm-ag:hover{border-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.7)}
+        .pm-res{padding:32px 24px 20px;text-align:center}
+        .pm-sc{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:80px;color:#ffffff;line-height:1}
+        .pm-sc-u{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:3px;margin-top:4px}
+        .pm-cmt{font-family:'Noto Sans JP',sans-serif;font-size:14px;color:rgba(255,255,255,0.7);margin-top:16px}
+        .pm-bars{font-family:'Noto Sans JP',sans-serif;font-weight:700;font-size:18px;color:#fff;margin-top:12px;line-height:1.5}
       `}</style>
 
       <div className="rk-root">
@@ -411,6 +574,7 @@ export default function DYBRankingPage() {
         {!footerVisible && <div className="rk-cta-fx"><CtaBlock/></div>}
       </div>
 
+      {showPostModal && <PostModal onClose={closePostModal}/>}
       {selected && (
         <BarModal
           item={selected.item}
