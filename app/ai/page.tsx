@@ -234,20 +234,12 @@ function PlaceholderImage({
 
 function DarkCtaButtons() {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+    <div className="flex justify-center">
       <a
         href="#final-cta"
-        className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold transition-opacity hover:opacity-80"
-        style={{ background: '#F4F4F4', color: '#1A1A1A', borderRadius: 2 }}
+        className="inline-flex items-center justify-center gap-2 px-8 py-3 text-base font-bold rounded-full bg-white text-[#111111] border border-white hover:bg-transparent hover:text-white transition-colors"
       >
         フォームで相談する →
-      </a>
-      <a
-        href="#"
-        className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold transition-opacity hover:opacity-70"
-        style={{ border: '1px solid rgba(244,244,244,0.3)', color: '#F4F4F4', borderRadius: 2 }}
-      >
-        日程を予約する
       </a>
     </div>
   )
@@ -398,15 +390,6 @@ function InlineContactForm() {
         )}
       </form>
 
-      <div className="text-center mt-8">
-        <a
-          href="#"
-          className="text-sm transition-colors hover:opacity-80"
-          style={{ color: 'rgba(244,244,244,0.4)' }}
-        >
-          日程を予約する →
-        </a>
-      </div>
     </div>
   )
 }
