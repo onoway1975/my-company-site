@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Monitor, Sparkles, TrendingUp, MessageCircle, FileText } from 'lucide-react'
+import { Monitor, Sparkles, FileText } from 'lucide-react'
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -70,12 +70,6 @@ const receiptRows = [
   { plan: 'AIチャットボット追加', price: '25万円〜', desc: '既存サイトへの組み込み' },
   { plan: 'フルオーダー',       price: '80万円〜',  desc: 'DB・認証・管理画面つき' },
 ]
-const advisoryRows = [
-  { plan: 'スポット相談',      price: '2万円／60分', desc: '単発・議事録付き' },
-  { plan: '月次アドバイザー',  price: '10万円〜／月',  desc: '月2回Zoom＋Slack' },
-  { plan: '社内研修（半日）',  price: '要ご相談',    desc: 'カリキュラム設計込み' },
-  { plan: '社内研修（全5回）', price: '要ご相談',    desc: 'Claude Code実習含む' },
-]
 
 const faqs = [
   {
@@ -84,7 +78,7 @@ const faqs = [
   },
   {
     q: '相談だけでも大丈夫ですか？',
-    a: '大丈夫です。「自社に合うかわからない」という状態での相談、大歓迎です。まずはスポット相談（60分・2万円）からどうぞ。',
+    a: '大丈夫です。「自社に合うかわからない」という状態での相談、大歓迎です。まずはお問い合わせお願いします。',
   },
   {
     q: 'どんな業種でも対応できますか？',
@@ -596,25 +590,13 @@ export default function AiPage() {
           </div>
 
           {/* ②③④ */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             {([
               {
                 icon: Sparkles,
                 title: 'AI搭載サイト・LP制作',
                 body: '「こんなの欲しい」から相談OK。AI搭載のWebツール・プロモページを、要件定義から一緒に作ります。',
                 price: null,
-              },
-              {
-                icon: TrendingUp,
-                title: '内製化アドバイザリー',
-                body: '外注していた制作を、自分たちでできるようにする伴走支援。月2回Zoom＋Slack。',
-                price: '10万円〜／月',
-              },
-              {
-                icon: MessageCircle,
-                title: 'スポット相談',
-                body: '60分・単発。まず話だけ聞きたい方はここから。議事録とアドバイスメモ付き。',
-                price: '2万円／60分',
               },
             ] as const).map((s, i) => (
               <div
@@ -771,17 +753,10 @@ export default function AiPage() {
         <div className={C}>
           <SectionLabel>Pricing</SectionLabel>
           <h2 className="text-3xl md:text-4xl font-bold text-ink leading-snug mb-12">
-            AI制作の外注・アドバイザリー料金
+            AI制作の受託料金
           </h2>
 
-          <div className="flex flex-col gap-12">
-            <PricingTable label="受託制作" rows={receiptRows} />
-            <PricingTable label="AI活用アドバイザリー" rows={advisoryRows} />
-          </div>
-
-          <p className="mt-10 text-base text-muted">
-            まずはスポット相談からでも大丈夫です。
-          </p>
+          <PricingTable label="受託制作" rows={receiptRows} />
         </div>
       </section>
 
