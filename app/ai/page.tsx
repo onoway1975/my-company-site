@@ -66,11 +66,9 @@ const marqueeRow2: { name: string; slug: string | null }[] = [
 
 const receiptRows = [
   { plan: '提案用デモサイト',   price: '5万円〜',   desc: '企画提案・コンペ用の実動デモ制作' },
-  { plan: 'AIプロモツール',     price: '38万円〜',  desc: '診断・占い・ジェネレーター系' },
-  { plan: 'AIメニュー・カタログ', price: '18万円〜', desc: 'スプレッドシートCMS付き' },
+  { plan: 'AI診断系コンテンツ',  price: '35万円〜',  desc: '診断・占い・ジェネレーター系' },
   { plan: 'AIチャットボット追加', price: '25万円〜', desc: '既存サイトへの組み込み' },
-  { plan: 'フルオーダー',       price: '60万円〜',  desc: 'DB・認証・管理画面つき' },
-  { plan: '保守サブスク',       price: '5万円/月',  desc: 'API費用込み・改善対応込み' },
+  { plan: 'フルオーダー',       price: '80万円〜',  desc: 'DB・認証・管理画面つき' },
 ]
 const advisoryRows = [
   { plan: 'スポット相談',      price: '2万円／60分', desc: '単発・議事録付き' },
@@ -491,7 +489,7 @@ export default function AiPage() {
           <SectionLabel>Problem</SectionLabel>
           <h2 className="text-3xl md:text-4xl font-bold text-ink leading-snug mb-12">
             AI活用を進めたいけど、<br className="hidden md:block" />
-            一歩が踏み出せていませんか？
+            一歩が踏み出せない。
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
