@@ -47,7 +47,7 @@ const ANGLE_MAP: Record<string, string> = {
 };
 
 const GLASSES_MAP: Record<string, string> = {
-  none: "no glasses",
+  none: "absolutely no glasses, remove any glasses",
   black: "wearing black-framed glasses",
   thin: "wearing thin metal-framed glasses",
 };
@@ -129,12 +129,16 @@ export async function POST(req: NextRequest) {
       ${backgroundPrompt},
       ${anglePrompt},
       ${glassesPrompt},
-      clean professional headshot, studio lighting,
-      CRITICAL: preserve exact facial features,
-      exact same face shape, exact same eyes nose mouth,
-      exact same skin tone, exact same hair color and style,
-      do not change face structure, do not idealize or beautify,
-      photorealistic, no text, no watermark
+      sharp studio lighting from front, even lighting, no harsh shadows,
+      no spotlight, no vignette, no rim light,
+      CRITICAL: preserve exact same face as input image,
+      same face shape, same eyes, same nose, same mouth, same jawline,
+      same skin tone, same hair color, same hair texture,
+      do not add glasses unless specified,
+      do not change face structure, do not smooth skin,
+      do not idealize or beautify the face,
+      ultra photorealistic, 8k, sharp focus,
+      no text, no watermark
     `.trim();
 
     // FAL.ai 呼び出し（関数内でconfig）
@@ -147,10 +151,10 @@ export async function POST(req: NextRequest) {
         prompt,
         negative_prompt:
           "cartoon, anime, illustration, watermark, text, deformed, blurry, low quality, nsfw, nude, bad anatomy, extra fingers, ugly, distorted, full body, legs, waist",
-        face_strength: 2.0,
-        controlnet_conditioning_scale: 1.2,
-        num_inference_steps: 30,
-        guidance_scale: 4.5,
+        face_strength: 2.2,
+        controlnet_conditioning_scale: 1.3,
+        num_inference_steps: 32,
+        guidance_scale: 4.0,
         image_size: "portrait_4_3",
       } as Parameters<typeof fal.subscribe>[1]["input"],
     });
