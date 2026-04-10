@@ -538,23 +538,28 @@ export default function ResumePhotoPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F5F3EE" }}>
-      <div className="max-w-lg mx-auto px-4 py-12">
-        {/* ── Title ── */}
-        <div className="text-center mb-10">
-          <h1
-            className="text-2xl font-bold tracking-[0.15em]"
-            style={{ color: "#1A1A1A" }}
-          >
-            RESUME PHOTO MAKER
-          </h1>
-          <p className="text-sm mt-1" style={{ color: "#999" }}>
-            履歴書写真メーカー
-          </p>
+      {/* ── Hero Image ── */}
+      <div style={{ width: "100%", background: "#F5F3EE" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/resumephoto/hero.webp"
+          alt="証明写真メーカー - 写真1枚で簡単生成"
+          style={{
+            display: "block",
+            width: "100%",
+            maxWidth: "1280px",
+            height: "auto",
+            margin: "0 auto",
+          }}
+        />
+      </div>
 
-          {/* 残り回数バッジ */}
-          {remaining !== null && (
+      <div className="max-w-lg mx-auto px-4 py-8">
+        {/* 残り回数バッジ */}
+        {remaining !== null && (
+          <div className="text-center mb-8">
             <div
-              className="inline-flex items-center gap-1.5 mt-3 px-4 py-1.5 rounded-full text-xs font-bold"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold"
               style={{
                 backgroundColor: remaining === 0 ? "#FFF5F5" : "#FFFFFF",
                 color: remaining === 0 ? "#C53030" : "#1A1A1A",
@@ -571,8 +576,8 @@ export default function ResumePhotoPage() {
                 ? "本日の上限に達しました"
                 : `残り ${remaining} 回`}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* ── Step 1: Upload ── */}
         <Card>
