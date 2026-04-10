@@ -230,7 +230,8 @@
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: PDF画像位置・切り取り線重なり修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
       "Bash(npx tsc --noEmit --pretty 2>&1 | head -10)",
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfeat: もう一度作るボタン・生成時間目安表示\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
-      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: PDFをCanvas事前トリミング方式に変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)"
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: PDFをCanvas事前トリミング方式に変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: PDF日本語文字化け→英語テキストに変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)"
     ]
   }
 }

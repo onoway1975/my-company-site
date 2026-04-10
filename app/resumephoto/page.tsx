@@ -172,14 +172,14 @@ async function generatePDF(
   doc.setFontSize(10);
   doc.setTextColor(100);
   doc.text(
-    `証明写真 ${size.label}（${size.cols}×${size.rows}=${size.count}枚）`,
+    `ID Photo ${size.label} - ${size.cols} x ${size.rows} = ${size.count} prints`,
     MARGIN_X,
     13
   );
   doc.setFontSize(7);
   doc.setTextColor(150);
   doc.text(
-    "切り取り線に沿って切り取ってご使用ください",
+    "Please cut along the trim lines",
     MARGIN_X,
     17
   );
@@ -234,7 +234,7 @@ async function generatePDF(
   /* ── フッター ── */
   doc.setFontSize(6);
   doc.setTextColor(180);
-  doc.text("A4シール用紙対応 ／ RESUME PHOTO MAKER", MARGIN_X, 290);
+  doc.text("A4 Sticker Sheet / RESUME PHOTO MAKER", MARGIN_X, 290);
 
   doc.save(`resume_photo_${sizeId}.pdf`);
 }
