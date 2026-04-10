@@ -42,7 +42,7 @@ const BACKGROUND_MAP: Record<string, string> = {
 };
 
 const ANGLE_MAP: Record<string, string> = {
-  front: "facing directly forward, head perfectly straight, eyes level, chin parallel to ground, no head tilt, no head rotation, perfectly upright posture, symmetrical face position, centered in frame",
+  front: "facing DIRECTLY forward, head perfectly straight, eyes looking straight into camera, NO head tilt, NO head rotation, NO angled pose, perfectly symmetrical front-facing portrait",
 };
 
 const GLASSES_MAP: Record<string, string> = {
