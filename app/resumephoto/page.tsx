@@ -661,6 +661,17 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
               if (file) handleFile(file);
             }}
           />
+          <p
+            style={{
+              fontSize: 11,
+              color: "#999",
+              textAlign: "center",
+              marginTop: 8,
+              lineHeight: 1.6,
+            }}
+          >
+            💡 正面を向いて真っすぐ撮影した写真を使うと、より精度が上がります
+          </p>
         </Card>
 
         {/* ── Step 2: Customize ── */}
