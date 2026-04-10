@@ -22,13 +22,13 @@ async function redisCommand(
 
 const SUIT_MAP: Record<string, string> = {
   male_navy:
-    "wearing a formal navy blue business suit, white dress shirt, dark tie, male, the suit must be clearly visible, proper business attire",
+    "wearing a standard navy blue job-hunting suit, white shirt, navy tie, Japanese male",
   male_black:
-    "wearing a formal black business suit, white dress shirt, black tie, male, the suit must be clearly visible, proper business attire",
+    "wearing a standard black job-hunting suit, white shirt, black tie, Japanese male",
   female_navy:
-    "wearing a formal navy blue business suit jacket, female, the suit must be clearly visible, proper business attire",
+    "wearing a standard navy blue job-hunting suit jacket, white blouse, Japanese female",
   female_black:
-    "wearing a formal black business suit jacket, female, the suit must be clearly visible, proper business attire",
+    "wearing a standard black job-hunting suit jacket, white blouse, Japanese female",
 };
 
 const EXPRESSION_MAP: Record<string, string> = {
@@ -124,21 +124,25 @@ export async function POST(req: NextRequest) {
     const anglePrompt = ANGLE_MAP[angle] || ANGLE_MAP.front;
     const glassesPrompt = GLASSES_MAP[glasses] || GLASSES_MAP.none;
 
+    // スーツIDから性別を取得
+    const gender = suit.startsWith("female")
+      ? "Japanese female"
+      : "Japanese male";
+
     const prompt = `
-      professional Japanese ID photo portrait,
+      ${gender}, professional ID photo portrait,
       ${suitPrompt},
       ${expressionPrompt},
       ${backgroundPrompt},
       ${anglePrompt},
       ${glassesPrompt},
-      full color photograph, color photo, vibrant colors,
-      facing directly toward camera, head straight,
-      soft even studio lighting from front,
-      no shadows under eyes, clean skin, natural skin tone,
-      CRITICAL: preserve exact same face as input,
-      same face shape, same eyes nose mouth jawline,
+      full color photograph,
+      facing directly toward camera, head and shoulders shot,
+      soft even front lighting, no harsh shadows,
+      CRITICAL: preserve exact same face from input image,
+      same face shape, same eyes nose mouth, same skin tone,
       same hair color and style,
-      do not change face structure,
+      do not change gender, ${gender} only,
       do not add glasses unless specified,
       photorealistic, sharp focus,
       no text, no watermark
