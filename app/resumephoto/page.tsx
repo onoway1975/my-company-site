@@ -537,17 +537,17 @@ export default function ResumePhotoPage() {
   const currentPdfSize = PDF_SIZES[pdfSize];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#F5F3EE" }}>
+    <div className="min-h-screen" style={{ backgroundColor: "#F0EDE6" }}>
       {/* ── Hero Image ── */}
-      <div style={{ width: "100%", background: "#F5F3EE" }}>
+      <div style={{ width: "100%", background: "#F0EDE6" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/resumephoto/hero.webp"
-          alt="証明写真メーカー - 写真1枚で簡単生成"
+          alt="証明写真メーカー"
           style={{
             display: "block",
             width: "100%",
-            maxWidth: "1280px",
+            maxWidth: "800px",
             height: "auto",
             margin: "0 auto",
           }}
