@@ -5,6 +5,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 /* ────────────────────────────── Types & Constants ────────────────────────────── */
 
 type SuitType = "male_navy" | "male_black" | "female_navy" | "female_black";
+type ExpressionType = "natural_smile" | "open_smile" | "serious";
 type BackgroundType = "white" | "blue" | "gray";
 type PdfSizeId = "2x3" | "3x4";
 
@@ -13,6 +14,15 @@ const SUIT_OPTIONS: { value: SuitType; label: string }[] = [
   { value: "male_black", label: "黒（男性）" },
   { value: "female_navy", label: "紺（女性）" },
   { value: "female_black", label: "黒（女性）" },
+];
+const EXPRESSION_OPTIONS: {
+  value: ExpressionType;
+  label: string;
+  desc: string;
+}[] = [
+  { value: "natural_smile", label: "自然な笑顔", desc: "口閉じ・柔らかく" },
+  { value: "open_smile", label: "笑顔", desc: "歯が少し見える" },
+  { value: "serious", label: "真面目", desc: "クール・シャープ" },
 ];
 const BACKGROUND_OPTIONS: {
   value: BackgroundType;
@@ -370,6 +380,8 @@ function A4Preview({
 export default function ResumePhotoPage() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [suit, setSuit] = useState<SuitType>("male_navy");
+  const [expression, setExpression] =
+    useState<ExpressionType>("natural_smile");
   const [background, setBackground] = useState<BackgroundType>("white");
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
     null
@@ -453,7 +465,7 @@ export default function ResumePhotoPage() {
           imageBase64: uploadedImage,
           suit,
           glasses: "none",
-          expression: "natural_smile",
+          expression,
           background,
           angle: "front",
         }),
@@ -701,13 +713,45 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
 
         {/* ── Step 2: Customize ── */}
         <Card>
-          <SectionLabel>2. スーツと背景を選ぶ</SectionLabel>
+          <SectionLabel>2. スーツ・表情・背景を選ぶ</SectionLabel>
           <OptionGroup
             label="スーツ"
             options={SUIT_OPTIONS}
             value={suit}
             onChange={setSuit}
           />
+          <div className="mb-4">
+            <p className="text-xs mb-2" style={{ color: "#888" }}>
+              表情
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {EXPRESSION_OPTIONS.map((opt) => {
+                const selected = opt.value === expression;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => setExpression(opt.value)}
+                    className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                    style={{
+                      backgroundColor: selected ? "#1A1A1A" : "#FFFFFF",
+                      color: selected ? "#FFFFFF" : "#1A1A1A",
+                      border: `1px solid ${selected ? "#1A1A1A" : "#E8E0D5"}`,
+                    }}
+                  >
+                    {opt.label}
+                    <span
+                      className="block text-[10px] mt-0.5"
+                      style={{
+                        color: selected ? "rgba(255,255,255,0.6)" : "#AAA",
+                      }}
+                    >
+                      {opt.desc}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <div className="mb-4 last:mb-0">
             <p className="text-xs mb-2" style={{ color: "#888" }}>
               背景色

@@ -33,8 +33,8 @@ const SUIT_MAP: Record<string, string> = {
 
 const EXPRESSION_MAP: Record<string, string> = {
   natural_smile: "gentle natural closed-mouth smile, relaxed expression",
-  open_smile: "slight open smile showing teeth, warm expression",
-  serious: "neutral serious expression, confident look",
+  open_smile: "slight open smile showing teeth, warm friendly expression",
+  serious: "neutral serious expression, confident professional look",
 };
 
 const BACKGROUND_MAP: Record<string, string> = {
@@ -134,7 +134,9 @@ export async function POST(req: NextRequest) {
       ${anglePrompt},
       ${glassesPrompt},
       full color photograph,
-      facing directly toward camera, head and shoulders shot,
+      close-up headshot, face occupies 60-70% of frame,
+      head and shoulders only, face centered and large in frame,
+      facing directly toward camera,
       soft even front lighting, no harsh shadows,
       CRITICAL: preserve exact same face from input image,
       same face shape, same eyes nose mouth, same skin tone,
