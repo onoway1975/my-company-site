@@ -138,10 +138,18 @@ async function generatePDF(imageUrl: string, sizeId: PdfSizeId) {
     format: "a4",
   });
 
-  // 写真画像を DataURL へ変換
+  // 写真画像を DataURL へ変換し、自然サイズを取得
   const res = await fetch(imageUrl);
   const blob = await res.blob();
   const photoDataUrl = await blobToDataUrl(blob);
+
+  const photoImg = await new Promise<HTMLImageElement>((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.src = photoDataUrl;
+  });
+  const imgNatW = photoImg.naturalWidth || 1;
+  const imgNatH = photoImg.naturalHeight || 1;
 
   const PAGE_W = 210;
   const MARGIN_X = 15;
@@ -194,8 +202,19 @@ async function generatePDF(imageUrl: string, sizeId: PdfSizeId) {
       const x = startX + c * (size.w + GAP);
       const y = startY + r * (size.h + GAP);
 
-      // 写真
-      doc.addImage(photoDataUrl, "JPEG", x, y, size.w, size.h);
+      // 写真（cover スケール + クリップ）
+      const scaleX = size.w / imgNatW;
+      const scaleY = size.h / imgNatH;
+      const coverScale = Math.max(scaleX, scaleY);
+      const drawW = imgNatW * coverScale;
+      const drawH = imgNatH * coverScale;
+      const offX = (size.w - drawW) / 2;
+      const offY = (size.h - drawH) / 2;
+
+      doc.saveGraphicsState();
+      doc.rect(x, y, size.w, size.h).clip();
+      doc.addImage(photoDataUrl, "JPEG", x + offX, y + offY, drawW, drawH);
+      doc.restoreGraphicsState();
 
       // 切り取り線（実線の矩形）
       doc.rect(x, y, size.w, size.h);
@@ -361,7 +380,7 @@ function A4Preview({
             backgroundColor: imageUrl ? undefined : "#F5F0E8",
             backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
             backgroundSize: "cover",
-            backgroundPosition: "center top",
+            backgroundPosition: "center center",
           }}
         />
       ))}
