@@ -32,9 +32,10 @@ const SUIT_MAP: Record<string, string> = {
 };
 
 const EXPRESSION_MAP: Record<string, string> = {
-  natural_smile: "gentle natural closed-mouth smile, relaxed expression",
-  open_smile: "slight open smile showing teeth, warm friendly expression",
-  serious: "neutral serious expression, confident professional look",
+  natural_smile: "gentle natural closed-mouth smile, relaxed soft expression",
+  open_smile:
+    "big open smile showing teeth, happy warm expression, smiling",
+  serious: "neutral serious expression, no smile, professional look",
 };
 
 const BACKGROUND_MAP: Record<string, string> = {
@@ -115,7 +116,7 @@ export async function POST(req: NextRequest) {
     const expressionPrompt =
       EXPRESSION_MAP[expression] || EXPRESSION_MAP.natural_smile;
     const backgroundPrompt =
-      BACKGROUND_MAP[background] || BACKGROUND_MAP.white;
+      BACKGROUND_MAP[background] || BACKGROUND_MAP.gray;
     const anglePrompt = ANGLE_MAP[angle] || ANGLE_MAP.front;
     const glassesPrompt = GLASSES_MAP[glasses] || GLASSES_MAP.keep;
 
@@ -144,6 +145,7 @@ export async function POST(req: NextRequest) {
     // FAL.ai 呼び出し（関数内でconfig）
     fal.config({ credentials: process.env.FAL_KEY });
 
+    console.log("[resumephoto] received:", { suit, expression, glasses });
     console.log("[resumephoto] calling fal-ai/ip-adapter-face-id");
     const result = await fal.subscribe("fal-ai/ip-adapter-face-id", {
       input: {
