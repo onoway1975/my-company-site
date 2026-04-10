@@ -697,10 +697,21 @@ export default function ResumePhotoPage() {
               setUploadedImage(null);
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="w-full py-4 rounded-xl text-base font-bold tracking-wider"
-            style={{ backgroundColor: "#C8A96E", color: "#1A1A1A" }}
+            style={{
+              background: "transparent",
+              color: "#1A1A1A",
+              border: "1.5px solid #1A1A1A",
+              borderRadius: 10,
+              padding: "14px",
+              fontSize: 14,
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+              width: "100%",
+              cursor: "pointer",
+              marginBottom: 16,
+            }}
           >
-            🔄 もう一度作る
+            もう一度作る
           </button>
         ) : (
           <button
