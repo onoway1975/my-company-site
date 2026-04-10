@@ -199,7 +199,32 @@
       "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nfix: /ai/ ヒーローエリアの上下余白・ボタン下余白を調整\nEOF\n\\)\" && git push origin main)",
       "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nfix: プロフィール写真を onoe.webp に変更\nEOF\n\\)\" && git push origin main)",
       "Bash(git add . && git commit -m \"$\\(cat <<'EOF'\nfix: 日程を予約するボタン削除・フォームボタン角丸に統一\nEOF\n\\)\" && git push origin main)",
-      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nperf: accessibility & performance improvements via Vercel skills\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nperf: accessibility & performance improvements via Vercel skills\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git add app/dyb/page.tsx app/dyb/ranking/page.tsx && git commit -m \"$\\(cat <<'EOF'\nfix: ランキング投稿ボタンのモーダル修正・スマホボタンサイズ調整\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
+      "Bash(git add app/ai/page.tsx && git commit -m \"$\\(cat <<'EOF'\nfix: 料金表更新・課題セクション見出し修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)",
+      "Bash(git add app/ai/page.tsx && git commit -m \"$\\(cat <<'EOF'\nfix: AI活用アドバイザリー削除・FAQ回答テキスト修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)",
+      "Bash(cd /Users/onoway/Documents/typocity && npx expo install expo-router expo-linking expo-constants expo-splash-screen react-native-safe-area-context react-native-screens expo-system-ui 2>&1)",
+      "Bash(cd /Users/onoway/Documents/typocity && npx expo install expo-font @expo-google-fonts/cormorant-garamond @expo-google-fonts/inter 2>&1)",
+      "Bash(cd /Users/onoway/Documents/typocity && npm install --save --legacy-peer-deps @expo-google-fonts/cormorant-garamond @expo-google-fonts/inter 2>&1)",
+      "Bash(cd /Users/onoway/Documents/typocity && npx expo install @expo/vector-icons 2>&1)",
+      "Bash(cd /Users/onoway/Documents/typocity && mkdir -p app/\"\\(tabs\\)\" app/post app/spot app/user components lib hooks types)",
+      "Bash(npx expo export --platform ios --dump-sourcemap 2>&1 | tail -5 || true)",
+      "Bash(npx expo start 2>&1)",
+      "Bash(ls -la /Users/onoway/Documents/typocity/app/\\\\\\(tabs\\\\\\)/)",
+      "Bash(cd /Users/onoway/Documents/typocity && npx expo install expo-camera expo-location react-native-maps 2>&1)",
+      "Bash(cd /Users/onoway/Documents/typocity && npm install expo-camera expo-location react-native-maps --legacy-peer-deps 2>&1)",
+      "Bash(pwd && npx tsc --noEmit 2>&1 | head -80)",
+      "Bash(npx expo export --dump-sourcemap 2>&1 | head -30)",
+      "Bash(npx expo export --platform ios 2>&1 | tail -15)",
+      "Bash(npx expo export --platform ios 2>&1 | tail -10)",
+      "Bash(npx expo export --platform ios 2>&1 | grep -E \"\\(error|Error|Bundled\\)\" | head -5)",
+      "Bash(npm install expo-image-manipulator --legacy-peer-deps 2>&1)",
+      "Bash(npx expo export --platform ios 2>&1 | tail -20)",
+      "Bash(npx tsc --noEmit --pretty 2>&1 | head -60)",
+      "Bash(npx tsc --noEmit --pretty 2>&1 | head -20)",
+      "Bash(npx next build 2>&1 | tail -15)",
+      "Bash(npx next build 2>&1 | grep -E \"\\(error|✓|resumephoto\\)\" | head -10)",
+      "Bash(git add -A)"
     ]
   }
 }

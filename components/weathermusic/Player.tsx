@@ -131,8 +131,7 @@ export default function Player({ track, weather, autoPlay, onPrev, onNext, onPla
 
   return (
     <div
-      className="mx-3 mt-3 rounded-[22px] p-5 pb-[22px] transition-all duration-500"
-      style={{ background: cfg.player }}
+      className="mx-3 mt-3 rounded-[22px] p-5 pb-[22px] transition-all duration-500 backdrop-blur-xl bg-white/10 border border-white/15"
     >
       <p className="text-white/60 text-[10px] font-semibold tracking-[.18em] uppercase mb-3.5">
         Now Playing
@@ -188,10 +187,10 @@ export default function Player({ track, weather, autoPlay, onPrev, onNext, onPla
         <button onClick={onPrev} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 transition flex items-center justify-center active:scale-90">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="M3 3h1.5v10H3V3zm2.5 5L13 13V3L5.5 8z"/></svg>
         </button>
-        <button onClick={togglePlay} className="w-[52px] h-[52px] rounded-full bg-white hover:bg-white/90 transition flex items-center justify-center active:scale-90">
+        <button onClick={togglePlay} className="w-[52px] h-[52px] rounded-full bg-white/25 hover:bg-white/35 transition flex items-center justify-center active:scale-90">
           {playing
-            ? <svg width="20" height="20" viewBox="0 0 20 20" fill={cfg.player}><rect x="4" y="3" width="4" height="14" rx="1.5"/><rect x="12" y="3" width="4" height="14" rx="1.5"/></svg>
-            : <svg width="20" height="20" viewBox="0 0 20 20" fill={cfg.player}><path d="M6 4l11 6-11 6V4z"/></svg>
+            ? <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><rect x="4" y="3" width="4" height="14" rx="1.5"/><rect x="12" y="3" width="4" height="14" rx="1.5"/></svg>
+            : <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M6 4l11 6-11 6V4z"/></svg>
           }
         </button>
         <button onClick={onNext} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 transition flex items-center justify-center active:scale-90">

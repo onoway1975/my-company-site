@@ -27,6 +27,8 @@ export default function WeatherMusicClient() {
   const [weatherLoading, setWeatherLoading] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [aboutOpen,    setAboutOpen]    = useState(false)
+  const [temp,         setTemp]         = useState<number | null>(null)
+  const [description,  setDescription]  = useState('')
 
   // save settings to localStorage
   useEffect(() => {
@@ -47,6 +49,8 @@ export default function WeatherMusicClient() {
       const data = await res.json()
       if (data.weatherType) {
         setSettings(s => ({ ...s, weather: data.weatherType as WeatherType }))
+        if (typeof data.temp === 'number') setTemp(data.temp)
+        if (data.description) setDescription(data.description)
       }
     } catch {
       // 取得失敗時は現状維持
@@ -108,27 +112,27 @@ export default function WeatherMusicClient() {
 
       {/* Page */}
       <div
-        className="min-h-screen transition-all duration-500 relative overflow-hidden -mt-16 pt-16"
+        className="min-h-screen transition-all duration-500 relative overflow-hidden -mt-16 pt-16 wm-gradient"
         style={{ background: WEATHER_CONFIG[settings.weather].sky }}
       >
         {/* 全画面雨レイヤー */}
         {WEATHER_CONFIG[settings.weather].rain && <FullRainLayer />}
 
         {/* Nav — 全幅 */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 max-w-[860px] mx-auto">
-          <span className="text-[18px] tracking-[.12em] text-white drop-shadow-sm font-bold uppercase">
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 max-w-lg mx-auto">
+          <span className="text-[15px] tracking-[.14em] text-white drop-shadow-sm font-bold uppercase">
             WEATHER MUSIC
           </span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setAboutOpen(true)}
-              className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white rounded-full px-[18px] py-2 text-xs font-medium tracking-wide transition-colors"
+              className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-colors"
             >
               about
             </button>
             <button
               onClick={() => setSettingsOpen(true)}
-              className="flex items-center gap-1.5 bg-white text-[#1A1814] rounded-full px-[18px] py-2 text-xs font-medium tracking-wide transition-opacity hover:opacity-90"
+              className="flex items-center gap-1.5 bg-white text-[#1A1814] rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-opacity hover:opacity-90"
             >
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                 <circle cx="6.5" cy="6.5" r="2.3" stroke="currentColor" strokeWidth="1.4"/>
@@ -141,10 +145,10 @@ export default function WeatherMusicClient() {
         </div>
 
         {/* コンテンツ — 中央寄せ */}
-        <div className="w-full max-w-[860px] mx-auto flex flex-col pb-10">
+        <div className="w-full max-w-lg mx-auto flex flex-col pb-10">
 
           {/* Weather hero */}
-          <WeatherHero weather={settings.weather} city={settings.city} loading={weatherLoading} />
+          <WeatherHero weather={settings.weather} city={settings.city} temp={temp} description={description} loading={weatherLoading} />
 
           {/* Player */}
           <Player

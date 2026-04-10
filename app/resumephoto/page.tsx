@@ -1,0 +1,811 @@
+"use client";
+
+import { useState, useCallback, useRef, useEffect } from "react";
+
+/* ────────────────────────────── Types & Constants ────────────────────────────── */
+
+type SuitType = "male_navy" | "male_black" | "female_navy" | "female_black";
+type GlassesType = "none" | "black" | "thin";
+type ExpressionType = "natural_smile" | "open_smile" | "serious";
+type BackgroundType = "white" | "gray" | "blue";
+type DirectionType = "front" | "slight";
+type PdfSizeId = "2x3" | "3x4";
+
+const SUIT_OPTIONS: { value: SuitType; label: string }[] = [
+  { value: "male_navy", label: "紺（男性）" },
+  { value: "male_black", label: "黒（男性）" },
+  { value: "female_navy", label: "紺（女性）" },
+  { value: "female_black", label: "黒（女性）" },
+];
+const GLASSES_OPTIONS: { value: GlassesType; label: string }[] = [
+  { value: "none", label: "なし" },
+  { value: "black", label: "黒縁" },
+  { value: "thin", label: "細縁" },
+];
+const EXPRESSION_OPTIONS: { value: ExpressionType; label: string }[] = [
+  { value: "natural_smile", label: "自然な笑顔" },
+  { value: "open_smile", label: "笑顔" },
+  { value: "serious", label: "真面目" },
+];
+const BACKGROUND_OPTIONS: {
+  value: BackgroundType;
+  label: string;
+  hex: string;
+}[] = [
+  { value: "white", label: "白", hex: "#FFFFFF" },
+  { value: "gray", label: "グレー", hex: "#D0D0D0" },
+  { value: "blue", label: "青", hex: "#B8D4E8" },
+];
+const DIRECTION_OPTIONS: { value: DirectionType; label: string }[] = [
+  { value: "front", label: "正面" },
+  { value: "slight", label: "やや斜め" },
+];
+
+const PDF_SIZES: Record<
+  PdfSizeId,
+  {
+    w: number;
+    h: number;
+    cols: number;
+    rows: number;
+    label: string;
+    count: number;
+  }
+> = {
+  "2x3": { w: 20, h: 30, cols: 5, rows: 4, label: "2×3cm", count: 20 },
+  "3x4": { w: 30, h: 40, cols: 4, rows: 3, label: "3×4cm", count: 12 },
+};
+
+/* ────────────────────────────── Image resize helper ─────────────────────────── */
+
+function resizeImage(dataUrl: string, maxSize: number): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width <= maxSize && height <= maxSize) {
+        resolve(dataUrl);
+        return;
+      }
+      const ratio = Math.min(maxSize / width, maxSize / height);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", 0.9));
+    };
+    img.src = dataUrl;
+  });
+}
+
+/* ────────────────────────────── PDF helpers ──────────────────────────────────── */
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+}
+
+/** Canvas でテキストを描画し PNG DataURL として返す（日本語フォント対応） */
+async function renderTextImage(
+  text: string,
+  fontSizePt: number,
+  color: string
+) {
+  await document.fonts.load(`${fontSizePt * 1.33}px "LINE Seed"`);
+
+  const DPI = 300;
+  const PT_TO_MM = 0.3528;
+  const heightMm = fontSizePt * PT_TO_MM;
+  const heightPx = Math.round((heightMm / 25.4) * DPI);
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d")!;
+
+  ctx.font = `${heightPx}px "LINE Seed", sans-serif`;
+  const metrics = ctx.measureText(text);
+
+  canvas.width = Math.ceil(metrics.width) + 4;
+  canvas.height = Math.ceil(heightPx * 1.5);
+
+  ctx.font = `${heightPx}px "LINE Seed", sans-serif`;
+  ctx.fillStyle = color;
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, 2, canvas.height / 2);
+
+  return {
+    dataUrl: canvas.toDataURL("image/png"),
+    widthMm: (canvas.width / DPI) * 25.4,
+    heightMm: (canvas.height / DPI) * 25.4,
+  };
+}
+
+/** jsPDF で A4 PDF を生成・保存 */
+async function generatePDF(imageUrl: string, sizeId: PdfSizeId) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const jspdfModule = (window as any).jspdf;
+  if (!jspdfModule) throw new Error("jsPDF not loaded");
+
+  const size = PDF_SIZES[sizeId];
+  const doc = new jspdfModule.jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  // 写真画像を DataURL へ変換
+  const res = await fetch(imageUrl);
+  const blob = await res.blob();
+  const photoDataUrl = await blobToDataUrl(blob);
+
+  const PAGE_W = 210;
+  const MARGIN_X = 15;
+  const MARGIN_Y = 20;
+  const GAP = 3;
+
+  const availW = PAGE_W - MARGIN_X * 2;
+  const availH = 297 - MARGIN_Y * 2;
+  const totalW = size.cols * size.w + (size.cols - 1) * GAP;
+  const totalH = size.rows * size.h + (size.rows - 1) * GAP;
+  const startX = MARGIN_X + (availW - totalW) / 2;
+  const startY = MARGIN_Y + (availH - totalH) / 2;
+
+  /* ── ヘッダー ── */
+  const headerImg = await renderTextImage(
+    `証明写真 ${size.label} × ${size.count}枚`,
+    10,
+    "rgb(80,80,80)"
+  );
+  doc.addImage(
+    headerImg.dataUrl,
+    "PNG",
+    (PAGE_W - headerImg.widthMm) / 2,
+    10,
+    headerImg.widthMm,
+    headerImg.heightMm
+  );
+
+  /* ── 注記 ── */
+  const noteImg = await renderTextImage(
+    "切り取り線に沿って切り取ってご使用ください",
+    7,
+    "rgb(80,80,80)"
+  );
+  doc.addImage(
+    noteImg.dataUrl,
+    "PNG",
+    (PAGE_W - noteImg.widthMm) / 2,
+    16,
+    noteImg.widthMm,
+    noteImg.heightMm
+  );
+
+  /* ── 写真グリッド ── */
+  doc.setDrawColor(80, 80, 80);
+  doc.setLineWidth(0.2);
+
+  for (let r = 0; r < size.rows; r++) {
+    for (let c = 0; c < size.cols; c++) {
+      const x = startX + c * (size.w + GAP);
+      const y = startY + r * (size.h + GAP);
+
+      // 写真
+      doc.addImage(photoDataUrl, "JPEG", x, y, size.w, size.h);
+
+      // 切り取り線（実線の矩形）
+      doc.rect(x, y, size.w, size.h);
+
+      // トンボ（四隅の十字マーク 2mm・外側 0.5mm）
+      const OFF = 0.5;
+      const ARM = 1;
+      const corners = [
+        { cx: x - OFF, cy: y - OFF },
+        { cx: x + size.w + OFF, cy: y - OFF },
+        { cx: x - OFF, cy: y + size.h + OFF },
+        { cx: x + size.w + OFF, cy: y + size.h + OFF },
+      ];
+      for (const { cx, cy } of corners) {
+        doc.line(cx - ARM, cy, cx + ARM, cy);
+        doc.line(cx, cy - ARM, cx, cy + ARM);
+      }
+    }
+  }
+
+  /* ── フッター ── */
+  const footerImg = await renderTextImage(
+    "A4シール用紙対応 ／ RESUME PHOTO MAKER",
+    6,
+    "rgb(150,150,150)"
+  );
+  doc.addImage(
+    footerImg.dataUrl,
+    "PNG",
+    (PAGE_W - footerImg.widthMm) / 2,
+    290,
+    footerImg.widthMm,
+    footerImg.heightMm
+  );
+
+  doc.save(`resume_photo_${sizeId}.pdf`);
+}
+
+/* ────────────────────────────── Inline Components ───────────────────────────── */
+
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="rounded-xl p-5 mb-4"
+      style={{ backgroundColor: "#FFFFFF", border: "1px solid #E8E0D5" }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      className="text-xs font-bold tracking-wider mb-3"
+      style={{ color: "#C8A96E" }}
+    >
+      {children}
+    </p>
+  );
+}
+
+function OptionGroup<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: { value: T; label: string; hex?: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="mb-4 last:mb-0">
+      <p className="text-xs mb-2" style={{ color: "#888" }}>
+        {label}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt) => {
+          const selected = opt.value === value;
+          return (
+            <button
+              key={opt.value}
+              onClick={() => onChange(opt.value)}
+              className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+              style={{
+                backgroundColor: selected ? "#1A1A1A" : "#FFFFFF",
+                color: selected ? "#FFFFFF" : "#1A1A1A",
+                border: `1px solid ${selected ? "#1A1A1A" : "#E8E0D5"}`,
+              }}
+            >
+              {opt.hex && (
+                <span
+                  className="inline-block w-3 h-3 rounded-full mr-1.5 align-middle border border-gray-200"
+                  style={{ backgroundColor: opt.hex }}
+                />
+              )}
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** A4 レイアウトの縮小プレビュー */
+function A4Preview({
+  sizeId,
+  imageUrl,
+}: {
+  sizeId: PdfSizeId;
+  imageUrl: string | null;
+}) {
+  const size = PDF_SIZES[sizeId];
+  const PAGE_W = 210;
+  const PAGE_H = 297;
+  const MARGIN_X = 15;
+  const MARGIN_Y = 20;
+  const GAP = 3;
+
+  const availW = PAGE_W - MARGIN_X * 2;
+  const availH = PAGE_H - MARGIN_Y * 2;
+  const totalW = size.cols * size.w + (size.cols - 1) * GAP;
+  const totalH = size.rows * size.h + (size.rows - 1) * GAP;
+  const startX = MARGIN_X + (availW - totalW) / 2;
+  const startY = MARGIN_Y + (availH - totalH) / 2;
+
+  const cells: { left: string; top: string; width: string; height: string }[] =
+    [];
+  for (let r = 0; r < size.rows; r++) {
+    for (let c = 0; c < size.cols; c++) {
+      cells.push({
+        left: `${((startX + c * (size.w + GAP)) / PAGE_W) * 100}%`,
+        top: `${((startY + r * (size.h + GAP)) / PAGE_H) * 100}%`,
+        width: `${(size.w / PAGE_W) * 100}%`,
+        height: `${(size.h / PAGE_H) * 100}%`,
+      });
+    }
+  }
+
+  return (
+    <div
+      className="mx-auto relative bg-white rounded-lg overflow-hidden"
+      style={{
+        aspectRatio: "210/297",
+        maxWidth: 220,
+        border: "1px solid #E8E0D5",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+      }}
+    >
+      {cells.map((cell, i) => (
+        <div
+          key={i}
+          className="absolute"
+          style={{
+            left: cell.left,
+            top: cell.top,
+            width: cell.width,
+            height: cell.height,
+            border: "0.5px dashed #C8A96E",
+            backgroundColor: imageUrl ? undefined : "#F5F0E8",
+            backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center top",
+          }}
+        />
+      ))}
+      {/* 枚数ラベル */}
+      <span
+        className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[8px] whitespace-nowrap"
+        style={{ color: "#AAA" }}
+      >
+        {size.label} × {size.count}枚
+      </span>
+    </div>
+  );
+}
+
+/* ────────────────────────────── Main Page ────────────────────────────────────── */
+
+export default function ResumePhotoPage() {
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [suit, setSuit] = useState<SuitType>("male_navy");
+  const [glasses, setGlasses] = useState<GlassesType>("none");
+  const [expression, setExpression] =
+    useState<ExpressionType>("natural_smile");
+  const [background, setBackground] = useState<BackgroundType>("white");
+  const [direction, setDirection] = useState<DirectionType>("front");
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
+    null
+  );
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [pdfSize, setPdfSize] = useState<PdfSizeId>("3x4");
+  const [jspdfReady, setJspdfReady] = useState(false);
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  /* ── jsPDF CDN 読み込み ── */
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((window as any).jspdf) {
+      setJspdfReady(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src =
+      "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    script.onload = () => setJspdfReady(true);
+    document.head.appendChild(script);
+  }, []);
+
+  /* ── ファイルアップロード ── */
+  const handleFile = useCallback(async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setError("画像ファイルを選択してください");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("ファイルサイズは10MB以下にしてください");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const dataUrl = e.target?.result as string;
+      const resized = await resizeImage(dataUrl, 1024);
+      setUploadedImage(resized);
+      setError(null);
+      setGeneratedImageUrl(null);
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    },
+    [handleFile]
+  );
+
+  /* ── AI 生成 ── */
+  const handleGenerate = async () => {
+    if (!uploadedImage) return;
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/resumephoto/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageBase64: uploadedImage,
+          suit,
+          glasses,
+          expression,
+          background,
+          angle: direction,
+        }),
+      });
+
+      const data = await res.json();
+
+      // 残り回数は成功・失敗問わず常に更新
+      if (data.remaining !== undefined) setRemaining(data.remaining);
+
+      if (!res.ok) {
+        if (data.error === "LIMIT_REACHED") {
+          setRemaining(0);
+          setError(
+            "本日の生成回数上限（10回）に達しました。明日またお試しください。"
+          );
+        } else {
+          setError(data.error || "生成に失敗しました");
+        }
+        return;
+      }
+
+      setGeneratedImageUrl(data.imageUrl);
+    } catch {
+      setError("通信エラーが発生しました");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  /* ── JPG ダウンロード ── */
+  const handleDownloadJPG = async () => {
+    if (!generatedImageUrl) return;
+    try {
+      const res = await fetch(generatedImageUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "resume-photo.jpg";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("ダウンロードに失敗しました");
+    }
+  };
+
+  /* ── PDF ダウンロード ── */
+  const handleDownloadPDF = async () => {
+    if (!generatedImageUrl || !jspdfReady) return;
+    setIsPdfGenerating(true);
+    try {
+      await generatePDF(generatedImageUrl, pdfSize);
+    } catch {
+      setError("PDF生成に失敗しました");
+    } finally {
+      setIsPdfGenerating(false);
+    }
+  };
+
+  const currentPdfSize = PDF_SIZES[pdfSize];
+
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: "#F5F3EE" }}>
+      <div className="max-w-lg mx-auto px-4 py-12">
+        {/* ── Title ── */}
+        <div className="text-center mb-10">
+          <h1
+            className="text-2xl font-bold tracking-[0.15em]"
+            style={{ color: "#1A1A1A" }}
+          >
+            RESUME PHOTO MAKER
+          </h1>
+          <p className="text-sm mt-1" style={{ color: "#999" }}>
+            履歴書写真メーカー
+          </p>
+
+          {/* 残り回数バッジ */}
+          {remaining !== null && (
+            <div
+              className="inline-flex items-center gap-1.5 mt-3 px-4 py-1.5 rounded-full text-xs font-bold"
+              style={{
+                backgroundColor: remaining === 0 ? "#FFF5F5" : "#FFFFFF",
+                color: remaining === 0 ? "#C53030" : "#1A1A1A",
+                border: `1px solid ${remaining === 0 ? "#FED7D7" : "#E8E0D5"}`,
+              }}
+            >
+              <span
+                className="inline-block w-1.5 h-1.5 rounded-full"
+                style={{
+                  backgroundColor: remaining === 0 ? "#C53030" : "#C8A96E",
+                }}
+              />
+              {remaining === 0
+                ? "本日の上限に達しました"
+                : `残り ${remaining} 回`}
+            </div>
+          )}
+        </div>
+
+        {/* ── Step 1: Upload ── */}
+        <Card>
+          <SectionLabel>1. 写真をアップロード</SectionLabel>
+          <div
+            onDrop={handleDrop}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors min-h-[180px]"
+            style={{
+              border: `2px dashed ${isDragging ? "#C8A96E" : "#E8E0D5"}`,
+              backgroundColor: isDragging ? "#FAF6EF" : "#FAFAF8",
+            }}
+          >
+            {uploadedImage ? (
+              <div className="p-4 flex flex-col items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={uploadedImage}
+                  alt="アップロード画像"
+                  className="max-h-40 rounded-lg object-cover"
+                />
+                <span className="text-xs" style={{ color: "#999" }}>
+                  タップで変更
+                </span>
+              </div>
+            ) : (
+              <div className="p-8 text-center">
+                <svg
+                  className="mx-auto mb-3"
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#C8A96E"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "#1A1A1A" }}
+                >
+                  写真をドラッグ&ドロップ
+                </p>
+                <p className="text-xs mt-1" style={{ color: "#999" }}>
+                  またはタップして選択
+                </p>
+              </div>
+            )}
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFile(file);
+            }}
+          />
+        </Card>
+
+        {/* ── Step 2: Customize ── */}
+        <Card>
+          <SectionLabel>2. カスタマイズ</SectionLabel>
+          <OptionGroup
+            label="スーツ"
+            options={SUIT_OPTIONS}
+            value={suit}
+            onChange={setSuit}
+          />
+          <OptionGroup
+            label="メガネ"
+            options={GLASSES_OPTIONS}
+            value={glasses}
+            onChange={setGlasses}
+          />
+          <OptionGroup
+            label="表情"
+            options={EXPRESSION_OPTIONS}
+            value={expression}
+            onChange={setExpression}
+          />
+          <OptionGroup
+            label="背景色"
+            options={BACKGROUND_OPTIONS}
+            value={background}
+            onChange={setBackground}
+          />
+          <OptionGroup
+            label="向き"
+            options={DIRECTION_OPTIONS}
+            value={direction}
+            onChange={setDirection}
+          />
+        </Card>
+
+        {/* ── Generate Button ── */}
+        <button
+          onClick={handleGenerate}
+          disabled={!uploadedImage || isGenerating || remaining === 0}
+          className="w-full py-4 rounded-xl text-base font-bold tracking-wider transition-opacity disabled:opacity-40"
+          style={{ backgroundColor: "#C8A96E", color: "#1A1A1A" }}
+        >
+          {remaining === 0 ? (
+            "本日の上限に達しました"
+          ) : isGenerating ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg
+                className="animate-spin h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeDasharray="31.4 31.4"
+                  strokeLinecap="round"
+                />
+              </svg>
+              生成中...
+            </span>
+          ) : (
+            "証明写真を生成する"
+          )}
+        </button>
+
+        {/* ── Error ── */}
+        {error && (
+          <div
+            className="mt-4 p-3 rounded-lg text-sm text-center"
+            style={{
+              backgroundColor: "#FFF5F5",
+              color: "#C53030",
+              border: "1px solid #FED7D7",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        {/* ── Result: Photo + JPG ── */}
+        {generatedImageUrl && (
+          <>
+            <Card>
+              <SectionLabel>生成結果</SectionLabel>
+              <div className="flex justify-center mb-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={generatedImageUrl}
+                  alt="生成された証明写真"
+                  className="rounded-lg shadow-md"
+                  style={{
+                    maxHeight: 320,
+                    aspectRatio: "3/4",
+                    objectFit: "cover",
+                  }}
+                />
+              </div>
+              <button
+                onClick={handleDownloadJPG}
+                className="w-full py-3 rounded-xl text-sm font-bold tracking-wider"
+                style={{ backgroundColor: "#1A1A1A", color: "#FFFFFF" }}
+              >
+                JPG ダウンロード
+              </button>
+            </Card>
+
+            {/* ── Result: PDF ── */}
+            <Card>
+              <SectionLabel>PDF出力（A4・切り取り線付き）</SectionLabel>
+
+              {/* サイズ選択 */}
+              <p className="text-xs mb-2" style={{ color: "#888" }}>
+                写真サイズ
+              </p>
+              <div className="flex gap-2 mb-5">
+                {(Object.keys(PDF_SIZES) as PdfSizeId[]).map((id) => {
+                  const s = PDF_SIZES[id];
+                  const selected = id === pdfSize;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setPdfSize(id)}
+                      className="flex-1 py-2 rounded-lg text-sm font-medium transition-colors"
+                      style={{
+                        backgroundColor: selected ? "#1A1A1A" : "#FFFFFF",
+                        color: selected ? "#FFFFFF" : "#1A1A1A",
+                        border: `1px solid ${selected ? "#1A1A1A" : "#E8E0D5"}`,
+                      }}
+                    >
+                      {s.label}
+                      <span
+                        className="block text-[10px] mt-0.5"
+                        style={{
+                          color: selected
+                            ? "rgba(255,255,255,0.6)"
+                            : "#AAA",
+                        }}
+                      >
+                        {s.count}枚面付け
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* A4 プレビュー */}
+              <A4Preview sizeId={pdfSize} imageUrl={generatedImageUrl} />
+
+              {/* PDF ダウンロード */}
+              <button
+                onClick={handleDownloadPDF}
+                disabled={!jspdfReady || isPdfGenerating}
+                className="w-full py-3 rounded-xl text-sm font-bold tracking-wider mt-5 transition-opacity disabled:opacity-40"
+                style={{
+                  border: "1.5px solid #1A1A1A",
+                  color: "#1A1A1A",
+                  backgroundColor: "#FFFFFF",
+                }}
+              >
+                {isPdfGenerating
+                  ? "PDF生成中..."
+                  : `🖨 PDFをダウンロード（${currentPdfSize.count}枚／A4）`}
+              </button>
+            </Card>
+          </>
+        )}
+
+        {/* ── Footer note ── */}
+        <p
+          className="text-center text-[10px] mt-8"
+          style={{ color: "#BBB" }}
+        >
+          Powered by AI — 生成結果はAIによるものです
+        </p>
+      </div>
+    </div>
+  );
+}

@@ -1,71 +1,41 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { WeatherType, WEATHER_CONFIG } from '@/lib/weathermusic'
+import { WeatherType } from '@/lib/weathermusic'
 
 interface Props {
-  weather: WeatherType
-  city:    string
-  loading?: boolean
+  weather:      WeatherType
+  city:         string
+  temp:         number | null
+  description:  string
+  loading?:     boolean
 }
 
-export default function WeatherHero({ weather, city, loading = false }: Props) {
-  const cfg = WEATHER_CONFIG[weather]
-
-  const [dateStr, setDateStr] = useState('')
-  const [hours,   setHours]   = useState('')
-  const [minutes, setMinutes] = useState('')
-  const [ampm,    setAmpm]    = useState('')
-  const [blink,   setBlink]   = useState(true)
-
-  useEffect(() => {
-    function tick() {
-      const n    = new Date()
-      const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-      setDateStr(`${n.getFullYear()}/${n.getMonth() + 1}/${n.getDate()} ${days[n.getDay()]}`)
-      let h  = n.getHours()
-      const ap = h >= 12 ? 'PM' : 'AM'
-      h = h % 12 || 12
-      setHours(String(h).padStart(2, '0'))
-      setMinutes(String(n.getMinutes()).padStart(2, '0'))
-      setAmpm(ap)
-      setBlink(b => !b)
-    }
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
-  }, [])
-
+export default function WeatherHero({ weather, city, temp, description, loading = false }: Props) {
   return (
-    <div className="relative w-full overflow-hidden px-6 pt-5 pb-6">
-      <div className="relative z-10 flex items-center justify-between">
+    <div className="relative w-full overflow-hidden px-6 pt-6 pb-8">
+      <div className="relative z-10 flex flex-col items-center text-center gap-1">
 
-        {/* 左：日付 + 時刻 */}
-        <div>
-          <p className="text-white/75 text-[13px] font-semibold tracking-[.1em] mb-2">
-            {dateStr}
-          </p>
-          <div className="flex items-center">
-            <span className="text-white text-[64px] leading-none font-bold">{hours}</span>
-            <span
-              className="text-white text-[64px] leading-none font-bold mx-1 transition-opacity duration-100"
-              style={{ opacity: blink ? 1 : 0, transform: 'translateY(-3px)' }}
-            >·</span>
-            <span className="text-white text-[64px] leading-none font-bold">{minutes}</span>
-            <span className="text-white/60 text-[18px] font-semibold ml-2 self-end mb-1">{ampm}</span>
-          </div>
+        {/* Weather icon */}
+        <div className="w-[56px] h-[46px]">
+          <WeatherIcon type={weather} />
         </div>
 
-        {/* 右：アイコン + 都市 + 気温 */}
-        <div className="flex flex-col items-center gap-1 flex-shrink-0">
-          <div className="w-[72px] h-[58px]" style={{ background: 'transparent' }}>
-            <WeatherIcon type={weather} />
-          </div>
-          <div className="flex items-center gap-1">
-            <p className="text-white/80 text-[11px] font-semibold tracking-[.08em] uppercase">{city}</p>
-            {loading && <div className="w-1.5 h-1.5 rounded-full bg-white/60 animate-pulse" />}
-          </div>
-          <p className="text-white text-[18px] font-bold leading-none">{cfg.temp}</p>
+        {/* Weather description */}
+        <p className="text-white/70 text-[11px] font-semibold tracking-[.16em] uppercase">
+          {description || weather.replace('_', ' ')}
+        </p>
+
+        {/* Temperature — hero */}
+        <p className="text-white text-[7rem] md:text-[9rem] font-bold leading-none tracking-tight -my-2">
+          {temp !== null ? `${temp}°` : '—'}
+        </p>
+
+        {/* City + loading */}
+        <div className="flex items-center gap-1.5 mt-1">
+          <p className="text-white/60 text-[11px] font-semibold tracking-[.14em] uppercase">
+            {city}
+          </p>
+          {loading && <div className="w-1.5 h-1.5 rounded-full bg-white/60 animate-pulse" />}
         </div>
 
       </div>

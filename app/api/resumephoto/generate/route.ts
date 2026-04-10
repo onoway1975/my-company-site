@@ -1,0 +1,171 @@
+import { NextRequest, NextResponse } from "next/server";
+import { fal } from "@fal-ai/client";
+
+/* ── Upstash Redis REST ── */
+
+async function redisCommand(
+  ...args: string[]
+): Promise<number> {
+  const res = await fetch(process.env.UPSTASH_REDIS_REST_URL!, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN!}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(args),
+  });
+  const data = await res.json();
+  return data.result;
+}
+
+/* ── プロンプトマッピング ── */
+
+const SUIT_MAP: Record<string, string> = {
+  male_navy:
+    "wearing a formal navy blue business suit, white dress shirt, dark tie, male",
+  male_black:
+    "wearing a formal black business suit, white dress shirt, black tie, male",
+  female_navy: "wearing a formal navy blue business suit jacket, female",
+  female_black: "wearing a formal black business suit jacket, female",
+};
+
+const EXPRESSION_MAP: Record<string, string> = {
+  natural_smile: "gentle natural closed-mouth smile, relaxed expression",
+  open_smile: "slight open smile showing teeth, warm expression",
+  serious: "neutral serious expression, confident look",
+};
+
+const BACKGROUND_MAP: Record<string, string> = {
+  white: "pure white background",
+  gray: "plain light gray background",
+  blue: "plain light blue background",
+};
+
+const ANGLE_MAP: Record<string, string> = {
+  front: "facing directly forward",
+  slight: "slightly angled to the left, three-quarter view",
+};
+
+const GLASSES_MAP: Record<string, string> = {
+  none: "no glasses",
+  black: "wearing black-framed glasses",
+  thin: "wearing thin metal-framed glasses",
+};
+
+/* ── IP取得 ── */
+
+function getClientIP(req: NextRequest): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+/* ── 日付キー（JST） ── */
+
+function getRateLimitKey(ip: string): string {
+  const now = new Date();
+  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const yyyy = jst.getUTCFullYear();
+  const mm = String(jst.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(jst.getUTCDate()).padStart(2, "0");
+  return `resumephoto:${ip}:${yyyy}${mm}${dd}`;
+}
+
+/* ── レート制限（INCR + EXPIRE） ── */
+
+async function checkAndIncrementLimit(ip: string): Promise<{
+  ok: boolean;
+  remaining: number;
+}> {
+  const key = getRateLimitKey(ip);
+  const count = await redisCommand("INCR", key);
+  // 初回のみ TTL をセット（翌日リセット）
+  if (count === 1) {
+    await redisCommand("EXPIRE", key, "86400");
+  }
+  // 11回目以降を拒否（1日10回まで）
+  if (count > 10) {
+    return { ok: false, remaining: 0 };
+  }
+  return { ok: true, remaining: 10 - count };
+}
+
+/* ── POST ── */
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { imageBase64, suit, glasses, expression, background, angle } = body;
+
+    if (!imageBase64) {
+      return NextResponse.json({ error: "画像が必要です" }, { status: 400 });
+    }
+
+    // レート制限
+    const ip = getClientIP(req);
+    const limit = await checkAndIncrementLimit(ip);
+    if (!limit.ok) {
+      return NextResponse.json(
+        { error: "LIMIT_REACHED", remaining: 0 },
+        { status: 429 }
+      );
+    }
+
+    // プロンプト構築
+    const suitPrompt = SUIT_MAP[suit] || SUIT_MAP.male_navy;
+    const expressionPrompt =
+      EXPRESSION_MAP[expression] || EXPRESSION_MAP.natural_smile;
+    const backgroundPrompt =
+      BACKGROUND_MAP[background] || BACKGROUND_MAP.white;
+    const anglePrompt = ANGLE_MAP[angle] || ANGLE_MAP.front;
+    const glassesPrompt = GLASSES_MAP[glasses] || GLASSES_MAP.none;
+
+    const prompt = `
+      professional Japanese ID photo portrait,
+      ${suitPrompt},
+      ${expressionPrompt},
+      ${backgroundPrompt},
+      ${anglePrompt},
+      ${glassesPrompt},
+      clean professional headshot,
+      sharp focus, studio lighting,
+      CRITICAL: preserve exact face features and hair from input photo,
+      no text, no watermark
+    `.trim();
+
+    // FAL.ai 呼び出し（関数内でconfig）
+    fal.config({ credentials: process.env.FAL_KEY });
+
+    console.log("[resumephoto] calling fal-ai/ip-adapter-face-id");
+    const result = await fal.subscribe("fal-ai/ip-adapter-face-id", {
+      input: {
+        face_image_url: imageBase64,
+        prompt,
+        negative_prompt:
+          "cartoon, anime, illustration, watermark, text, deformed, blurry, low quality, nsfw, nude, bad anatomy, extra fingers, ugly, distorted, full body, legs, waist",
+        face_strength: 1.8,
+        controlnet_conditioning_scale: 1.0,
+        num_inference_steps: 28,
+        guidance_scale: 5.0,
+        image_size: "portrait_4_3",
+      } as Parameters<typeof fal.subscribe>[1]["input"],
+    });
+
+    const url = (result.data as unknown as { image: { url: string } }).image
+      .url;
+    console.log("[resumephoto] done:", url);
+
+    return NextResponse.json({
+      imageUrl: url,
+      remaining: limit.remaining,
+    });
+  } catch (e) {
+    console.error("[resumephoto] error:", e);
+    return NextResponse.json(
+      { error: "サーバーエラーが発生しました" },
+      { status: 500 }
+    );
+  }
+}

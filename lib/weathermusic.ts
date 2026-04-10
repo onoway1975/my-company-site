@@ -20,6 +20,7 @@ export interface WeatherConfig {
   tag:      string
   plTitle:  string
   icon:     string   // SVG string
+  textMode: 'light' | 'dark'
 }
 
 export interface UserSettings {
@@ -39,7 +40,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
 export const WEATHER_CONFIG: Record<WeatherType, WeatherConfig> = {
   rainy: {
     sky:    'linear-gradient(to bottom, #6B93B8 0%, #8BAFC8 40%, #B8CCDA 100%)',
-    player: '#5A89B0', rain: true,
+    player: '#5A89B0', rain: true, textMode: 'light',
     temp: '16°/9°', tag: '雨の日 · RAINY MIX', plTitle: '雨の日プレイリスト',
     icon: `<svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="display:block">
       <ellipse cx="70" cy="36" rx="26" ry="21" fill="white"/>
@@ -53,7 +54,7 @@ export const WEATHER_CONFIG: Record<WeatherType, WeatherConfig> = {
   },
   sunny_clear: {
     sky:    'linear-gradient(to bottom, #87CEEB 0%, #FDB97D 60%, #F97040 100%)',
-    player: '#E07840', rain: false,
+    player: '#E07840', rain: false, textMode: 'light',
     temp: '25°/14°', tag: '晴れ · SUNNY MIX', plTitle: '晴れの日プレイリスト',
     icon: `<svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="display:block">
       <circle cx="60" cy="45" r="20" fill="white"/>
@@ -69,7 +70,7 @@ export const WEATHER_CONFIG: Record<WeatherType, WeatherConfig> = {
   },
   sunny_partly: {
     sky:    'linear-gradient(to bottom, #A8C8E8 0%, #F5D9A0 55%, #F0BC70 100%)',
-    player: '#D4A828', rain: false,
+    player: '#D4A828', rain: false, textMode: 'light',
     temp: '22°/13°', tag: '晴れ時々曇り · PARTLY MIX', plTitle: '穏やかな午後のプレイリスト',
     icon: `<svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="display:block">
       <circle cx="42" cy="38" r="16" fill="white"/>
@@ -84,7 +85,7 @@ export const WEATHER_CONFIG: Record<WeatherType, WeatherConfig> = {
   },
   cloudy: {
     sky:    'linear-gradient(to bottom, #8E9EAE 0%, #B8C4CC 50%, #D4D8DC 100%)',
-    player: '#7A8E9C', rain: false,
+    player: '#7A8E9C', rain: false, textMode: 'dark',
     temp: '18°/12°', tag: '曇り · CLOUDY MIX', plTitle: '曇り空のプレイリスト',
     icon: `<svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="display:block">
       <ellipse cx="65" cy="32" rx="28" ry="21" fill="white"/>
@@ -95,7 +96,7 @@ export const WEATHER_CONFIG: Record<WeatherType, WeatherConfig> = {
   },
   snowy: {
     sky:    'linear-gradient(to bottom, #C8DCF0 0%, #E0EAF4 50%, #F0F4F8 100%)',
-    player: '#7AAAC8', rain: false,
+    player: '#7AAAC8', rain: false, textMode: 'dark',
     temp: '2°/-4°', tag: '雪 · SNOW MIX', plTitle: '雪の日プレイリスト',
     icon: `<svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="display:block">
       <ellipse cx="65" cy="33" rx="26" ry="20" fill="white"/>
@@ -111,7 +112,7 @@ export const WEATHER_CONFIG: Record<WeatherType, WeatherConfig> = {
   },
   stormy: {
     sky:    'linear-gradient(to bottom, #1A1830 0%, #2E2C52 45%, #4A3860 100%)',
-    player: '#2A2645', rain: true,
+    player: '#2A2645', rain: true, textMode: 'light',
     temp: '12°/6°', tag: '嵐 · STORM MIX', plTitle: '嵐の夜プレイリスト',
     icon: `<svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="display:block">
       <ellipse cx="60" cy="30" rx="30" ry="21" fill="rgba(255,255,255,.5)"/>

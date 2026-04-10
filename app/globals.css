@@ -4,6 +4,7 @@
 @source "./menucard";
 @source "./swipebid";
 @source "./lplus";
+@source "./resumephoto";
 
 /* ─── LINE Seed Sans EN (Latin) ─── */
 @font-face {
@@ -210,6 +211,24 @@
 
 .chat-dot-delay-2 {
   animation-delay: 0.4s;
+}
+
+/* ── WeatherMusic gradient animation ── */
+@keyframes wm-gradient-drift {
+  0%   { background-position: 0% 0%; }
+  50%  { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+.wm-gradient {
+  background-size: 200% 200%;
+  animation: wm-gradient-drift 12s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wm-gradient {
+    animation: none;
+  }
 }
 
 html {
