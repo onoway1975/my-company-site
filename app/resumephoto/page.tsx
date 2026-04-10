@@ -488,7 +488,7 @@ export default function ResumePhotoPage() {
         if (data.error === "LIMIT_REACHED") {
           setRemaining(0);
           setError(
-            "本日の生成回数上限（10回）に達しました。明日またお試しください。"
+            "本日の生成回数上限（100回）に達しました。明日またお試しください。"
           );
         } else {
           setError(data.error || "生成に失敗しました");
@@ -504,18 +504,52 @@ export default function ResumePhotoPage() {
     }
   };
 
-  /* ── JPG ダウンロード ── */
+  /* ── JPG ダウンロード（PC: 自動DL / スマホ: 同タブ画像ページ） ── */
   const handleDownloadJPG = async () => {
     if (!generatedImageUrl) return;
     try {
       const res = await fetch(generatedImageUrl);
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "resume-photo.jpg";
-      a.click();
-      URL.revokeObjectURL(url);
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+
+      const isTouchDevice = navigator.maxTouchPoints > 0;
+
+      if (isTouchDevice) {
+        const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>証明写真</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;gap:16px}
+img{max-width:100%;border-radius:16px;display:block}
+p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-serif;line-height:1.8}
+.btn{display:inline-block;margin-top:8px;padding:14px 32px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:100px;color:white;font-size:15px;font-family:sans-serif;font-weight:bold;text-decoration:none;cursor:pointer}
+</style>
+</head>
+<body>
+<img src="${base64}" alt="証明写真">
+<p>画像を長押しして<br>「写真に追加」で保存できます</p>
+<a class="btn" href="javascript:history.back()">← 戻る</a>
+</body>
+</html>`;
+        const htmlBlob = new Blob([html], { type: "text/html;charset=utf-8" });
+        const blobUrl = URL.createObjectURL(htmlBlob);
+        window.location.href = blobUrl;
+      } else {
+        const link = document.createElement("a");
+        link.href = base64;
+        link.download = "resume-photo.jpg";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } catch {
       setError("ダウンロードに失敗しました");
     }

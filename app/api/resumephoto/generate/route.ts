@@ -85,11 +85,11 @@ async function checkAndIncrementLimit(ip: string): Promise<{
   if (count === 1) {
     await redisCommand("EXPIRE", key, "86400");
   }
-  // 11回目以降を拒否（1日10回まで）
-  if (count > 10) {
+  // 101回目以降を拒否（1日100回まで）
+  if (count > 100) {
     return { ok: false, remaining: 0 };
   }
-  return { ok: true, remaining: 10 - count };
+  return { ok: true, remaining: 100 - count };
 }
 
 /* ── POST ── */
@@ -129,10 +129,12 @@ export async function POST(req: NextRequest) {
       ${backgroundPrompt},
       ${anglePrompt},
       ${glassesPrompt},
-      clean professional headshot,
-      sharp focus, studio lighting,
-      CRITICAL: preserve exact face features and hair from input photo,
-      no text, no watermark
+      clean professional headshot, studio lighting,
+      CRITICAL: preserve exact facial features,
+      exact same face shape, exact same eyes nose mouth,
+      exact same skin tone, exact same hair color and style,
+      do not change face structure, do not idealize or beautify,
+      photorealistic, no text, no watermark
     `.trim();
 
     // FAL.ai 呼び出し（関数内でconfig）
@@ -145,10 +147,10 @@ export async function POST(req: NextRequest) {
         prompt,
         negative_prompt:
           "cartoon, anime, illustration, watermark, text, deformed, blurry, low quality, nsfw, nude, bad anatomy, extra fingers, ugly, distorted, full body, legs, waist",
-        face_strength: 1.8,
-        controlnet_conditioning_scale: 1.0,
-        num_inference_steps: 28,
-        guidance_scale: 5.0,
+        face_strength: 2.0,
+        controlnet_conditioning_scale: 1.2,
+        num_inference_steps: 30,
+        guidance_scale: 4.5,
         image_size: "portrait_4_3",
       } as Parameters<typeof fal.subscribe>[1]["input"],
     });
