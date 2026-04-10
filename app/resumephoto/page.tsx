@@ -126,7 +126,11 @@ async function renderTextImage(
 }
 
 /** jsPDF で A4 PDF を生成・保存 */
-async function generatePDF(imageUrl: string, sizeId: PdfSizeId) {
+async function generatePDF(
+  imageUrl: string,
+  sizeId: PdfSizeId,
+  imgAspect: number
+) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const jspdfModule = (window as any).jspdf;
   if (!jspdfModule) throw new Error("jsPDF not loaded");
@@ -138,18 +142,14 @@ async function generatePDF(imageUrl: string, sizeId: PdfSizeId) {
     format: "a4",
   });
 
-  // 写真画像を DataURL へ変換し、自然サイズを取得
+  // 写真画像を DataURL へ変換
   const res = await fetch(imageUrl);
   const blob = await res.blob();
   const photoDataUrl = await blobToDataUrl(blob);
 
-  const photoImg = await new Promise<HTMLImageElement>((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.src = photoDataUrl;
-  });
-  const imgNatW = photoImg.naturalWidth || 1;
-  const imgNatH = photoImg.naturalHeight || 1;
+  // cover スケール計算用（比率ベース）
+  const imgW = imgAspect; // 幅:高さ = imgAspect:1
+  const imgH = 1;
 
   const PAGE_W = 210;
   const MARGIN_X = 15;
@@ -194,29 +194,36 @@ async function generatePDF(imageUrl: string, sizeId: PdfSizeId) {
   );
 
   /* ── 写真グリッド ── */
-  doc.setDrawColor(80, 80, 80);
-  doc.setLineWidth(0.2);
+  // cover スケール（ループ外で1回計算）
+  const scaleX = size.w / imgW;
+  const scaleY = size.h / imgH;
+  const coverScale = Math.max(scaleX, scaleY);
+  const drawW = imgW * coverScale;
+  const drawH = imgH * coverScale;
+  const offX = (size.w - drawW) / 2;
+  const offY = (size.h - drawH) / 2;
 
   for (let r = 0; r < size.rows; r++) {
     for (let c = 0; c < size.cols; c++) {
       const x = startX + c * (size.w + GAP);
       const y = startY + r * (size.h + GAP);
 
-      // 写真（cover スケール + クリップ）
-      const scaleX = size.w / imgNatW;
-      const scaleY = size.h / imgNatH;
-      const coverScale = Math.max(scaleX, scaleY);
-      const drawW = imgNatW * coverScale;
-      const drawH = imgNatH * coverScale;
-      const offX = (size.w - drawW) / 2;
-      const offY = (size.h - drawH) / 2;
-
+      // 写真（cover クリップ）
       doc.saveGraphicsState();
       doc.rect(x, y, size.w, size.h).clip();
-      doc.addImage(photoDataUrl, "JPEG", x + offX, y + offY, drawW, drawH);
+      doc.addImage(
+        photoDataUrl,
+        "JPEG",
+        x + offX,
+        y + offY,
+        drawW,
+        drawH
+      );
       doc.restoreGraphicsState();
 
-      // 切り取り線（実線の矩形）
+      // 切り取り線（画像の上に描画）
+      doc.setDrawColor(80, 80, 80);
+      doc.setLineWidth(0.2);
       doc.rect(x, y, size.w, size.h);
 
       // トンボ（四隅の十字マーク 2mm・外側 0.5mm）
@@ -415,7 +422,18 @@ export default function ResumePhotoPage() {
   const [pdfSize, setPdfSize] = useState<PdfSizeId>("3x4");
   const [jspdfReady, setJspdfReady] = useState(false);
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+  const [imgAspect, setImgAspect] = useState<number>(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  /* ── 生成画像のアスペクト比を取得 ── */
+  useEffect(() => {
+    if (!generatedImageUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      setImgAspect(img.naturalWidth / img.naturalHeight);
+    };
+    img.src = generatedImageUrl;
+  }, [generatedImageUrl]);
 
   /* ── jsPDF CDN 読み込み ── */
   useEffect(() => {
@@ -529,7 +547,7 @@ export default function ResumePhotoPage() {
     if (!generatedImageUrl || !jspdfReady) return;
     setIsPdfGenerating(true);
     try {
-      await generatePDF(generatedImageUrl, pdfSize);
+      await generatePDF(generatedImageUrl, pdfSize, imgAspect);
     } catch {
       setError("PDF生成に失敗しました");
     } finally {

@@ -226,7 +226,8 @@
       "Bash(npx next build 2>&1 | grep -E \"\\(error|✓|resumephoto\\)\" | head -10)",
       "Bash(git add -A)",
       "Bash(git commit -m \"$\\(cat <<'EOF'\nfeat: resume photo maker\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: PDF画像アスペクト比修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)"
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: PDF画像アスペクト比修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: PDF画像位置・切り取り線重なり修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)"
     ]
   }
 }
