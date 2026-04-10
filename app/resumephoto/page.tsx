@@ -700,38 +700,62 @@ export default function ResumePhotoPage() {
           />
         </Card>
 
-        {/* ── Generate Button ── */}
-        <button
-          onClick={handleGenerate}
-          disabled={!uploadedImage || isGenerating || remaining === 0}
-          className="w-full py-4 rounded-xl text-base font-bold tracking-wider transition-opacity disabled:opacity-40"
-          style={{ backgroundColor: "#C8A96E", color: "#1A1A1A" }}
-        >
-          {remaining === 0 ? (
-            "本日の上限に達しました"
-          ) : isGenerating ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg
-                className="animate-spin h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeDasharray="31.4 31.4"
-                  strokeLinecap="round"
-                />
-              </svg>
-              生成中...
-            </span>
-          ) : (
-            "証明写真を生成する"
-          )}
-        </button>
+        {/* ── 所要時間の目安 ── */}
+        {uploadedImage && !generatedImageUrl && (
+          <p
+            className="text-center mb-2"
+            style={{ fontSize: 12, color: "#999" }}
+          >
+            ⏱ 生成には約20〜40秒かかります
+          </p>
+        )}
+
+        {/* ── Generate / Reset Button ── */}
+        {generatedImageUrl ? (
+          <button
+            onClick={() => {
+              setGeneratedImageUrl(null);
+              setUploadedImage(null);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="w-full py-4 rounded-xl text-base font-bold tracking-wider"
+            style={{ backgroundColor: "#C8A96E", color: "#1A1A1A" }}
+          >
+            🔄 もう一度作る
+          </button>
+        ) : (
+          <button
+            onClick={handleGenerate}
+            disabled={!uploadedImage || isGenerating || remaining === 0}
+            className="w-full py-4 rounded-xl text-base font-bold tracking-wider transition-opacity disabled:opacity-40"
+            style={{ backgroundColor: "#C8A96E", color: "#1A1A1A" }}
+          >
+            {remaining === 0 ? (
+              "本日の上限に達しました"
+            ) : isGenerating ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeDasharray="31.4 31.4"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                生成中...
+              </span>
+            ) : (
+              "証明写真を生成する"
+            )}
+          </button>
+        )}
 
         {/* ── Error ── */}
         {error && (
