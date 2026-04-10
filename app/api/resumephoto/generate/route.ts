@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
     // プロンプト構築
     const suitPrompt = SUIT_MAP[suit] || SUIT_MAP.male_navy;
     const expressionPrompt =
-      EXPRESSION_MAP[expression] || EXPRESSION_MAP.natural_smile;
+      "gentle natural closed-mouth smile, relaxed soft expression";
     const backgroundPrompt =
       BACKGROUND_MAP[background] || BACKGROUND_MAP.gray;
     const anglePrompt = ANGLE_MAP[angle] || ANGLE_MAP.front;
