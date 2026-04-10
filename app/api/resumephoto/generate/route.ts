@@ -38,7 +38,7 @@ const EXPRESSION_MAP: Record<string, string> = {
 };
 
 const BACKGROUND_MAP: Record<string, string> = {
-  gray: "plain light gray background #C8C8C8",
+  gray: "plain very light gray background #E8E8E8, almost white, very pale gray, soft light background",
 };
 
 const ANGLE_MAP: Record<string, string> = {
