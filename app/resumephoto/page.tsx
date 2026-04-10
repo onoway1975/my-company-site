@@ -552,6 +552,31 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F0EDE6" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "証明写真メーカー",
+            url: "https://ciraf.jp/resumephoto/",
+            description:
+              "普段の写真をアップするだけでAIがスーツ・表情・背景を整えて証明写真に仕上げます。",
+            applicationCategory: "UtilitiesApplication",
+            operatingSystem: "Web",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "JPY",
+            },
+            provider: {
+              "@type": "Organization",
+              name: "シラフ株式会社",
+              url: "https://ciraf.jp",
+            },
+          }),
+        }}
+      />
       {/* ── Hero Image ── */}
       <div style={{ width: "100%", background: "#F0EDE6" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
