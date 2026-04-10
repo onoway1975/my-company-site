@@ -708,12 +708,57 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
             value={suit}
             onChange={setSuit}
           />
-          <OptionGroup
-            label="背景色"
-            options={BACKGROUND_OPTIONS}
-            value={background}
-            onChange={setBackground}
-          />
+          <div className="mb-4 last:mb-0">
+            <p className="text-xs mb-2" style={{ color: "#888" }}>
+              背景色
+            </p>
+            <div className="flex gap-2">
+              {BACKGROUND_OPTIONS.map((b) => (
+                <button
+                  key={b.value}
+                  onClick={() => setBackground(b.value)}
+                  style={{
+                    flex: 1,
+                    height: 48,
+                    borderRadius: 8,
+                    border:
+                      background === b.value
+                        ? "2.5px solid #C8A96E"
+                        : "1.5px solid #CCC",
+                    background: b.hex,
+                    cursor: "pointer",
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 2,
+                  }}
+                >
+                  {background === b.value && (
+                    <span
+                      style={{
+                        fontSize: 14,
+                        color: "#333",
+                        fontWeight: 700,
+                      }}
+                    >
+                      ✓
+                    </span>
+                  )}
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "#555",
+                      fontWeight: background === b.value ? 700 : 400,
+                    }}
+                  >
+                    {b.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         </Card>
 
         {/* ── 所要時間の目安 ── */}
