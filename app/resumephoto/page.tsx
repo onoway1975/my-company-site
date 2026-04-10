@@ -91,45 +91,53 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
-/** Canvas でテキストを描画し PNG DataURL として返す（日本語フォント対応） */
-async function renderTextImage(
-  text: string,
-  fontSizePt: number,
-  color: string
-) {
-  await document.fonts.load(`${fontSizePt * 1.33}px "LINE Seed"`);
 
-  const DPI = 300;
-  const PT_TO_MM = 0.3528;
-  const heightMm = fontSizePt * PT_TO_MM;
-  const heightPx = Math.round((heightMm / 25.4) * DPI);
+/**
+ * Canvas で元画像を cover トリミングし、指定 mm サイズの JPEG DataURL を返す。
+ * ループの外で1回だけ呼び、全セルで使い回す。
+ */
+function cropCover(
+  imgEl: HTMLImageElement,
+  targetWmm: number,
+  targetHmm: number
+): string {
+  const PX_PER_MM = 11.811; // 300 dpi
+  const cW = Math.round(targetWmm * PX_PER_MM);
+  const cH = Math.round(targetHmm * PX_PER_MM);
+
+  const imgNW = imgEl.naturalWidth;
+  const imgNH = imgEl.naturalHeight;
+  const imgAspectVal = imgNW / imgNH;
+  const canvasAspect = cW / cH;
+
+  let sx: number, sy: number, sw: number, sh: number;
+  if (imgAspectVal > canvasAspect) {
+    // 元画像が横長 → 高さを合わせて左右をトリミング
+    sh = imgNH;
+    sw = imgNH * canvasAspect;
+    sx = (imgNW - sw) / 2;
+    sy = 0;
+  } else {
+    // 元画像が縦長 → 幅を合わせて上下をトリミング
+    sw = imgNW;
+    sh = imgNW / canvasAspect;
+    sx = 0;
+    sy = (imgNH - sh) / 2;
+  }
 
   const canvas = document.createElement("canvas");
+  canvas.width = cW;
+  canvas.height = cH;
   const ctx = canvas.getContext("2d")!;
-
-  ctx.font = `${heightPx}px "LINE Seed", sans-serif`;
-  const metrics = ctx.measureText(text);
-
-  canvas.width = Math.ceil(metrics.width) + 4;
-  canvas.height = Math.ceil(heightPx * 1.5);
-
-  ctx.font = `${heightPx}px "LINE Seed", sans-serif`;
-  ctx.fillStyle = color;
-  ctx.textBaseline = "middle";
-  ctx.fillText(text, 2, canvas.height / 2);
-
-  return {
-    dataUrl: canvas.toDataURL("image/png"),
-    widthMm: (canvas.width / DPI) * 25.4,
-    heightMm: (canvas.height / DPI) * 25.4,
-  };
+  ctx.drawImage(imgEl, sx, sy, sw, sh, 0, 0, cW, cH);
+  return canvas.toDataURL("image/jpeg", 0.95);
 }
 
 /** jsPDF で A4 PDF を生成・保存 */
 async function generatePDF(
   imageUrl: string,
   sizeId: PdfSizeId,
-  imgAspect: number
+  _imgAspect: number
 ) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const jspdfModule = (window as any).jspdf;
@@ -142,120 +150,91 @@ async function generatePDF(
     format: "a4",
   });
 
-  // 写真画像を DataURL へ変換
+  // 元画像を HTMLImageElement として読み込む
   const res = await fetch(imageUrl);
   const blob = await res.blob();
-  const photoDataUrl = await blobToDataUrl(blob);
+  const dataUrl = await blobToDataUrl(blob);
 
-  // cover スケール計算用（比率ベース）
-  const imgW = imgAspect; // 幅:高さ = imgAspect:1
-  const imgH = 1;
+  const imgEl = await new Promise<HTMLImageElement>((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.src = dataUrl;
+  });
 
-  const PAGE_W = 210;
+  // Canvas で cover トリミング済み画像を1回だけ生成
+  const croppedData = cropCover(imgEl, size.w, size.h);
+
   const MARGIN_X = 15;
   const MARGIN_Y = 20;
   const GAP = 3;
 
-  const availW = PAGE_W - MARGIN_X * 2;
-  const availH = 297 - MARGIN_Y * 2;
-  const totalW = size.cols * size.w + (size.cols - 1) * GAP;
-  const totalH = size.rows * size.h + (size.rows - 1) * GAP;
-  const startX = MARGIN_X + (availW - totalW) / 2;
-  const startY = MARGIN_Y + (availH - totalH) / 2;
-
   /* ── ヘッダー ── */
-  const headerImg = await renderTextImage(
-    `証明写真 ${size.label} × ${size.count}枚`,
-    10,
-    "rgb(80,80,80)"
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text(
+    `証明写真 ${size.label}（${size.cols}×${size.rows}=${size.count}枚）`,
+    MARGIN_X,
+    13
   );
-  doc.addImage(
-    headerImg.dataUrl,
-    "PNG",
-    (PAGE_W - headerImg.widthMm) / 2,
-    10,
-    headerImg.widthMm,
-    headerImg.heightMm
-  );
-
-  /* ── 注記 ── */
-  const noteImg = await renderTextImage(
+  doc.setFontSize(7);
+  doc.setTextColor(150);
+  doc.text(
     "切り取り線に沿って切り取ってご使用ください",
-    7,
-    "rgb(80,80,80)"
-  );
-  doc.addImage(
-    noteImg.dataUrl,
-    "PNG",
-    (PAGE_W - noteImg.widthMm) / 2,
-    16,
-    noteImg.widthMm,
-    noteImg.heightMm
+    MARGIN_X,
+    17
   );
 
   /* ── 写真グリッド ── */
-  // cover スケール（ループ外で1回計算）
-  const scaleX = size.w / imgW;
-  const scaleY = size.h / imgH;
-  const coverScale = Math.max(scaleX, scaleY);
-  const drawW = imgW * coverScale;
-  const drawH = imgH * coverScale;
-  const offX = (size.w - drawW) / 2;
-  const offY = (size.h - drawH) / 2;
+  const photoW = size.w;
+  const photoH = size.h;
 
-  for (let r = 0; r < size.rows; r++) {
-    for (let c = 0; c < size.cols; c++) {
-      const x = startX + c * (size.w + GAP);
-      const y = startY + r * (size.h + GAP);
+  for (let row = 0; row < size.rows; row++) {
+    for (let col = 0; col < size.cols; col++) {
+      const x = MARGIN_X + col * (photoW + GAP);
+      const y = MARGIN_Y + row * (photoH + GAP);
 
-      // 写真（cover クリップ）
-      doc.saveGraphicsState();
-      doc.rect(x, y, size.w, size.h).clip();
-      doc.addImage(
-        photoDataUrl,
-        "JPEG",
-        x + offX,
-        y + offY,
-        drawW,
-        drawH
-      );
-      doc.restoreGraphicsState();
+      // トリミング済み画像をそのまま配置（アスペクト比は正確）
+      doc.addImage(croppedData, "JPEG", x, y, photoW, photoH);
 
       // 切り取り線（画像の上に描画）
       doc.setDrawColor(80, 80, 80);
       doc.setLineWidth(0.2);
-      doc.rect(x, y, size.w, size.h);
+      doc.rect(x, y, photoW, photoH);
 
-      // トンボ（四隅の十字マーク 2mm・外側 0.5mm）
-      const OFF = 0.5;
-      const ARM = 1;
-      const corners = [
-        { cx: x - OFF, cy: y - OFF },
-        { cx: x + size.w + OFF, cy: y - OFF },
-        { cx: x - OFF, cy: y + size.h + OFF },
-        { cx: x + size.w + OFF, cy: y + size.h + OFF },
-      ];
-      for (const { cx, cy } of corners) {
-        doc.line(cx - ARM, cy, cx + ARM, cy);
-        doc.line(cx, cy - ARM, cx, cy + ARM);
-      }
+      // トンボ（四隅 L 字マーク 2mm・外側 0.5mm）
+      const markLen = 2;
+      const markGap = 0.5;
+      doc.setDrawColor(120, 120, 120);
+      doc.setLineWidth(0.15);
+      // Top-left
+      doc.line(x - markGap - markLen, y, x - markGap, y);
+      doc.line(x, y - markGap - markLen, x, y - markGap);
+      // Top-right
+      doc.line(x + photoW + markGap, y, x + photoW + markGap + markLen, y);
+      doc.line(x + photoW, y - markGap - markLen, x + photoW, y - markGap);
+      // Bottom-left
+      doc.line(x - markGap - markLen, y + photoH, x - markGap, y + photoH);
+      doc.line(x, y + photoH + markGap, x, y + photoH + markGap + markLen);
+      // Bottom-right
+      doc.line(
+        x + photoW + markGap,
+        y + photoH,
+        x + photoW + markGap + markLen,
+        y + photoH
+      );
+      doc.line(
+        x + photoW,
+        y + photoH + markGap,
+        x + photoW,
+        y + photoH + markGap + markLen
+      );
     }
   }
 
   /* ── フッター ── */
-  const footerImg = await renderTextImage(
-    "A4シール用紙対応 ／ RESUME PHOTO MAKER",
-    6,
-    "rgb(150,150,150)"
-  );
-  doc.addImage(
-    footerImg.dataUrl,
-    "PNG",
-    (PAGE_W - footerImg.widthMm) / 2,
-    290,
-    footerImg.widthMm,
-    footerImg.heightMm
-  );
+  doc.setFontSize(6);
+  doc.setTextColor(180);
+  doc.text("A4シール用紙対応 ／ RESUME PHOTO MAKER", MARGIN_X, 290);
 
   doc.save(`resume_photo_${sizeId}.pdf`);
 }
