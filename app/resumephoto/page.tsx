@@ -561,7 +561,7 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
           style={{
             display: "block",
             width: "100%",
-            maxWidth: "800px",
+            maxWidth: "512px",
             height: "auto",
             margin: "0 auto",
           }}
@@ -670,7 +670,7 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
               lineHeight: 1.6,
             }}
           >
-            💡 正面を向いて真っすぐ撮影した写真を使うと、より精度が上がります
+            正面を向いて真っすぐ撮影した写真を使うと、より精度が上がります
           </p>
         </Card>
 
