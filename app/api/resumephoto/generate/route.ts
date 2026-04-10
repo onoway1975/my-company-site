@@ -38,9 +38,10 @@ const EXPRESSION_MAP: Record<string, string> = {
 };
 
 const BACKGROUND_MAP: Record<string, string> = {
-  white: "pure white background",
-  blue: "plain light blue background, sky blue",
-  gray: "plain light gray background",
+  white:
+    "BACKGROUND IS PURE WHITE #FFFFFF, solid white background only, no gray",
+  blue: "BACKGROUND IS LIGHT BLUE #B8D4E8, solid sky blue background only",
+  gray: "BACKGROUND IS LIGHT GRAY #C8C8C8, solid gray background only",
 };
 
 const ANGLE_MAP: Record<string, string> = {
@@ -127,22 +128,19 @@ export async function POST(req: NextRequest) {
       : "Japanese male";
 
     const prompt = `
+      ${backgroundPrompt},
       ${gender}, professional ID photo portrait,
       ${suitPrompt},
       ${expressionPrompt},
-      ${backgroundPrompt},
       ${anglePrompt},
       ${glassesPrompt},
       full color photograph,
-      close-up headshot, face occupies 60-70% of frame,
-      head and shoulders only, face centered and large in frame,
-      facing directly toward camera,
-      soft even front lighting, no harsh shadows,
-      CRITICAL: preserve exact same face from input image,
+      close-up headshot, face large in frame,
+      soft even front studio lighting,
+      CRITICAL: preserve exact same face from input,
       same face shape, same eyes nose mouth, same skin tone,
       same hair color and style,
-      do not change gender, ${gender} only,
-      do not add glasses unless specified,
+      do not add glasses,
       photorealistic, sharp focus,
       no text, no watermark
     `.trim();
@@ -157,10 +155,10 @@ export async function POST(req: NextRequest) {
         prompt,
         negative_prompt:
           "cartoon, anime, illustration, watermark, text, deformed, blurry, low quality, nsfw, nude, bad anatomy, extra fingers, ugly, distorted, full body, legs, waist",
-        face_strength: 2.0,
-        controlnet_conditioning_scale: 1.0,
+        face_strength: 1.6,
+        controlnet_conditioning_scale: 0.8,
         num_inference_steps: 30,
-        guidance_scale: 5.0,
+        guidance_scale: 7.5,
         image_size: "portrait_4_3",
       } as Parameters<typeof fal.subscribe>[1]["input"],
     });
