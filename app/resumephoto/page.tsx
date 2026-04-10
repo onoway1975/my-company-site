@@ -5,10 +5,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 /* ────────────────────────────── Types & Constants ────────────────────────────── */
 
 type SuitType = "male_navy" | "male_black" | "female_navy" | "female_black";
-type GlassesType = "none" | "black" | "thin";
-type ExpressionType = "natural_smile" | "open_smile" | "serious";
-type BackgroundType = "white" | "gray" | "blue";
-type DirectionType = "front" | "slight";
+type BackgroundType = "white" | "blue" | "gray";
 type PdfSizeId = "2x3" | "3x4";
 
 const SUIT_OPTIONS: { value: SuitType; label: string }[] = [
@@ -17,28 +14,15 @@ const SUIT_OPTIONS: { value: SuitType; label: string }[] = [
   { value: "female_navy", label: "紺（女性）" },
   { value: "female_black", label: "黒（女性）" },
 ];
-const GLASSES_OPTIONS: { value: GlassesType; label: string }[] = [
-  { value: "none", label: "なし" },
-  { value: "black", label: "黒縁" },
-  { value: "thin", label: "細縁" },
-];
-const EXPRESSION_OPTIONS: { value: ExpressionType; label: string }[] = [
-  { value: "natural_smile", label: "自然な笑顔" },
-  { value: "open_smile", label: "笑顔" },
-  { value: "serious", label: "真面目" },
-];
 const BACKGROUND_OPTIONS: {
   value: BackgroundType;
   label: string;
   hex: string;
+  border: string;
 }[] = [
-  { value: "white", label: "白", hex: "#FFFFFF" },
-  { value: "gray", label: "グレー", hex: "#D0D0D0" },
-  { value: "blue", label: "青", hex: "#B8D4E8" },
-];
-const DIRECTION_OPTIONS: { value: DirectionType; label: string }[] = [
-  { value: "front", label: "正面" },
-  { value: "slight", label: "やや斜め" },
+  { value: "white", label: "白", hex: "#FFFFFF", border: "#E0E0E0" },
+  { value: "blue", label: "水色", hex: "#B8D4E8", border: "#8AB0CC" },
+  { value: "gray", label: "薄いグレー", hex: "#C8C8C8", border: "#A0A0A0" },
 ];
 
 const PDF_SIZES: Record<
@@ -386,11 +370,7 @@ function A4Preview({
 export default function ResumePhotoPage() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [suit, setSuit] = useState<SuitType>("male_navy");
-  const [glasses, setGlasses] = useState<GlassesType>("none");
-  const [expression, setExpression] =
-    useState<ExpressionType>("natural_smile");
   const [background, setBackground] = useState<BackgroundType>("white");
-  const [direction, setDirection] = useState<DirectionType>("front");
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
     null
   );
@@ -472,10 +452,10 @@ export default function ResumePhotoPage() {
         body: JSON.stringify({
           imageBase64: uploadedImage,
           suit,
-          glasses,
-          expression,
+          glasses: "none",
+          expression: "natural_smile",
           background,
-          angle: direction,
+          angle: "front",
         }),
       });
 
@@ -685,7 +665,7 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
 
         {/* ── Step 2: Customize ── */}
         <Card>
-          <SectionLabel>2. カスタマイズ</SectionLabel>
+          <SectionLabel>2. スーツと背景を選ぶ</SectionLabel>
           <OptionGroup
             label="スーツ"
             options={SUIT_OPTIONS}
@@ -693,28 +673,10 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
             onChange={setSuit}
           />
           <OptionGroup
-            label="メガネ"
-            options={GLASSES_OPTIONS}
-            value={glasses}
-            onChange={setGlasses}
-          />
-          <OptionGroup
-            label="表情"
-            options={EXPRESSION_OPTIONS}
-            value={expression}
-            onChange={setExpression}
-          />
-          <OptionGroup
             label="背景色"
             options={BACKGROUND_OPTIONS}
             value={background}
             onChange={setBackground}
-          />
-          <OptionGroup
-            label="向き"
-            options={DIRECTION_OPTIONS}
-            value={direction}
-            onChange={setDirection}
           />
         </Card>
 

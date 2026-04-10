@@ -38,20 +38,17 @@ const EXPRESSION_MAP: Record<string, string> = {
 };
 
 const BACKGROUND_MAP: Record<string, string> = {
-  white: "pure white background, NOT gray, NOT dark",
+  white: "pure white background",
+  blue: "plain light blue background, sky blue",
   gray: "plain light gray background",
-  blue: "plain light blue background",
 };
 
 const ANGLE_MAP: Record<string, string> = {
-  front: "facing directly forward",
-  slight: "slightly angled to the left, three-quarter view",
+  front: "facing directly forward, head straight",
 };
 
 const GLASSES_MAP: Record<string, string> = {
-  none: "absolutely no glasses, remove any glasses",
-  black: "wearing black-framed glasses",
-  thin: "wearing thin metal-framed glasses",
+  none: "no glasses, do not add any glasses",
 };
 
 /* ── IP取得 ── */
