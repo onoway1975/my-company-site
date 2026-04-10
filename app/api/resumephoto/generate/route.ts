@@ -46,7 +46,7 @@ const ANGLE_MAP: Record<string, string> = {
 };
 
 const GLASSES_MAP: Record<string, string> = {
-  none: "no glasses, do not add any glasses",
+  keep: "preserve original eyewear from input photo, keep glasses as-is",
 };
 
 /* ── IP取得 ── */
@@ -125,19 +125,18 @@ export async function POST(req: NextRequest) {
       : "Japanese male";
 
     const prompt = `
+      vibrant full color photograph, color image, color photo, NOT black and white, NOT monochrome, NOT grayscale, NOT sepia,
       ${backgroundPrompt},
       ${gender}, professional ID photo portrait,
       ${suitPrompt},
       ${expressionPrompt},
       ${anglePrompt},
       ${glassesPrompt},
-      full color photograph, color image, NOT black and white, NOT monochrome, NOT grayscale,
       close-up headshot, face large in frame,
       soft even front studio lighting,
       CRITICAL: preserve exact same face from input,
       same face shape, same eyes nose mouth, same skin tone,
       same hair color and style,
-      do not add glasses,
       photorealistic, sharp focus,
       no text, no watermark
     `.trim();
@@ -151,7 +150,7 @@ export async function POST(req: NextRequest) {
         face_image_url: imageBase64,
         prompt,
         negative_prompt:
-          "cartoon, anime, illustration, watermark, text, deformed, blurry, low quality, nsfw, nude, bad anatomy, extra fingers, ugly, distorted, full body, legs, waist",
+          "black and white, monochrome, grayscale, sepia, desaturated, colorless, cartoon, anime, illustration, watermark, text, deformed, blurry, low quality, nsfw, nude, bad anatomy, extra fingers, ugly, distorted, full body, legs, waist",
         face_strength: 1.8,
         controlnet_conditioning_scale: 1.0,
         num_inference_steps: 30,

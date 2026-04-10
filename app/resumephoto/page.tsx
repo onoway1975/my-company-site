@@ -452,7 +452,7 @@ export default function ResumePhotoPage() {
         body: JSON.stringify({
           imageBase64: uploadedImage,
           suit,
-          glasses: "none",
+          glasses: "keep",
           expression,
           background: "gray",
           angle: "front",
