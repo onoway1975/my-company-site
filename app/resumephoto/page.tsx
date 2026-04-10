@@ -6,7 +6,6 @@ import { useState, useCallback, useRef, useEffect } from "react";
 
 type SuitType = "male_navy" | "male_black" | "female_navy" | "female_black";
 type ExpressionType = "natural_smile" | "open_smile" | "serious";
-type BackgroundType = "white" | "blue" | "gray";
 type PdfSizeId = "2x3" | "3x4";
 
 const SUIT_OPTIONS: { value: SuitType; label: string }[] = [
@@ -23,16 +22,6 @@ const EXPRESSION_OPTIONS: {
   { value: "natural_smile", label: "自然な笑顔", desc: "口閉じ・柔らかく" },
   { value: "open_smile", label: "笑顔", desc: "歯が少し見える" },
   { value: "serious", label: "真面目", desc: "クール・シャープ" },
-];
-const BACKGROUND_OPTIONS: {
-  value: BackgroundType;
-  label: string;
-  hex: string;
-  border: string;
-}[] = [
-  { value: "white", label: "白", hex: "#FFFFFF", border: "#E0E0E0" },
-  { value: "blue", label: "水色", hex: "#B8D4E8", border: "#8AB0CC" },
-  { value: "gray", label: "薄いグレー", hex: "#C8C8C8", border: "#A0A0A0" },
 ];
 
 const PDF_SIZES: Record<
@@ -382,7 +371,6 @@ export default function ResumePhotoPage() {
   const [suit, setSuit] = useState<SuitType>("male_navy");
   const [expression, setExpression] =
     useState<ExpressionType>("natural_smile");
-  const [background, setBackground] = useState<BackgroundType>("white");
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
     null
   );
@@ -466,7 +454,7 @@ export default function ResumePhotoPage() {
           suit,
           glasses: "none",
           expression,
-          background,
+          background: "gray",
           angle: "front",
         }),
       });
@@ -713,7 +701,7 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
 
         {/* ── Step 2: Customize ── */}
         <Card>
-          <SectionLabel>2. スーツ・表情・背景を選ぶ</SectionLabel>
+          <SectionLabel>2. スーツ・表情を選ぶ</SectionLabel>
           <OptionGroup
             label="スーツ"
             options={SUIT_OPTIONS}
@@ -750,57 +738,6 @@ p{color:rgba(255,255,255,0.6);font-size:14px;text-align:center;font-family:sans-
                   </button>
                 );
               })}
-            </div>
-          </div>
-          <div className="mb-4 last:mb-0">
-            <p className="text-xs mb-2" style={{ color: "#888" }}>
-              背景色
-            </p>
-            <div className="flex gap-2">
-              {BACKGROUND_OPTIONS.map((b) => (
-                <button
-                  key={b.value}
-                  onClick={() => setBackground(b.value)}
-                  style={{
-                    flex: 1,
-                    height: 48,
-                    borderRadius: 8,
-                    border:
-                      background === b.value
-                        ? "2.5px solid #C8A96E"
-                        : "1.5px solid #CCC",
-                    background: b.hex,
-                    cursor: "pointer",
-                    position: "relative",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 2,
-                  }}
-                >
-                  {background === b.value && (
-                    <span
-                      style={{
-                        fontSize: 14,
-                        color: "#333",
-                        fontWeight: 700,
-                      }}
-                    >
-                      ✓
-                    </span>
-                  )}
-                  <span
-                    style={{
-                      fontSize: 10,
-                      color: "#555",
-                      fontWeight: background === b.value ? 700 : 400,
-                    }}
-                  >
-                    {b.label}
-                  </span>
-                </button>
-              ))}
             </div>
           </div>
         </Card>

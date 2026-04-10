@@ -38,10 +38,7 @@ const EXPRESSION_MAP: Record<string, string> = {
 };
 
 const BACKGROUND_MAP: Record<string, string> = {
-  white:
-    "BACKGROUND IS PURE WHITE #FFFFFF, solid white background only, no gray",
-  blue: "BACKGROUND IS LIGHT BLUE #B8D4E8, solid sky blue background only",
-  gray: "BACKGROUND IS LIGHT GRAY #C8C8C8, solid gray background only",
+  gray: "plain light gray background #C8C8C8",
 };
 
 const ANGLE_MAP: Record<string, string> = {
@@ -134,7 +131,7 @@ export async function POST(req: NextRequest) {
       ${expressionPrompt},
       ${anglePrompt},
       ${glassesPrompt},
-      full color photograph,
+      full color photograph, color image, NOT black and white, NOT monochrome, NOT grayscale,
       close-up headshot, face large in frame,
       soft even front studio lighting,
       CRITICAL: preserve exact same face from input,
@@ -155,10 +152,10 @@ export async function POST(req: NextRequest) {
         prompt,
         negative_prompt:
           "cartoon, anime, illustration, watermark, text, deformed, blurry, low quality, nsfw, nude, bad anatomy, extra fingers, ugly, distorted, full body, legs, waist",
-        face_strength: 1.6,
-        controlnet_conditioning_scale: 0.8,
+        face_strength: 1.8,
+        controlnet_conditioning_scale: 1.0,
         num_inference_steps: 30,
-        guidance_scale: 7.5,
+        guidance_scale: 5.5,
         image_size: "portrait_4_3",
       } as Parameters<typeof fal.subscribe>[1]["input"],
     });
