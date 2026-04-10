@@ -46,7 +46,7 @@ const ANGLE_MAP: Record<string, string> = {
 };
 
 const GLASSES_MAP: Record<string, string> = {
-  keep: "preserve original eyewear from input photo, keep glasses as-is",
+  keep: "MUST preserve exact same glasses from input photo, if person wears glasses in input keep identical glasses, do not remove glasses, do not change glasses style",
 };
 
 /* ── IP取得 ── */
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
     const backgroundPrompt =
       BACKGROUND_MAP[background] || BACKGROUND_MAP.white;
     const anglePrompt = ANGLE_MAP[angle] || ANGLE_MAP.front;
-    const glassesPrompt = GLASSES_MAP[glasses] || GLASSES_MAP.none;
+    const glassesPrompt = GLASSES_MAP[glasses] || GLASSES_MAP.keep;
 
     // スーツIDから性別を取得
     const gender = suit.startsWith("female")
