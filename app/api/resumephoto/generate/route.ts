@@ -22,11 +22,13 @@ async function redisCommand(
 
 const SUIT_MAP: Record<string, string> = {
   male_navy:
-    "wearing a formal navy blue business suit, white dress shirt, dark tie, male",
+    "wearing a formal navy blue business suit, white dress shirt, dark tie, male, the suit must be clearly visible, proper business attire",
   male_black:
-    "wearing a formal black business suit, white dress shirt, black tie, male",
-  female_navy: "wearing a formal navy blue business suit jacket, female",
-  female_black: "wearing a formal black business suit jacket, female",
+    "wearing a formal black business suit, white dress shirt, black tie, male, the suit must be clearly visible, proper business attire",
+  female_navy:
+    "wearing a formal navy blue business suit jacket, female, the suit must be clearly visible, proper business attire",
+  female_black:
+    "wearing a formal black business suit jacket, female, the suit must be clearly visible, proper business attire",
 };
 
 const EXPRESSION_MAP: Record<string, string> = {
@@ -36,7 +38,7 @@ const EXPRESSION_MAP: Record<string, string> = {
 };
 
 const BACKGROUND_MAP: Record<string, string> = {
-  white: "pure white background",
+  white: "pure white background, NOT gray, NOT dark",
   gray: "plain light gray background",
   blue: "plain light blue background",
 };
@@ -129,15 +131,16 @@ export async function POST(req: NextRequest) {
       ${backgroundPrompt},
       ${anglePrompt},
       ${glassesPrompt},
-      sharp studio lighting from front, even lighting, no harsh shadows,
-      no spotlight, no vignette, no rim light,
-      CRITICAL: preserve exact same face as input image,
-      same face shape, same eyes, same nose, same mouth, same jawline,
-      same skin tone, same hair color, same hair texture,
+      full color photograph, color photo, vibrant colors,
+      facing directly toward camera, head straight,
+      soft even studio lighting from front,
+      no shadows under eyes, clean skin, natural skin tone,
+      CRITICAL: preserve exact same face as input,
+      same face shape, same eyes nose mouth jawline,
+      same hair color and style,
+      do not change face structure,
       do not add glasses unless specified,
-      do not change face structure, do not smooth skin,
-      do not idealize or beautify the face,
-      ultra photorealistic, 8k, sharp focus,
+      photorealistic, sharp focus,
       no text, no watermark
     `.trim();
 
@@ -151,10 +154,10 @@ export async function POST(req: NextRequest) {
         prompt,
         negative_prompt:
           "cartoon, anime, illustration, watermark, text, deformed, blurry, low quality, nsfw, nude, bad anatomy, extra fingers, ugly, distorted, full body, legs, waist",
-        face_strength: 2.2,
-        controlnet_conditioning_scale: 1.3,
-        num_inference_steps: 32,
-        guidance_scale: 4.0,
+        face_strength: 2.0,
+        controlnet_conditioning_scale: 1.0,
+        num_inference_steps: 30,
+        guidance_scale: 5.0,
         image_size: "portrait_4_3",
       } as Parameters<typeof fal.subscribe>[1]["input"],
     });
