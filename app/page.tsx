@@ -22,6 +22,13 @@ export const metadata: Metadata = {
 
 const services = [
   {
+    en: "Advisory",
+    ja: "アドバイザリー",
+    description:
+      "週単位・月単位の継続契約からスポット相談まで。制作業務がスムーズに進むよう、クライアントと同じ目線で伴走します。",
+    note: "Consulting, Direction, Support",
+  },
+  {
     en: "Planning",
     ja: "企画",
     description:
@@ -216,7 +223,7 @@ export default function Home() {
             >View all</Button>
           </div>
 
-          <div className="-mx-8 md:mx-0 flex overflow-x-auto scrollbar-hide px-[12.5vw] gap-4 [scroll-snap-type:x_mandatory] pb-2 md:grid md:grid-cols-4 md:overflow-x-visible md:px-0 md:pb-0">
+          <div className="-mx-8 md:mx-0 flex overflow-x-auto scrollbar-hide px-[12.5vw] gap-4 [scroll-snap-type:x_mandatory] pb-2 md:grid md:grid-cols-5 md:overflow-x-visible md:px-0 md:pb-0">
             {services.map((service, i) => (
               <div
                 key={i}
