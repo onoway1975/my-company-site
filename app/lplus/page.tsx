@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Poppins } from 'next/font/google'
+import { Poppins, Noto_Sans_JP } from 'next/font/google'
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
   useSensor, useSensors, type DragEndEvent,
@@ -20,6 +20,13 @@ const poppins = Poppins({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-poppins',
+})
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+  variable: '--font-noto',
+  display: 'swap',
 })
 
 // ── Types ────────────────────────────────────────────────────────────────
@@ -43,6 +50,11 @@ type PartId =
   | 'text-fade-in' | 'text-slide-up' | 'text-stagger' | 'text-typewriter'
   | 'btn-hover-fill' | 'btn-hover-slide'
   | 'parallax' | 'counter-up'
+  | 'news-ticker' | 'marquee-statement' | 'works-grid' | 'usp-numbered'
+  | 'knowledge-list' | 'product-cards' | 'scroll-statement' | 'horizontal-scroll-cards'
+  | 'cta-with-image'
+  | 'hero-fullbleed-text' | 'hero-split-ticker'
+  | 'image-overlay-text' | 'image-mosaic'
 
 type ActiveTab  = 'area' | 'hero' | 'media' | 'data' | 'closing' | 'button' | 'animation' | 'font'
 type PromptTab  = 'chat' | 'code' | 'pptx'
@@ -84,17 +96,16 @@ const C = {
   bg:    '#F4F4F4',
   card:  '#FFFFFF',
   muted: '#EBEBEB',
-  bd:    '#D4D4D4',
+  bd:    '#D8D8D8',
   main:  '#1A1A1A',
   sub:   '#888888',
   hint:  '#BBBBBB',
-  sel:   '#EBEBEB',
+  sel:   '#F0F0F0',
 }
 
 // ── Parts ─────────────────────────────────────────────────────────────────
 const PARTS: Part[] = [
   // ① Area
-  { id: 'hero-basic',   tab: 'area',   name: 'ヒーローエリア（基本）', description: 'ファーストビューの大きなメインビジュアル' },
   { id: 'features',     tab: 'area',   name: '特徴紹介（3カラム）',    description: 'サービスの強みを3〜4項目で紹介' },
   { id: 'cta',          tab: 'area',   name: 'CTAバナー',              description: '申し込みや問い合わせへ誘導するボタン' },
   { id: 'testimonial',  tab: 'area',   name: 'お客様の声',             description: '利用者のレビューや感想を掲載' },
@@ -129,6 +140,16 @@ const PARTS: Part[] = [
   { id: 'compare-two-option',   tab: 'area', name: '2択比較',                    description: '2つの選択肢を左右に並べて比較' },
   { id: 'problem-background',   tab: 'area', name: '課題提示',                   description: '解決すべき課題・背景を提示するセクション' },
   { id: 'mission-statement',    tab: 'area', name: 'ミッションステートメント',    description: '企業のミッション・ビジョンを大きく表示' },
+  // エリア追加（新規9個）
+  { id: 'news-ticker',           tab: 'area', name: 'ニューステッカー',           description: '最新情報が横スクロールで流れるティッカー帯' },
+  { id: 'marquee-statement',     tab: 'area', name: 'マーキーテキスト',           description: '大きなテキストが横スクロールし続けるビジュアル演出' },
+  { id: 'works-grid',            tab: 'area', name: '実績・事例グリッド',         description: '制作実績・事例をサムネイル付きグリッドで表示' },
+  { id: 'usp-numbered',          tab: 'area', name: 'USPカード（番号付き）',      description: '01/02/03形式の番号付き強みカード' },
+  { id: 'knowledge-list',        tab: 'area', name: 'ナレッジ・記事リスト',       description: 'タイトル・カテゴリ・日付の一覧リスト形式' },
+  { id: 'product-cards',         tab: 'area', name: '商品・サービスカード',       description: '商品画像・価格・説明のECライクなカードグリッド' },
+  { id: 'scroll-statement',      tab: 'area', name: 'スクロール誘導テキスト',     description: 'ページ中間に大きなステートメント＋スクロール誘導' },
+  { id: 'horizontal-scroll-cards', tab: 'area', name: '横スクロールカード',       description: '左右矢印で横スクロールするカードリスト' },
+  { id: 'cta-with-image',        tab: 'area', name: 'CTA（画像付き）',           description: '左に画像・右にCTAテキストとボタン' },
   // メディア追加（新規2個）
   { id: 'image-caption',        tab: 'media', name: '画像＋キャプション',         description: '画像の下にキャプション付きで表示' },
   { id: 'image-three-grid',     tab: 'media', name: '3枚フォトギャラリー',        description: '3枚の画像を横並びで表示' },
@@ -145,18 +166,23 @@ const PARTS: Part[] = [
   { id: 'speaker-bio',          tab: 'closing', name: 'スピーカー紹介',           description: '講演者のプロフィールを紹介' },
   { id: 'agenda-toc',           tab: 'closing', name: 'アジェンダ / 目次',        description: 'プレゼンの目次やアジェンダを表示' },
   // ② Hero
-  { id: 'hero-center',      tab: 'hero', name: 'ヒーロー（中央寄せ）',       description: 'テキストとCTAを中央配置' },
+  { id: 'hero-basic',        tab: 'hero', name: 'ヒーローエリア（基本）',     description: 'ファーストビューの大きなメインビジュアル' },
+  { id: 'hero-center',       tab: 'hero', name: 'ヒーロー（中央寄せ）',       description: 'テキストとCTAを中央配置' },
   { id: 'hero-split',       tab: 'hero', name: 'ヒーロー（左右分割）',       description: '左テキスト・右画像の2カラム' },
   { id: 'hero-dark-split',  tab: 'hero', name: 'ヒーロー（ダーク＋右画像）', description: '暗背景に左テキスト、右に画像' },
   { id: 'hero-minimal',     tab: 'hero', name: 'ヒーロー（ミニマル）',       description: '大きなタイポグラフィのみ・画像なし' },
   { id: 'hero-with-video',  tab: 'hero', name: 'ヒーロー（動画背景）',       description: '動画背景にテキストとCTAを重ねる' },
-  { id: 'hero-slider',      tab: 'hero', name: 'ヒーロー（スライダー）',      description: '左右矢印ナビ付きフルスライダー' },
+  { id: 'hero-slider',          tab: 'hero', name: 'ヒーロー（スライダー）',      description: '左右矢印ナビ付きフルスライダー' },
+  { id: 'hero-fullbleed-text', tab: 'hero', name: 'ヒーロー（極大テキスト）',    description: '背景なし・極大タイポグラフィだけのミニマルヒーロー' },
+  { id: 'hero-split-ticker',  tab: 'hero', name: 'ヒーロー（左右分割＋ティッカー）', description: '左テキスト・右画像 + 下部にニュースティッカー帯' },
   // ③ Media
   { id: 'image-fullwidth', tab: 'media', name: 'フル幅画像',     description: 'セクション全幅の画像エリア' },
   { id: 'image-gallery',   tab: 'media', name: '画像ギャラリー', description: '3カラムのグリッドギャラリー' },
   { id: 'image-text',       tab: 'media', name: '画像＋テキスト',         description: '左画像・右テキストの2カラム' },
   { id: 'image-text-right', tab: 'media', name: '画像＋テキスト（画像右）', description: '左テキスト・右画像の2カラム' },
-  { id: 'video-embed',      tab: 'media', name: '動画埋め込み',             description: 'YouTube等の動画プレーヤーエリア' },
+  { id: 'video-embed',         tab: 'media', name: '動画埋め込み',             description: 'YouTube等の動画プレーヤーエリア' },
+  { id: 'image-overlay-text', tab: 'media', name: '画像＋テキストオーバーレイ', description: '全幅画像の上にテキストを重ねるレイアウト' },
+  { id: 'image-mosaic',       tab: 'media', name: '画像モザイクグリッド',       description: '異なるサイズの画像を不規則に並べたグリッド' },
   // ④ Button
   { id: 'btn-outline',  tab: 'button', previewH: 80, name: 'アウトラインボタン',   description: '枠線のみ・背景透明' },
   { id: 'btn-filled',   tab: 'button', previewH: 80, name: 'フィルドボタン',       description: '黒背景・白テキスト' },
@@ -225,11 +251,15 @@ const PPTX_BULLETS: Record<PartId, string[]> = {
   'hero-minimal':    ['極大タイポグラフィのみ', 'font-weight300・letter-spacing広め'],
   'hero-with-video': ['動画背景', 'overlay暗め・中央にCTAテキスト＋ボタン'],
   'hero-slider':     ['useStateでスライドインデックス管理', '左右ボタンで切り替え', '下部にドットインジケーター', '自動再生(setInterval)オプション推奨'],
+  'hero-fullbleed-text': ['極大テキストのみのヒーロー', 'font-size: clamp(48px,7vw,120px)', '余白たっぷり・装飾なし'],
+  'hero-split-ticker':   ['左テキスト・右画像＋下部ティッカー', 'min-h-screen / grid 50:50', '下部44px marqueeアニメーション'],
   'image-fullwidth': ['max-width 100%', 'aspect-ratio 16/9の画像コンテナ'],
   'image-gallery':   ['CSS gridで3カラムギャラリー', 'hover時にoverlay表示'],
   'image-text':       ['左右2カラム', 'sticky scrollエフェクト推奨'],
   'image-text-right': ['左テキスト・右画像の2カラム', 'image-textの左右反転', 'sticky scrollエフェクト推奨'],
   'video-embed':      ['iframeでYouTube/Vimeo埋め込み', 'aspect-ratio 16/9維持'],
+  'image-overlay-text': ['全幅画像にテキストオーバーレイ', 'linear-gradientで下部を暗く', 'position:absoluteでテキスト配置'],
+  'image-mosaic':       ['CSS grid-template-areasで不規則配置', '異なるサイズの画像タイル', 'hover時にscale(1.02)'],
   'btn-outline':     ['枠線のみ・背景透明のアウトラインボタン'],
   'btn-filled':      ['黒背景・白テキストのフィルドボタン'],
   'btn-ghost':       ['テキスト＋矢印のみのゴーストボタン'],
@@ -259,6 +289,16 @@ const PPTX_BULLETS: Record<PartId, string[]> = {
   'compare-two-option':  ['2カラムカード比較', '各カードにタイトル＋特徴リスト', '片方を推奨として強調可能'],
   'problem-background':  ['課題・背景を提示', '大きなh2見出し＋説明テキスト', 'アイコンまたは番号付きリスト'],
   'mission-statement':   ['ダーク全画面背景', '中央に大きなミッションテキスト', '企業理念・ビジョンの訴求'],
+  // エリア追加
+  'news-ticker':           ['CSS marqueeアニメーションで横スクロール', 'height:44pxのコンパクトな帯', '「NEW」バッジ＋ニュース項目'],
+  'marquee-statement':     ['極大テキストの横スクロール演出', 'font-size: clamp(40px,6vw,80px)', '白抜き文字と塗り文字を交互配置'],
+  'works-grid':            ['2〜3カラムの事例グリッド', '画像＋プロジェクト名＋カテゴリタグ', 'hover時にscale(1.02)'],
+  'usp-numbered':          ['01/02/03番号付きカード', 'border-bottomのみで区切り', 'PC:3カラム / SP:1カラム'],
+  'knowledge-list':        ['タイトル・カテゴリ・日付の一覧リスト', '各行をborder-bottomで区切り', 'hover時に背景色変化'],
+  'product-cards':         ['商品画像＋名前＋価格のカード', 'aspect-ratio 1/1の画像エリア', 'PC:3カラム / SP:2カラム'],
+  'scroll-statement':      ['極大ステートメントテキスト', 'letter-spacing: -0.02em', '下部にスクロール誘導アニメーション'],
+  'horizontal-scroll-cards': ['横スクロールカードリスト', 'scroll-snap-type: x mandatory', '左右矢印ナビゲーション'],
+  'cta-with-image':        ['左画像×右CTAテキスト＋ボタン', 'ダーク背景・白テキスト', 'アウトラインボタン（白枠）'],
   // Media 追加
   'image-caption':       ['画像エリア＋下部キャプション', 'ダーク背景に白テキスト', 'aspect-ratio 16/9の画像コンテナ'],
   'image-three-grid':    ['3枚の画像を横並び', '均等幅・同一高さ', 'hover時にoverlay表示推奨'],
@@ -307,11 +347,15 @@ const PART_GUIDES: Record<PartId, string> = {
   'hero-minimal':    'ミニマルヒーロー: 白背景、極大タイポグラフィのみ（font-weight 300）',
   'hero-with-video': '動画背景ヒーロー: 動画背景にdark overlay、中央にCTAテキスト＋ボタン',
   'hero-slider':     'スライダーヒーロー: ダーク背景、useState管理のスライダー、左右矢印ボタン＋下部ドットインジケーター',
+  'hero-fullbleed-text': 'ヒーロー極大テキスト: integratedbiosciences.com / details.co.jp参考。font-size: clamp(48px, 7vw, 120px)で大きくスケール。余白たっぷり（padding: 120px 80px）。装飾なし・画像なし。テキストだけで成立させる。',
+  'hero-split-ticker':   'ヒーロー左右分割＋ティッカー: momentia.jp参考。ヒーロー下部にニュースティッカーを組み込んだ構成。上部: min-h-screen / 左右grid 50:50。下部: 固定高さ44px / marqueeアニメーション。',
   'image-fullwidth': 'フル幅画像: aspect-ratio 16/9の全幅画像コンテナ',
   'image-gallery':   '画像ギャラリー: CSS gridで3カラム、hover時にoverlay表示',
   'image-text':       '画像＋テキスト: 左右2カラム（左画像・右テキスト）、sticky scroll推奨',
   'image-text-right': '画像＋テキスト（画像右）: 左テキスト・右画像の2カラム。image-textの左右を反転した構成。sticky scrollエフェクト推奨。ボタンはテキストエリアの下に配置。',
   'video-embed':      '動画埋め込み: iframeでYouTube/Vimeo埋め込み、aspect-ratio 16/9維持',
+  'image-overlay-text': '画像＋テキストオーバーレイ: position: relativeの画像コンテナ。下部にlinear-gradient(to top, rgba(0,0,0,0.8), transparent)のオーバーレイ。テキストはposition: absolute / bottom: 0 / left: 0。',
+  'image-mosaic':       '画像モザイクグリッド: CSS grid-template-areasで不規則配置。各画像にaspect-ratio・object-fit: cover。hover時に軽くscale(1.02)。',
   'btn-outline':     'アウトラインボタン: border 1px solid #1A1A1A、背景透明、黒テキスト',
   'btn-filled':      'フィルドボタン: background #1A1A1A、白テキスト',
   'btn-ghost':       'ゴーストボタン: テキスト＋矢印のみ、枠なし・下線なし',
@@ -341,6 +385,16 @@ const PART_GUIDES: Record<PartId, string> = {
   'compare-two-option':  '2択比較: ライトグレー背景、2カラムのカード。各カードにタイトル＋特徴リスト。片方を推奨強調。',
   'problem-background':  '課題提示: 白背景、大きなh2見出し「こんな課題ありませんか？」＋アイコン付きリストで課題を列挙。',
   'mission-statement':   'ミッションステートメント: ダーク背景、中央に大きなミッションテキスト（白・font-weight 300）。',
+  // エリア追加
+  'news-ticker':           'ニューステッカー: CSS animation marqueeで無限ループ横スクロール。@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }。コンテンツを2セット並べてシームレスにループ。height: 44px程度のコンパクトな帯。',
+  'marquee-statement':     'マーキーテキスト: details.co.jp / integratedbiosciences.com参考。CSS marqueeアニメーション。font-size: clamp(40px, 6vw, 80px)。白抜き文字（-webkit-text-stroke: 1px white / color: transparent）と塗り文字を交互に配置してリズムを出す。animation-duration: 20s linear infinite。',
+  'works-grid':            '実績・事例グリッド: details.co.jpの事例セクション参考。グリッドレイアウト（PC: 2〜3カラム）。各カードに画像・プロジェクト名・カテゴリ・年度。hover時に画像をscale(1.02)。',
+  'usp-numbered':          'USPカード番号付き: integratedbiosciences.com参考。上部に01/02/03の番号。下にタイトル＋説明。border-bottomのみでシンプルに区切る。PC: 3カラム / SP: 1カラム。',
+  'knowledge-list':        'ナレッジ・記事リスト: details.co.jpのナレッジセクション参考。dl/dt/dd または ul/liで実装。hover時に行の背景をごく薄いグレーに。「もっと見る」リンクを下部に。',
+  'product-cards':         '商品・サービスカード: momentia.jp参考。aspect-ratio: 1/1の画像エリア。PC: 3カラム / SP: 2カラム。価格表示は任意（必要ない場合はテキストのみ）。',
+  'scroll-statement':      'スクロール誘導テキスト: momentia.jpのコンセプト文セクション参考。テキストはletter-spacing: -0.02em / line-height: 1.1で詰める。下部にSCROLLアニメーション（上下に揺れる矢印またはライン）。',
+  'horizontal-scroll-cards': '横スクロールカード: overflow-x: auto + scroll-snap-type: x mandatory / scroll-snap-align: startで実装。SPでも同じレイアウトが使える。',
+  'cta-with-image':        'CTA画像付き: integratedbiosciences.com的な左画像×右CTA構成。背景ダーク。右側テキストは左寄せ。ボタンはアウトライン（border: 1px solid white）。',
   // Media 追加
   'image-caption':       '画像＋キャプション: ダーク背景、16:9画像エリア＋下部に白テキストのキャプション。',
   'image-three-grid':    '3枚フォトギャラリー: 白背景、3枚の画像を横並びグリッド。均等幅・同一高さ。',
@@ -382,8 +436,6 @@ const FONT_LIST: FontEntry[] = [
   // 日本語特化
   { id: 'zen-kaku',      name: 'Zen Kaku Gothic',     category: '日本語',        google: true,  weights: ['400','700'] },
   { id: 'shippori',      name: 'Shippori Mincho',     category: '日本語',        google: true,  weights: ['400','700'] },
-  { id: 'line-seed',     name: 'LINE Seed',           category: '日本語',        google: false, weights: ['400','700'],
-    cssUrl: '/fonts/LINESeedJP_OTF_Rg.woff2' },
 ]
 
 const FONT_CATEGORIES = ['すべて', 'サンセリフ', 'セリフ', 'モノスペース', '個性系', '日本語'] as const
@@ -1175,6 +1227,191 @@ function PreviewAgendaToc() {
   )
 }
 
+// ── New Part Previews (13 parts) ──────────────────────────────────────────
+function PreviewNewsTicker() {
+  return (
+    <div className="h-[180px] flex flex-col justify-center" style={{ background: '#1A1A1A' }}>
+      <div style={{ borderTop: '1px solid rgba(244,244,244,0.1)', borderBottom: '1px solid rgba(244,244,244,0.1)', padding: '10px 0', overflow: 'hidden' }}>
+        <div className="flex items-center gap-4 whitespace-nowrap" style={{ paddingLeft: 12 }}>
+          <span style={{ fontSize: 8, fontWeight: 700, color: '#1A1A1A', background: '#FFFFFF', padding: '2px 6px', borderRadius: 2 }}>NEW</span>
+          <span style={{ fontSize: 10, color: 'rgba(244,244,244,0.7)' }}>サービスリニューアルのお知らせ</span>
+          <span style={{ fontSize: 10, color: 'rgba(244,244,244,0.2)' }}>／</span>
+          <span style={{ fontSize: 10, color: 'rgba(244,244,244,0.7)' }}>新機能をリリースしました</span>
+          <span style={{ fontSize: 10, color: 'rgba(244,244,244,0.2)' }}>／</span>
+          <span style={{ fontSize: 10, color: 'rgba(244,244,244,0.7)' }}>年末年始の営業について</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+function PreviewMarqueeStatement() {
+  return (
+    <div className="h-[180px] flex items-center overflow-hidden" style={{ background: '#1A1A1A' }}>
+      <p style={{ fontSize: 48, fontWeight: 300, color: '#FFFFFF', whiteSpace: 'nowrap', opacity: 0.9, letterSpacing: '-0.02em' }}>
+        Rewriting the future of —
+      </p>
+    </div>
+  )
+}
+function PreviewWorksGrid() {
+  return (
+    <div className="h-[180px] p-3" style={{ background: '#1A1A1A' }}>
+      <div className="grid grid-cols-2 gap-2 h-full">
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="relative rounded-sm overflow-hidden" style={{ background: '#3C3C3C', opacity: i === 0 ? 0.9 : 0.6 }}>
+            <div className="absolute bottom-0 left-0 p-2">
+              <p style={{ fontSize: 8, color: '#FFFFFF', fontWeight: 600 }}>Project {String.fromCharCode(65 + i)}</p>
+              <span style={{ fontSize: 6, color: 'rgba(244,244,244,0.4)' }}>Branding</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+function PreviewUspNumbered() {
+  return (
+    <div className="h-[180px] flex items-center gap-3 px-4" style={{ background: C.card }}>
+      {['01', '02', '03'].map((n, i) => (
+        <div key={i} className="flex-1 flex flex-col gap-1" style={{ borderBottom: `1px solid ${C.bd}`, paddingBottom: 8 }}>
+          <span style={{ fontSize: 16, fontWeight: 300, color: C.hint }}>{n}</span>
+          <span style={{ fontSize: 9, fontWeight: 600, color: C.main }}>タイトル</span>
+          <span style={{ fontSize: 7, color: C.sub }}>説明文が入ります</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+function PreviewKnowledgeList() {
+  return (
+    <div className="h-[180px] flex flex-col justify-center px-4 gap-0" style={{ background: C.card }}>
+      {['デザインシステム構築のポイント', 'アクセシビリティ対応ガイド', 'ブランディング戦略の基礎', 'UXリサーチ手法まとめ'].map((t, i) => (
+        <div key={i} className="flex items-center gap-2 py-2" style={{ borderBottom: `1px solid ${C.muted}` }}>
+          <span style={{ fontSize: 6, color: C.sub, border: `1px solid ${C.bd}`, borderRadius: 2, padding: '1px 4px' }}>記事</span>
+          <span style={{ fontSize: 9, color: C.main, flex: 1 }}>{t}</span>
+          <span style={{ fontSize: 7, color: C.hint }}>→</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+function PreviewProductCards() {
+  return (
+    <div className="h-[180px] p-3 flex gap-2" style={{ background: '#F4F4F4' }}>
+      {[0, 1, 2].map(i => (
+        <div key={i} className="flex-1 rounded-md overflow-hidden" style={{ background: C.card }}>
+          <div className="flex items-center justify-center" style={{ aspectRatio: '1/1', background: C.muted }}>
+            <span style={{ fontSize: 14, color: C.hint }}>□</span>
+          </div>
+          <div style={{ padding: '6px 8px' }}>
+            <p style={{ fontSize: 8, fontWeight: 600, color: C.main }}>商品名 {String.fromCharCode(65 + i)}</p>
+            <p style={{ fontSize: 7, color: C.sub }}>¥3,000</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+function PreviewScrollStatement() {
+  return (
+    <div className="h-[180px] flex flex-col items-center justify-center gap-4 px-5" style={{ background: C.card }}>
+      <p style={{ fontSize: 24, fontWeight: 300, color: C.main, textAlign: 'center', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+        未来をつくる、<br />その一歩を。
+      </p>
+      <div className="flex flex-col items-center gap-1">
+        <div style={{ width: 1, height: 20, background: C.hint }} />
+        <span style={{ fontSize: 7, color: C.hint, letterSpacing: '0.15em' }}>SCROLL</span>
+      </div>
+    </div>
+  )
+}
+function PreviewHorizontalScrollCards() {
+  return (
+    <div className="h-[180px] flex flex-col justify-center px-3 gap-2" style={{ background: C.card }}>
+      <div className="flex items-center gap-1 mb-1">
+        <span style={{ fontSize: 10, color: C.hint }}>＜</span>
+        <span style={{ fontSize: 10, color: C.hint }}>＞</span>
+      </div>
+      <div className="flex gap-2">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="shrink-0" style={{ width: '35%', border: `1px solid ${C.bd}`, borderRadius: 4 }}>
+            <div style={{ aspectRatio: '16/10', background: C.muted, borderRadius: '4px 4px 0 0' }} />
+            <div style={{ padding: '6px 8px' }}>
+              <div style={{ width: '80%', height: 4, background: C.muted, borderRadius: 1 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+function PreviewCtaWithImage() {
+  return (
+    <div className="h-[180px] flex" style={{ background: '#1A1A1A' }}>
+      <div className="w-1/2 flex items-center justify-center" style={{ background: '#3C3C3C' }}>
+        <span style={{ fontSize: 14, color: 'rgba(244,244,244,0.2)' }}>□</span>
+      </div>
+      <div className="w-1/2 flex flex-col justify-center gap-2 px-4">
+        <span style={{ fontSize: 7, color: 'rgba(244,244,244,0.4)', letterSpacing: '0.15em' }}>CONTACT</span>
+        <p style={{ fontSize: 12, fontWeight: 600, color: '#F4F4F4', lineHeight: 1.3 }}>まずは<br />お気軽に</p>
+        <span style={{ fontSize: 7, color: 'rgba(244,244,244,0.5)' }}>お問い合わせはこちら</span>
+        <span style={{ fontSize: 8, color: '#F4F4F4', border: '1px solid rgba(244,244,244,0.4)', padding: '3px 10px', alignSelf: 'flex-start', borderRadius: 1 }}>お問い合わせ →</span>
+      </div>
+    </div>
+  )
+}
+function PreviewHeroFullbleedText() {
+  return (
+    <div className="h-[180px] flex flex-col justify-center px-5 gap-3" style={{ background: C.card }}>
+      <p style={{ fontSize: 36, fontWeight: 300, color: C.main, lineHeight: 1.05, letterSpacing: '-0.03em' }}>
+        Design<br />Matters.
+      </p>
+      <span style={{ fontSize: 8, color: C.sub }}>テクノロジーとクリエイティビティの融合</span>
+      <span style={{ fontSize: 8, color: C.main, border: `1px solid ${C.main}`, padding: '3px 10px', alignSelf: 'flex-start', borderRadius: 1 }}>はじめる →</span>
+    </div>
+  )
+}
+function PreviewHeroSplitTicker() {
+  return (
+    <div className="h-[180px] flex flex-col" style={{ background: '#1A1A1A' }}>
+      <div className="flex flex-1">
+        <div className="w-1/2 flex flex-col justify-center px-4 gap-1">
+          <p style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.2 }}>ブランドを、<br />もっと強く。</p>
+          <span style={{ fontSize: 7, color: 'rgba(244,244,244,0.5)' }}>お問い合わせ →</span>
+        </div>
+        <div className="w-1/2" style={{ background: '#3C3C3C' }} />
+      </div>
+      <div style={{ height: 28, borderTop: '1px solid rgba(244,244,244,0.1)', display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 12 }}>
+        <span style={{ fontSize: 6, fontWeight: 700, color: '#1A1A1A', background: '#FFFFFF', padding: '1px 4px', borderRadius: 1 }}>NEW</span>
+        <span style={{ fontSize: 7, color: 'rgba(244,244,244,0.5)' }}>最新ニュースが流れます ／ お知らせテキスト</span>
+      </div>
+    </div>
+  )
+}
+function PreviewImageOverlayText() {
+  return (
+    <div className="h-[180px] relative" style={{ background: '#3C3C3C' }}>
+      <div className="absolute inset-x-0 bottom-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', padding: '24px 16px 12px' }}>
+        <span style={{ fontSize: 7, color: 'rgba(244,244,244,0.5)', letterSpacing: '0.15em' }}>ABOUT</span>
+        <p style={{ fontSize: 12, fontWeight: 600, color: '#FFFFFF', lineHeight: 1.3, marginTop: 4 }}>テキストオーバーレイ</p>
+        <p style={{ fontSize: 8, color: 'rgba(244,244,244,0.6)', marginTop: 4 }}>画像の上にテキストを重ねる</p>
+      </div>
+    </div>
+  )
+}
+function PreviewImageMosaic() {
+  return (
+    <div className="h-[180px] p-3 grid gap-2" style={{ background: C.card, gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
+      <div style={{ background: C.muted, borderRadius: 3, gridRow: '1 / 3' }} />
+      <div style={{ background: C.muted, borderRadius: 3 }} />
+      <div className="grid grid-cols-2 gap-2">
+        <div style={{ background: C.muted, borderRadius: 3 }} />
+        <div style={{ background: C.muted, borderRadius: 3 }} />
+      </div>
+    </div>
+  )
+}
+
 // ── Animation Card Previews (interactive) ────────────────────────────────
 function PlayBtn({ playing, onClick, dark }: { playing: boolean; onClick: () => void; dark?: boolean }) {
   return (
@@ -1405,11 +1642,15 @@ const CARD_PREVIEW_MAP: Record<PartId, React.FC> = {
   'hero-minimal': PreviewHeroMinimal,
   'hero-with-video': PreviewHeroWithVideo,
   'hero-slider': PreviewHeroSlider,
+  'hero-fullbleed-text': PreviewHeroFullbleedText,
+  'hero-split-ticker': PreviewHeroSplitTicker,
   'image-fullwidth': PreviewImageFullwidth,
   'image-gallery': PreviewImageGallery,
   'image-text': PreviewImageText,
   'image-text-right': PreviewImageTextRight,
   'video-embed': PreviewVideoEmbed,
+  'image-overlay-text': PreviewImageOverlayText,
+  'image-mosaic': PreviewImageMosaic,
   'btn-outline': PreviewBtnOutline,
   'btn-filled': PreviewBtnFilled,
   'btn-ghost': PreviewBtnGhost,
@@ -1439,6 +1680,16 @@ const CARD_PREVIEW_MAP: Record<PartId, React.FC> = {
   'compare-two-option': PreviewCompareTwoOption,
   'problem-background': PreviewProblemBackground,
   'mission-statement': PreviewMissionStatement,
+  // エリア追加
+  'news-ticker': PreviewNewsTicker,
+  'marquee-statement': PreviewMarqueeStatement,
+  'works-grid': PreviewWorksGrid,
+  'usp-numbered': PreviewUspNumbered,
+  'knowledge-list': PreviewKnowledgeList,
+  'product-cards': PreviewProductCards,
+  'scroll-statement': PreviewScrollStatement,
+  'horizontal-scroll-cards': PreviewHorizontalScrollCards,
+  'cta-with-image': PreviewCtaWithImage,
   // Media 追加
   'image-caption': PreviewImageCaption,
   'image-three-grid': PreviewImageThreeGrid,
@@ -2749,6 +3000,8 @@ const BUTTON_OPTION_PARTS = new Set<PartId>([
   'image-text', 'image-text-right',
   'team', 'blog', 'text-2col', 'team-horizontal', 'gallery-slider', 'services-labeled',
   'bullet-points', 'timeline-steps', 'problem-background', 'closing-thankyou',
+  'cta-with-image', 'scroll-statement',
+  'hero-fullbleed-text', 'hero-split-ticker',
 ])
 const COLUMN_OPTION_PARTS = new Set<PartId>([
   'features', 'features-4col-image', 'features-icon-circle', 'blog', 'team', 'pricing',
@@ -2769,6 +3022,8 @@ const DEFAULT_BG: Record<string, 'white' | 'light' | 'dark'> = {
   'hero-minimal':        'white',
   'hero-with-video':     'dark',
   'hero-slider':         'dark',
+  'hero-fullbleed-text': 'white',
+  'hero-split-ticker':   'dark',
   'features':            'white',
   'features-4col-image': 'light',
   'features-icon-circle':'white',
@@ -2797,6 +3052,8 @@ const DEFAULT_BG: Record<string, 'white' | 'light' | 'dark'> = {
   'image-text':          'white',
   'image-text-right':    'white',
   'video-embed':         'dark',
+  'image-overlay-text':  'dark',
+  'image-mosaic':        'white',
   // Area 追加
   'bullet-points':       'white',
   'icon-cards-2x2':      'white',
@@ -2807,6 +3064,16 @@ const DEFAULT_BG: Record<string, 'white' | 'light' | 'dark'> = {
   'compare-two-option':  'light',
   'problem-background':  'white',
   'mission-statement':   'dark',
+  // エリア追加
+  'news-ticker':           'dark',
+  'marquee-statement':     'dark',
+  'works-grid':            'dark',
+  'usp-numbered':          'white',
+  'knowledge-list':        'white',
+  'product-cards':         'light',
+  'scroll-statement':      'white',
+  'horizontal-scroll-cards': 'white',
+  'cta-with-image':        'dark',
   // Media 追加
   'image-caption':       'dark',
   'image-three-grid':    'white',
@@ -2882,6 +3149,302 @@ function SectionParallax(_p: { options: PartOptions })      { return <AnimationB
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function SectionCounterUp(_p: { options: PartOptions })     { return <AnimationBadge label="カウントアップ"             icon="↗" /> }
 
+// ── New Part Sections (13 parts) ──────────────────────────────────────────
+function SectionNewsTicker({ options }: { options: PartOptions }) {
+  const { bg, color, hintColor, bdColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const items = ['サービスリニューアルのお知らせ', '新機能をリリースしました', '年末年始の営業について', 'パートナー企業募集中']
+  return (
+    <section style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div style={{ borderTop: `1px solid ${bdColor}`, borderBottom: `1px solid ${bdColor}`, height: 44, overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
+        <div className="flex items-center gap-6 whitespace-nowrap" style={{ paddingLeft: 24 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, background: color, color: bg, padding: '2px 8px', borderRadius: 2 }}>NEW</span>
+          {items.map((t, i) => (
+            <span key={i} style={{ fontSize: 13, color: hintColor }}>{t}{i < items.length - 1 ? ' ／' : ''}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+function SectionMarqueeStatement({ options }: { options: PartOptions }) {
+  const { bg, color } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section style={{ background: bg, paddingTop: py, paddingBottom: py, overflow: 'hidden' }}>
+      <p style={{ fontSize: 'clamp(40px, 6vw, 80px)', fontWeight: 300, color, whiteSpace: 'nowrap', letterSpacing: '-0.02em' }}>
+        Rewriting the future of design — Creating value through creativity —
+      </p>
+    </section>
+  )
+}
+function SectionWorksGrid({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, cardBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const works = [
+    { name: 'Project Alpha', cat: 'Branding', year: '2024' },
+    { name: 'Project Beta', cat: 'Web Design', year: '2024' },
+    { name: 'Project Gamma', cat: 'Movie', year: '2023' },
+    { name: 'Project Delta', cat: 'Branding', year: '2023' },
+  ]
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>WORKS</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>実績・事例</h2>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+        {works.map((w, i) => (
+          <div key={i} style={{ borderRadius: 4, overflow: 'hidden', cursor: 'pointer' }}>
+            <div style={{ aspectRatio: '4/3', background: cardBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ImageIcon size={28} color={hintColor} />
+            </div>
+            <div className="flex items-center justify-between" style={{ padding: '12px 0' }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color }}>{w.name}</p>
+                <span style={{ fontSize: 11, color: subColor }}>{w.cat}</span>
+              </div>
+              <span style={{ fontSize: 11, color: hintColor }}>{w.year}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionUspNumbered({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const items = [
+    { n: '01', title: '戦略から実行まで一貫', desc: '課題分析からクリエイティブ制作、運用改善までワンストップで対応します。' },
+    { n: '02', title: '高い専門性と実績', desc: '150以上のプロジェクト実績。業界を問わず最適な解決策を提供します。' },
+    { n: '03', title: 'スピードと柔軟性', desc: '小回りの利くチーム体制で、スピーディかつ柔軟に対応します。' },
+  ]
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>WHY US</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>選ばれる理由</h2>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        {items.map(item => (
+          <div key={item.n} style={{ borderBottom: `1px solid ${bdColor}`, paddingBottom: 20 }}>
+            <span style={{ fontSize: 28, fontWeight: 300, color: hintColor }}>{item.n}</span>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color, marginTop: 12 }}>{item.title}</h3>
+            <p style={{ fontSize: 13, color: subColor, lineHeight: 1.7, marginTop: 8 }}>{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionKnowledgeList({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const articles = [
+    { cat: 'デザイン', title: 'デザインシステム構築のポイント', date: '2024.12.01' },
+    { cat: 'テック', title: 'Next.js App Routerの実践ガイド', date: '2024.11.15' },
+    { cat: 'ブランディング', title: 'ブランド戦略の基礎と実践', date: '2024.10.20' },
+    { cat: 'UX', title: 'UXリサーチ手法まとめ', date: '2024.09.05' },
+    { cat: 'マーケティング', title: 'コンテンツマーケの始め方', date: '2024.08.12' },
+  ]
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>KNOWLEDGE</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>ナレッジ</h2>
+      </div>
+      <div className="max-w-3xl mx-auto">
+        {articles.map((a, i) => (
+          <div key={i} className="flex items-center gap-4 py-4" style={{ borderBottom: `1px solid ${bdColor}`, cursor: 'pointer' }}>
+            <span style={{ fontSize: 10, color: subColor, border: `1px solid ${bdColor}`, borderRadius: 2, padding: '2px 8px', whiteSpace: 'nowrap' }}>{a.cat}</span>
+            <span style={{ fontSize: 14, color, flex: 1 }}>{a.title}</span>
+            <span style={{ fontSize: 12, color: hintColor, whiteSpace: 'nowrap' }}>{a.date}</span>
+            <span style={{ fontSize: 14, color: hintColor }}>→</span>
+          </div>
+        ))}
+        <div className="text-center mt-8">
+          <span style={{ fontSize: 13, color: subColor, cursor: 'pointer' }}>もっと見る →</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+function SectionProductCards({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, cardBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const products = [
+    { name: 'プロダクトA', price: '¥12,000' },
+    { name: 'プロダクトB', price: '¥8,500' },
+    { name: 'プロダクトC', price: '¥15,000' },
+  ]
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="text-center mb-12">
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>PRODUCTS</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>商品・サービス</h2>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+        {products.map((p, i) => (
+          <div key={i} style={{ background: cardBg, borderRadius: 6, overflow: 'hidden' }}>
+            <div style={{ aspectRatio: '1/1', background: bg === '#FFFFFF' ? '#F4F4F4' : '#E2E2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ImageIcon size={28} color={hintColor} />
+            </div>
+            <div style={{ padding: '14px 16px' }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color }}>{p.name}</p>
+              <p style={{ fontSize: 13, color: subColor, marginTop: 4 }}>{p.price}</p>
+              <p style={{ fontSize: 12, color: subColor, marginTop: 8, cursor: 'pointer' }}>詳しく見る →</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionScrollStatement({ options }: { options: PartOptions }) {
+  const { bg, color, subColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="flex flex-col items-center justify-center text-center gap-8 px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <h2 style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 300, color, lineHeight: 1.1, letterSpacing: '-0.02em', maxWidth: 600 }}>
+        未来をつくる、<br />その一歩を。
+      </h2>
+      <p style={{ fontSize: 13, color: subColor, maxWidth: 400 }}>
+        私たちと一緒に、新しい価値を生み出しませんか。
+      </p>
+      {renderButton(options.buttonStyle, color)}
+      <div className="flex flex-col items-center gap-2 mt-4">
+        <div style={{ width: 1, height: 40, background: subColor, opacity: 0.3 }} />
+        <span style={{ fontSize: 9, color: subColor, letterSpacing: '0.2em', opacity: 0.5 }}>SCROLL</span>
+      </div>
+    </section>
+  )
+}
+function SectionHorizontalScrollCards({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor, bdColor, cardBg } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const cards = ['プロジェクト A', 'プロジェクト B', 'プロジェクト C', 'プロジェクト D', 'プロジェクト E']
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="flex items-center justify-between mb-8">
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>プロジェクト</h2>
+        <div className="flex gap-2">
+          <span style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${bdColor}`, borderRadius: 4, fontSize: 14, color: hintColor, cursor: 'pointer' }}>＜</span>
+          <span style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${bdColor}`, borderRadius: 4, fontSize: 14, color: hintColor, cursor: 'pointer' }}>＞</span>
+        </div>
+      </div>
+      <div className="flex gap-5 overflow-x-auto pb-4" style={{ scrollSnapType: 'x mandatory' }}>
+        {cards.map((c, i) => (
+          <div key={i} className="shrink-0" style={{ width: '280px', border: `1px solid ${bdColor}`, borderRadius: 6, overflow: 'hidden', scrollSnapAlign: 'start', background: cardBg }}>
+            <div style={{ aspectRatio: '16/10', background: bg === '#FFFFFF' ? '#F4F4F4' : '#E2E2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ImageIcon size={24} color={hintColor} />
+            </div>
+            <div style={{ padding: '12px 16px' }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color }}>{c}</p>
+              <p style={{ fontSize: 12, color: subColor, marginTop: 4 }}>プロジェクトの説明テキスト</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+function SectionCtaWithImage({ options }: { options: PartOptions }) {
+  const { bg, color, subColor, hintColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto px-10">
+        <div style={{ aspectRatio: '4/3', background: options.bgColor === 'dark' ? '#3C3C3C' : '#E8E8E8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <ImageIcon size={36} color={hintColor} />
+        </div>
+        <div className="flex flex-col justify-center gap-4 px-10 py-8">
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}>CONTACT</p>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color, lineHeight: 1.3 }}>まずはお気軽に<br />ご相談ください</h2>
+          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.7 }}>プロジェクトの規模を問わず、お気軽にお問い合わせください。</p>
+          {renderButton(options.buttonStyle, color)}
+        </div>
+      </div>
+    </section>
+  )
+}
+function SectionHeroFullbleedText({ options }: { options: PartOptions }) {
+  const { bg, color, subColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section className="flex flex-col justify-center px-10 md:px-20 gap-6" style={{ background: bg, paddingTop: Math.max(py, 96), paddingBottom: Math.max(py, 96) }}>
+      <h1 style={{ fontSize: 'clamp(48px, 7vw, 120px)', fontWeight: 300, color, lineHeight: 1.05, letterSpacing: '-0.03em' }}>
+        Design<br />Matters.
+      </h1>
+      <p style={{ fontSize: 14, color: subColor, maxWidth: 400 }}>テクノロジーとクリエイティビティの融合で、より良い未来を創造します。</p>
+      {renderButton(options.buttonStyle, color)}
+    </section>
+  )
+}
+function SectionHeroSplitTicker({ options }: { options: PartOptions }) {
+  const { bg, color, hintColor, bdColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section style={{ background: bg }}>
+      <div className="grid grid-cols-1 md:grid-cols-2" style={{ minHeight: '80vh', paddingTop: py, paddingBottom: 0 }}>
+        <div className="flex flex-col justify-center gap-5 px-10 py-12">
+          <h1 style={{ fontSize: 32, fontWeight: 700, color, lineHeight: 1.2 }}>ブランドを、<br />もっと強くする。</h1>
+          <p style={{ fontSize: 14, color: hintColor, lineHeight: 1.7 }}>Web・映像・ブランディングで、ビジネスの成長を加速させます。</p>
+          {renderButton(options.buttonStyle, color)}
+        </div>
+        <div style={{ background: options.bgColor === 'dark' ? '#3C3C3C' : '#E8E8E8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <ImageIcon size={48} color={hintColor} />
+        </div>
+      </div>
+      <div style={{ height: 44, borderTop: `1px solid ${bdColor}`, overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
+        <div className="flex items-center gap-6 whitespace-nowrap" style={{ paddingLeft: 24 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, background: color, color: bg, padding: '2px 8px', borderRadius: 2 }}>NEW</span>
+          {['サービスリニューアル', '新機能リリース', 'パートナー募集中'].map((t, i) => (
+            <span key={i} style={{ fontSize: 12, color: hintColor }}>{t} ／</span>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+function SectionImageOverlayText({ options }: { options: PartOptions }) {
+  const { bg, hintColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  return (
+    <section style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="relative max-w-5xl mx-auto px-10" style={{ aspectRatio: '16/9', background: options.bgColor === 'dark' ? '#3C3C3C' : '#DCDCDC', borderRadius: 4, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <ImageIcon size={48} color={hintColor} />
+        <div className="absolute inset-x-0 bottom-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', padding: '40px 32px 24px' }}>
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: 'rgba(244,244,244,0.5)', marginBottom: 8 }}>ABOUT</p>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.3 }}>テキストオーバーレイ</h2>
+          <p style={{ fontSize: 13, color: 'rgba(244,244,244,0.7)', marginTop: 8 }}>画像の上にテキストを重ねるレイアウトです。</p>
+        </div>
+      </div>
+    </section>
+  )
+}
+function SectionImageMosaic({ options }: { options: PartOptions }) {
+  const { bg, hintColor } = getBgStyle(options.bgColor)
+  const py = getSpacingPx(options.spacing)
+  const cell = (ar: string) => ({ aspectRatio: ar, background: options.bgColor === 'dark' ? '#3C3C3C' : '#E8E8E8', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' } as React.CSSProperties)
+  return (
+    <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
+      <div className="max-w-4xl mx-auto grid gap-4" style={{ gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto auto' }}>
+        <div style={{ ...cell('3/4'), gridRow: '1 / 3' }}>
+          <ImageIcon size={36} color={hintColor} />
+        </div>
+        <div style={cell('16/9')}>
+          <ImageIcon size={24} color={hintColor} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div style={cell('1/1')}><ImageIcon size={20} color={hintColor} /></div>
+          <div style={cell('1/1')}><ImageIcon size={20} color={hintColor} /></div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 const SECTION_MAP: Record<PartId, React.FC<{ options: PartOptions }>> = {
   'hero-basic': SectionHeroBasic, features: SectionFeatures, cta: SectionCta,
   testimonial: SectionTestimonial, faq: SectionFaq, logos: SectionLogos,
@@ -2896,8 +3459,10 @@ const SECTION_MAP: Record<PartId, React.FC<{ options: PartOptions }>> = {
   'hero-center': SectionHeroCenter, 'hero-split': SectionHeroSplit,
   'hero-dark-split': SectionHeroDarkSplit, 'hero-minimal': SectionHeroMinimal,
   'hero-with-video': SectionHeroWithVideo, 'hero-slider': SectionHeroSlider,
+  'hero-fullbleed-text': SectionHeroFullbleedText, 'hero-split-ticker': SectionHeroSplitTicker,
   'image-fullwidth': SectionImageFullwidth, 'image-gallery': SectionImageGallery,
   'image-text': SectionImageText, 'image-text-right': SectionImageTextRight, 'video-embed': SectionVideoEmbed,
+  'image-overlay-text': SectionImageOverlayText, 'image-mosaic': SectionImageMosaic,
   'btn-outline': SectionBtnOutline, 'btn-filled': SectionBtnFilled,
   'btn-ghost': SectionBtnGhost, 'btn-rounded': SectionBtnRounded,
   'btn-icon': SectionBtnIcon, 'btn-cta-lg': SectionBtnCtaLg,
@@ -2914,6 +3479,12 @@ const SECTION_MAP: Record<PartId, React.FC<{ options: PartOptions }>> = {
   'quote-side-accent': SectionQuoteSideAccent, 'before-after': SectionBeforeAfter,
   'compare-two-option': SectionCompareTwoOption, 'problem-background': SectionProblemBackground,
   'mission-statement': SectionMissionStatement,
+  // エリア追加
+  'news-ticker': SectionNewsTicker, 'marquee-statement': SectionMarqueeStatement,
+  'works-grid': SectionWorksGrid, 'usp-numbered': SectionUspNumbered,
+  'knowledge-list': SectionKnowledgeList, 'product-cards': SectionProductCards,
+  'scroll-statement': SectionScrollStatement, 'horizontal-scroll-cards': SectionHorizontalScrollCards,
+  'cta-with-image': SectionCtaWithImage,
   // Media 追加
   'image-caption': SectionImageCaption, 'image-three-grid': SectionImageThreeGrid,
   // Data
@@ -2996,7 +3567,7 @@ ${guides}
 
 【デザイン】
 - アクセントカラー: #1A1A1A（黒）
-- フォント: Poppins + Meiryo / LINE Seed${animSection}${(() => {
+- フォント: Poppins + Noto Sans JP${animSection}${(() => {
     const font = fontId ? FONT_LIST.find(f => f.id === fontId) : null
     if (!font) return ''
     if (!font.google) {
@@ -3004,7 +3575,37 @@ ${guides}
     }
     const imp = fontToNextImport(font.name)
     return `\n\n【フォント指定】\n使用フォント: ${font.name}\n読み込み方法: next/font/google を使用\n\nimport { ${imp} } from 'next/font/google'\nconst font = ${imp}({\n  subsets: ['latin'],\n  weight: [${font.weights.map(w => `'${w}'`).join(', ')}],\n  variable: '--font-main',\n})\n\n全体のfont-familyに var(--font-main) を適用する。`
-  })()}`
+  })()}
+
+---
+【実装上の注意事項】
+
+■ セクションの余白・高さ
+- 各セクションに min-height は設定しない
+- padding は上下 py-16（64px）を基本とする
+- ヒーローセクションのみ min-h-screen を使用可
+- height: 100vh や min-h-[600px] などの固定高さは禁止
+- セクション間に空の div や spacer 要素を入れない
+
+■ 画像プレースホルダー
+- 画像がない場合は aspect-ratio で高さを制御する
+  例: aspect-video（16:9）、aspect-square（1:1）
+- height: 400px など固定値は使わない
+
+■ レイアウト
+- 各セクションは width: 100% で自然な高さにする
+- overflow: hidden を不必要に使わない
+- position: absolute の要素が親の高さに影響しないよう注意
+
+■ スライダー・ギャラリー
+- スライダーコンテナに固定heightを設定しない
+- 画像は aspect-ratio で統一する
+- スライダー外側のコンテナは height: auto にする
+
+■ 全体確認
+- 実装後に各セクションの間に不自然な空白がないか確認する
+- デベロッパーツールで各セクションの高さを確認して
+  意図せず大きなスペースが生まれていないか検証する`
 }
 
 // ── Options Panel ─────────────────────────────────────────────────────────
@@ -3096,7 +3697,7 @@ function SortableItem({ uid, partId, index, name, options, isExpanded, onRemove,
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: String(uid) })
   return (
-    <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition, background: C.card, borderColor: isDragging ? C.main : C.bd, borderWidth: 1, borderStyle: 'solid', borderRadius: 4 }}>
+    <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition, background: C.card, borderColor: isDragging ? C.main : C.bd, borderWidth: 1, borderStyle: 'solid', borderRadius: 8 }}>
       <div className="flex items-center gap-2.5" style={{ padding: '10px 12px' }}>
         <span {...attributes} {...listeners} className="select-none cursor-grab active:cursor-grabbing" style={{ color: C.hint, fontSize: 16, lineHeight: 1 }}>⠿</span>
         <span className="flex items-center justify-center shrink-0 text-[11px] font-bold" style={{ width: 20, height: 20, borderRadius: '50%', background: C.main, color: C.bg }}>{index + 1}</span>
@@ -3134,7 +3735,7 @@ function FontCard({ font, selected, onToggle }: {
   return (
     <div
       onClick={onToggle}
-      style={{ background: selected ? C.sel : C.card, border: selected ? `1.5px solid ${C.main}` : `1px solid ${C.bd}`, borderRadius: 4, overflow: 'hidden', cursor: 'pointer', position: 'relative', transition: 'border-color 0.15s' }}
+      style={{ background: selected ? C.sel : C.card, border: selected ? `1.5px solid ${C.main}` : `1px solid ${C.bd}`, borderRadius: 10, overflow: 'hidden', cursor: 'pointer', position: 'relative', transition: 'border-color 0.15s' }}
       onMouseEnter={e => { if (!selected) (e.currentTarget as HTMLDivElement).style.borderColor = C.main }}
       onMouseLeave={e => { if (!selected) (e.currentTarget as HTMLDivElement).style.borderColor = C.bd }}
     >
@@ -3142,7 +3743,7 @@ function FontCard({ font, selected, onToggle }: {
         <div className="absolute flex items-center justify-center font-bold" style={{ width: 22, height: 22, background: C.main, color: C.bg, borderRadius: '50%', top: 10, right: 10, fontSize: 11, zIndex: 5 }}>✓</div>
       )}
       {/* Preview */}
-      <div style={{ height: 120, background: '#F4F4F4', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px 16px', gap: 6, userSelect: 'none' }}>
+      <div style={{ height: 160, background: '#F4F4F4', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px 16px', gap: 6, userSelect: 'none' }}>
         <p style={{ fontSize: 36, fontWeight: 700, fontFamily: ff, color: C.main, lineHeight: 1, margin: 0 }}>Aa</p>
         <p style={{ fontSize: 13, fontFamily: ff, color: C.sub, margin: 0 }}>あいうえお / ABCDE 12345</p>
       </div>
@@ -3897,6 +4498,104 @@ export default function LPlusPage() {
             addRect(slide, rx + 2.6, ry + 0.2, 2.4, 2.4, 'DCDCDC')
             break
           }
+          // ── New parts ──
+          case 'news-ticker': {
+            addRect(slide, rx, ry + 1.1, rw, 0.55, '1A1A1A')
+            addTxt(slide, 'NEW  ニュース1 ／ ニュース2 ／ ニュース3', { x: rx, y: ry + 1.1, w: rw, h: 0.55, fontSize: 9, color: 'FFFFFF', align: 'center', valign: 'middle' })
+            break
+          }
+          case 'marquee-statement': {
+            addRect(slide, rx, ry, rw, 2.8, '1A1A1A')
+            addTxt(slide, 'Rewriting the future —', { x: rx, y: ry + 0.9, w: rw, h: 1.0, fontSize: 22, color: 'FFFFFF', align: 'center', valign: 'middle' })
+            break
+          }
+          case 'works-grid': {
+            addRect(slide, rx, ry, rw, 2.8, '1A1A1A')
+            for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) {
+              addRect(slide, rx + 0.15 + c * 2.5, ry + 0.15 + r * 1.35, 2.3, 1.2, '3C3C3C')
+            }
+            break
+          }
+          case 'usp-numbered': {
+            for (let i = 0; i < 3; i++) {
+              const bx = rx + i * 1.7
+              addTxt(slide, String(i + 1).padStart(2, '0'), { x: bx, y: ry + 0.3, w: 1.5, h: 0.5, fontSize: 18, color: 'BBBBBB' })
+              addHLine(slide, bx, ry + 1.0, 1.5)
+              addHLine(slide, bx, ry + 1.4, 1.2)
+              addHLine(slide, bx + 0.1, ry + 2.3, 1.4, 'DCDCDC')
+            }
+            break
+          }
+          case 'knowledge-list': {
+            for (let i = 0; i < 5; i++) {
+              addHLine(slide, rx + 0.2, ry + 0.35 + i * 0.5, 4.6, 'E2E2E2')
+              addTxt(slide, '記事', { x: rx + 0.2, y: ry + 0.1 + i * 0.5, w: 0.6, h: 0.3, fontSize: 7, color: '888888' })
+              addHLine(slide, rx + 0.9, ry + 0.15 + i * 0.5, 2.5)
+              addTxt(slide, '→', { x: rx + 4.3, y: ry + 0.1 + i * 0.5, w: 0.3, h: 0.3, fontSize: 10, color: 'BBBBBB', align: 'right' })
+            }
+            break
+          }
+          case 'product-cards': {
+            for (let i = 0; i < 3; i++) {
+              const bx = rx + i * 1.7
+              addRect(slide, bx, ry + 0.2, 1.5, 1.5, 'EBEBEB')
+              addHLine(slide, bx + 0.1, ry + 1.85, 1.0)
+              addTxt(slide, '¥3,000', { x: bx + 0.1, y: ry + 2.0, w: 1.0, h: 0.3, fontSize: 8, color: '888888' })
+            }
+            break
+          }
+          case 'scroll-statement': {
+            addTxt(slide, '未来をつくる、\nその一歩を。', { x: rx, y: ry + 0.5, w: rw, h: 1.2, fontSize: 20, color: '1A1A1A', align: 'center', valign: 'middle' })
+            addTxt(slide, 'SCROLL', { x: rx, y: ry + 2.2, w: rw, h: 0.4, fontSize: 8, color: 'BBBBBB', align: 'center' })
+            break
+          }
+          case 'horizontal-scroll-cards': {
+            for (let i = 0; i < 3; i++) {
+              const bx = rx + i * 1.7
+              addRect(slide, bx, ry + 0.3, 1.5, 1.0, 'EBEBEB')
+              addRect(slide, bx, ry + 0.3, 1.5, 2.0, 'FFFFFF', 'DCDCDC')
+              addRect(slide, bx + 0.1, ry + 0.4, 1.3, 0.9, 'EBEBEB')
+              addHLine(slide, bx + 0.1, ry + 1.6, 1.0)
+            }
+            break
+          }
+          case 'cta-with-image': {
+            addRect(slide, rx, ry, 2.4, 2.8, '1A1A1A')
+            addRect(slide, rx + 0.1, ry + 0.1, 2.2, 2.6, '3C3C3C')
+            addTxt(slide, 'CONTACT', { x: rx + 2.6, y: ry + 0.4, w: 2.2, h: 0.3, fontSize: 8, color: 'BBBBBB' })
+            for (let i = 0; i < 2; i++) addHLine(slide, rx + 2.6, ry + 0.9 + i * 0.35, 2.0, 'FFFFFF')
+            addRect(slide, rx + 2.6, ry + 2.0, 1.4, 0.35, '1A1A1A', 'FFFFFF', 1.0)
+            addTxt(slide, 'CTA →', { x: rx + 2.6, y: ry + 2.0, w: 1.4, h: 0.35, fontSize: 9, color: 'FFFFFF', align: 'center', valign: 'middle' })
+            break
+          }
+          case 'hero-fullbleed-text': {
+            addTxt(slide, 'Design\nMatters.', { x: rx, y: ry + 0.4, w: rw, h: 1.8, fontSize: 28, color: '1A1A1A', align: 'center', valign: 'middle' })
+            addRect(slide, rx + 1.7, ry + 2.3, 1.6, 0.35, 'FFFFFF', '1A1A1A', 1.0)
+            addTxt(slide, 'はじめる →', { x: rx + 1.7, y: ry + 2.3, w: 1.6, h: 0.35, fontSize: 9, color: '1A1A1A', align: 'center', valign: 'middle' })
+            break
+          }
+          case 'hero-split-ticker': {
+            addRect(slide, rx, ry, 2.4, 2.4, '1A1A1A')
+            addRect(slide, rx + 2.6, ry, 2.4, 2.4, '3C3C3C')
+            addTxt(slide, 'HERO', { x: rx, y: ry + 0.8, w: 2.4, h: 0.8, fontSize: 18, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle' })
+            addRect(slide, rx, ry + 2.45, rw, 0.35, '2C2C2C')
+            addTxt(slide, 'NEW  ニュース ／ お知らせ', { x: rx, y: ry + 2.45, w: rw, h: 0.35, fontSize: 7, color: 'FFFFFF', align: 'center', valign: 'middle' })
+            break
+          }
+          case 'image-overlay-text': {
+            addRect(slide, rx, ry, rw, 2.8, '3C3C3C')
+            addRect(slide, rx, ry + 1.6, rw, 1.2, '1A1A1A')
+            addTxt(slide, 'OVERLAY TEXT', { x: rx + 0.2, y: ry + 1.8, w: 3.0, h: 0.5, fontSize: 14, bold: true, color: 'FFFFFF' })
+            addHLine(slide, rx + 0.2, ry + 2.4, 2.0, 'FFFFFF')
+            break
+          }
+          case 'image-mosaic': {
+            addRect(slide, rx, ry + 0.1, 2.4, 2.6, 'DCDCDC')
+            addRect(slide, rx + 2.6, ry + 0.1, 2.4, 1.2, 'DCDCDC')
+            addRect(slide, rx + 2.6, ry + 1.4, 1.1, 1.3, 'DCDCDC')
+            addRect(slide, rx + 3.85, ry + 1.4, 1.15, 1.3, 'DCDCDC')
+            break
+          }
         }
       }
 
@@ -3969,19 +4668,19 @@ export default function LPlusPage() {
   }
 
   const fontStyle: React.CSSProperties = {
-    fontFamily: "'Poppins', 'こぶりなゴシック W3 JIS2004', sans-serif",
+    fontFamily: "var(--font-poppins), var(--font-noto), sans-serif",
     fontWeight: 300,
   }
 
   return (
     <>
       {/* ── Screen 1 ────────────────────────────────────────────────── */}
-      <div className={poppins.variable} style={{ minHeight: 'calc(100vh - 4rem)', background: C.bg, ...fontStyle }}>
+      <div className={`${poppins.variable} ${notoSansJP.variable}`} style={{ minHeight: 'calc(100vh - 4rem)', background: C.bg, ...fontStyle }}>
 
         {/* Header */}
-        <div className="sticky top-16 z-20 flex items-center justify-between gap-3" style={{ background: C.card, borderBottom: `1px solid ${C.bd}`, padding: '0 40px', height: 60 }}>
+        <div className="sticky top-16 z-30 flex items-center justify-between gap-3" style={{ background: C.card, borderBottom: `1px solid ${C.bd}`, padding: '0 32px', height: 56 }}>
           <div className="flex items-baseline" style={{ gap: 8 }}>
-            <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '0.05em', color: C.main }}>LP.LUS</span>
+            <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '0.08em', color: C.main }}>LP.LUS</span>
             <span style={{ fontSize: 12, color: C.hint }}>LPプラス</span>
           </div>
           <div className="flex items-center gap-3">
@@ -3993,9 +4692,9 @@ export default function LPlusPage() {
             <button
               disabled={selectedIds.length === 0}
               onClick={() => setModalOpen(true)}
-              style={{ border: `1px solid ${selectedIds.length === 0 ? C.bd : C.main}`, background: 'transparent', color: selectedIds.length === 0 ? C.bd : C.main, padding: '8px 20px', borderRadius: 2, fontSize: 13, fontWeight: 500, cursor: selectedIds.length === 0 ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s, color 0.15s' }}
-              onMouseEnter={e => { if (selectedIds.length > 0) { const el = e.currentTarget as HTMLButtonElement; el.style.background = C.main; el.style.color = C.bg } }}
-              onMouseLeave={e => { const el = e.currentTarget as HTMLButtonElement; el.style.background = 'transparent'; el.style.color = selectedIds.length === 0 ? C.bd : C.main }}
+              style={{ border: 'none', background: selectedIds.length === 0 ? C.main : C.main, color: '#FFFFFF', padding: '8px 20px', borderRadius: 2, fontSize: 13, fontWeight: 500, cursor: selectedIds.length === 0 ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'opacity 0.15s', opacity: selectedIds.length === 0 ? 0.35 : 1 }}
+              onMouseEnter={e => { if (selectedIds.length > 0) { e.currentTarget.style.opacity = '0.85' } }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = selectedIds.length === 0 ? '0.35' : '1' }}
             >
               プレビュー &amp; プロンプト生成 →
             </button>
@@ -4003,7 +4702,7 @@ export default function LPlusPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-stretch" style={{ position: 'sticky', top: 124, zIndex: 20, background: C.card, borderBottom: `1px solid ${C.bd}`, padding: '0 40px' }}>
+        <div className="flex items-stretch" style={{ position: 'sticky', top: 120, zIndex: 20, background: C.card, borderBottom: `1px solid ${C.bd}`, padding: '0 32px' }}>
           {TABS.map(tab => (
             <button
               key={tab.id}
@@ -4012,14 +4711,15 @@ export default function LPlusPage() {
               style={{
                 fontSize: 13,
                 padding: '14px 0',
-                marginRight: 28,
-                color: tab.disabled ? C.bd : activeTab === tab.id ? C.main : C.sub,
-                fontWeight: activeTab === tab.id ? 600 : 400,
+                marginRight: 24,
+                color: tab.disabled ? C.sub : activeTab === tab.id ? C.main : C.sub,
+                fontWeight: 500,
                 cursor: tab.disabled ? 'default' : 'pointer',
                 pointerEvents: tab.disabled ? 'none' : 'auto',
                 background: 'none',
                 border: 'none',
-                borderBottom: activeTab === tab.id ? `1px solid ${C.main}` : '1px solid transparent',
+                borderBottom: activeTab === tab.id ? `2px solid ${C.main}` : '2px solid transparent',
+                opacity: tab.disabled ? 0.35 : 1,
               }}
             >
               {tab.label}
@@ -4029,7 +4729,7 @@ export default function LPlusPage() {
 
         {/* Content: Font tab or Parts grid */}
         {activeTab === 'font' ? (
-          <div style={{ padding: '0 40px 40px' }}>
+          <div style={{ padding: '0 32px 32px' }}>
             {/* Category filter */}
             <div className="flex items-center" style={{ borderBottom: `1px solid ${C.bd}`, marginBottom: 28, overflowX: 'auto' }}>
               {FONT_CATEGORIES.map(cat => (
@@ -4054,7 +4754,7 @@ export default function LPlusPage() {
               ))}
             </div>
             {/* Font grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: 24 }}>
+            <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: 20 }}>
               {FONT_LIST
                 .filter(f => fontCategoryFilter === 'すべて' || f.category === fontCategoryFilter)
                 .map(font => (
@@ -4068,7 +4768,7 @@ export default function LPlusPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3" style={{ padding: 40, gap: 24 }}>
+          <div className="grid grid-cols-1 md:grid-cols-3" style={{ padding: 32, gap: 20 }}>
               {visibleParts.map(part => {
                 const Preview  = CARD_PREVIEW_MAP[part.id]
                 const selected = selectedIds.includes(part.id)
@@ -4076,14 +4776,14 @@ export default function LPlusPage() {
                   <div
                     key={part.id}
                     onClick={() => togglePart(part.id)}
-                    style={{ background: selected ? C.sel : C.card, border: selected ? `1.5px solid ${C.main}` : `1px solid ${C.bd}`, borderRadius: 4, overflow: 'hidden', cursor: 'pointer', position: 'relative', transition: 'border-color 0.15s' }}
+                    style={{ background: selected ? C.sel : C.card, border: selected ? `1.5px solid ${C.main}` : `1px solid ${C.bd}`, borderRadius: 10, overflow: 'hidden', cursor: 'pointer', position: 'relative', transition: 'border-color 0.15s' }}
                     onMouseEnter={e => { if (!selected) (e.currentTarget as HTMLDivElement).style.borderColor = C.main }}
                     onMouseLeave={e => { if (!selected) (e.currentTarget as HTMLDivElement).style.borderColor = C.bd }}
                   >
                     {selected && (
                       <div className="absolute flex items-center justify-center font-bold" style={{ width: 22, height: 22, background: C.main, color: C.bg, borderRadius: '50%', top: 10, right: 10, fontSize: 11, zIndex: 5 }}>✓</div>
                     )}
-                    <div style={{ overflow: 'hidden' }}>
+                    <div style={{ height: 160, overflow: 'hidden' }}>
                       <Preview />
                     </div>
                     <div className="flex items-center justify-between" style={{ padding: '14px 16px' }} onClick={e => { e.stopPropagation(); togglePart(part.id) }}>
@@ -4104,10 +4804,10 @@ export default function LPlusPage() {
 
       {/* ── Screen 2: Modal ─────────────────────────────────────────── */}
       {modalOpen && (
-        <div className={`fixed inset-0 z-50 flex flex-col md:flex-row overflow-hidden ${poppins.variable}`} style={{ background: 'rgba(26,23,20,0.6)', ...fontStyle }}>
+        <div className={`fixed inset-0 z-50 flex flex-col md:flex-row overflow-hidden ${poppins.variable} ${notoSansJP.variable}`} style={{ background: 'rgba(0,0,0,0.45)', ...fontStyle }}>
 
           {/* Left panel */}
-          <aside className="md:shrink-0 flex flex-col overflow-y-auto scrollbar-hide" style={{ width: '100%', maxWidth: 380, background: C.card, borderRight: `1px solid ${C.bd}` }}>
+          <aside className="md:shrink-0 flex flex-col overflow-y-auto scrollbar-hide" style={{ width: '100%', maxWidth: 320, background: C.card, borderRight: `1px solid ${C.bd}` }}>
             <div className="flex flex-col gap-6 p-6 flex-1">
               <div className="flex items-center gap-3">
                 <button onClick={() => setModalOpen(false)} className="text-sm transition-colors" style={{ color: C.sub, fontWeight: 500 }} onMouseEnter={e => (e.currentTarget.style.color = C.main)} onMouseLeave={e => (e.currentTarget.style.color = C.sub)}>← 戻る</button>
@@ -4156,9 +4856,9 @@ export default function LPlusPage() {
                     value={pagePath}
                     onChange={e => setPagePath(e.target.value)}
                     placeholder="例: lp-service, lp-campaign"
-                    style={{ width: '100%', border: '1px solid #D4D4D4', borderRadius: 4, padding: '6px 10px', fontSize: 12, color: C.main, background: C.card, outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', border: `1px solid ${C.bd}`, borderRadius: 4, padding: '6px 10px', fontSize: 12, color: C.main, background: C.card, outline: 'none', boxSizing: 'border-box' }}
                     onFocus={e => (e.currentTarget.style.borderColor = C.main)}
-                    onBlur={e => (e.currentTarget.style.borderColor = '#D4D4D4')}
+                    onBlur={e => (e.currentTarget.style.borderColor = C.bd)}
                   />
                 </div>
                 {selectedFontId && (
@@ -4199,7 +4899,7 @@ export default function LPlusPage() {
                 {promptTab !== 'pptx' ? (
                   <>
                     <textarea readOnly value={selectedIds.length > 0 ? promptText : 'パーツを選択するとプロンプトが生成されます'} className="flex-1 scrollbar-hide resize-none focus:outline-none" style={{ minHeight: 200, background: C.muted, border: `1px solid ${C.bd}`, borderRadius: 4, padding: 12, fontFamily: 'monospace', fontSize: 11, color: C.main, lineHeight: 1.8 }} />
-                    <button onClick={handleCopy} disabled={selectedIds.length === 0} className="w-full py-2.5 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-colors" style={{ background: 'transparent', color: C.main, border: `1px solid ${C.bd}`, borderRadius: 2 }} onMouseEnter={e => { if (selectedIds.length > 0) (e.currentTarget as HTMLButtonElement).style.background = C.muted }} onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = 'transparent'}>
+                    <button onClick={handleCopy} disabled={selectedIds.length === 0} className="w-full py-2.5 text-sm font-medium disabled:opacity-35 disabled:cursor-not-allowed transition-colors" style={{ background: 'transparent', color: C.main, border: `1px solid ${C.bd}`, borderRadius: 2 }} onMouseEnter={e => { if (selectedIds.length > 0) (e.currentTarget as HTMLButtonElement).style.background = C.muted }} onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = 'transparent'}>
                       {copied ? 'コピーしました ✓' : 'コピー'}
                     </button>
                   </>
@@ -4209,7 +4909,7 @@ export default function LPlusPage() {
                       選択中のパーツをスライドとして書き出します。<br />
                       表紙・パーツ詳細・最終スライドの{selectedIds.length + 2}枚構成です。
                     </p>
-                    <button onClick={generatePptx} disabled={selectedIds.length === 0 || pptxGenerating} className="w-full py-2.5 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed" style={{ background: 'transparent', color: C.main, border: `1px solid ${C.main}`, borderRadius: 2 }} onMouseEnter={e => { if (selectedIds.length > 0 && !pptxGenerating) { const el = e.currentTarget as HTMLButtonElement; el.style.background = C.main; el.style.color = C.bg } }} onMouseLeave={e => { const el = e.currentTarget as HTMLButtonElement; el.style.background = 'transparent'; el.style.color = C.main }}>
+                    <button onClick={generatePptx} disabled={selectedIds.length === 0 || pptxGenerating} className="w-full py-2.5 text-sm font-medium disabled:opacity-35 disabled:cursor-not-allowed" style={{ background: 'transparent', color: C.main, border: `1px solid ${C.main}`, borderRadius: 2 }} onMouseEnter={e => { if (selectedIds.length > 0 && !pptxGenerating) { const el = e.currentTarget as HTMLButtonElement; el.style.background = C.main; el.style.color = C.bg } }} onMouseLeave={e => { const el = e.currentTarget as HTMLButtonElement; el.style.background = 'transparent'; el.style.color = C.main }}>
                       {pptxGenerating ? '生成中...' : 'PowerPoint を書き出す (.pptx)'}
                     </button>
                   </div>
@@ -4222,7 +4922,7 @@ export default function LPlusPage() {
           <main
             ref={el => { modalRightRef.current = el }}
             className="flex-1 overflow-y-auto scrollbar-hide"
-            style={{ background: C.muted }}
+            style={{ background: C.bg }}
           >
             {/* Font override CSS for preview */}
             {selectedFont && (
