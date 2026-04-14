@@ -4,8 +4,11 @@ import { useEffect, useRef, useState, useCallback } from "react";
 
 /* ── constants ─────────────────────────────── */
 const FOG_COLOR = "rgba(148, 168, 196, 0.85)";
-const FOG_REFILL_ALPHA = 0.003;
 const BREATH_ALPHA = 0.35;
+const REFILL_TOTAL_SEC = 600; // 10分
+const REFILL_INTERVAL_MS = 2000; // 2秒ごと
+const REFILL_STEPS = REFILL_TOTAL_SEC / (REFILL_INTERVAL_MS / 1000); // 300
+const REFILL_ALPHA_PER_STEP = 0.85 / REFILL_STEPS;
 const BREATH_STEPS = 8;
 
 /* ── Night Cityscape SVG ───────────────────── */
@@ -138,7 +141,6 @@ export default function FogmailPage() {
   const [isPC, setIsPC] = useState<boolean | null>(null);
   const [fogLevel, setFogLevel] = useState(0); // 0 = no fog, 1 = full fog
   const lastPos = useRef<{ x: number; y: number } | null>(null);
-  const rafId = useRef<number>(0);
   const dpr = useRef(1);
 
   /* ── detect PC ──────────────────────────── */
@@ -227,27 +229,28 @@ export default function FogmailPage() {
     setFogLevel(0);
   }, [isPC]);
 
-  /* ── auto refill loop ──────────────────── */
+  /* ── auto refill (全体の霧がじわじわ戻る) ── */
+  const refillTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     if (isPC !== false) return;
+    if (fogLevel === 0) return;
 
-    let lastTime = 0;
-
-    function refillLoop(time: number) {
+    // fogLevel が 1 になったら setInterval 開始
+    refillTimer.current = setInterval(() => {
       const ctx = getCtx();
-      if (ctx && fogLevel > 0) {
-        // Only refill every ~50ms to be gentle
-        if (time - lastTime > 50) {
-          drawFog(ctx, FOG_REFILL_ALPHA);
-          lastTime = time;
-        }
-      }
-      rafId.current = requestAnimationFrame(refillLoop);
-    }
+      if (!ctx) return;
+      ctx.save();
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = `rgba(148, 168, 196, ${REFILL_ALPHA_PER_STEP})`;
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.restore();
+    }, REFILL_INTERVAL_MS);
 
-    rafId.current = requestAnimationFrame(refillLoop);
-    return () => cancelAnimationFrame(rafId.current);
-  }, [isPC, fogLevel, getCtx, drawFog]);
+    return () => {
+      if (refillTimer.current) clearInterval(refillTimer.current);
+    };
+  }, [isPC, fogLevel, getCtx]);
 
   /* ── unified getPos ─────────────────────── */
   function getPos(e: React.TouchEvent | React.MouseEvent): { x: number; y: number } {
