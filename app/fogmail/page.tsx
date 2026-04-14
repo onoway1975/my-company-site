@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 /* ── constants ─────────────────────────────── */
 const FOG_COLOR = "rgba(148, 168, 196, 0.85)";
 const BREATH_ALPHA = 0.35;
-const REFILL_TOTAL_SEC = 600; // 10分
+const REFILL_TOTAL_SEC = 60; // 1分
 const REFILL_INTERVAL_MS = 2000; // 2秒ごと
 const REFILL_STEPS = REFILL_TOTAL_SEC / (REFILL_INTERVAL_MS / 1000); // 300
 const REFILL_ALPHA_PER_STEP = 0.85 / REFILL_STEPS;
