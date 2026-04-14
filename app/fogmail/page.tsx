@@ -263,7 +263,7 @@ export default function FogmailPage() {
   function fogErase(ctx: CanvasRenderingContext2D, from: { x: number; y: number }, to: { x: number; y: number }) {
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
-    ctx.lineWidth = 3 * dpr.current;
+    ctx.lineWidth = 8 * dpr.current;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.strokeStyle = "rgba(0,0,0,1)";
