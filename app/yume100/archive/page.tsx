@@ -85,7 +85,8 @@ export default async function YumeArchivePage() {
         <header className="text-center mb-12">
           <Link
             href="/yume100/"
-            className="text-sm text-[#767676] hover:text-[#111]"
+            className="inline-block rounded-full px-8 py-3.5 font-bold text-base text-[#F5A623] bg-white hover:bg-[#F5A623] hover:text-white transition-colors duration-200"
+            style={{ border: "1.5px solid #F5A623" }}
           >
             &larr; タイムラインに戻る
           </Link>
