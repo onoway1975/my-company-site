@@ -5,7 +5,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 /* ── constants ─────────────────────────────── */
 const FOG_COLOR = "rgba(148, 168, 196, 0.85)";
 const FOG_REFILL_ALPHA = 0.003;
-const BRUSH_RADIUS = 28;
 const BREATH_ALPHA = 0.35;
 const BREATH_STEPS = 8;
 
@@ -250,61 +249,44 @@ export default function FogmailPage() {
     return () => cancelAnimationFrame(rafId.current);
   }, [isPC, fogLevel, getCtx, drawFog]);
 
-  /* ── touch handlers ─────────────────────── */
-  function getTouchPos(e: React.TouchEvent): { x: number; y: number } {
-    const t = e.touches[0];
-    return { x: t.clientX * dpr.current, y: t.clientY * dpr.current };
+  /* ── unified getPos ─────────────────────── */
+  function getPos(e: React.TouchEvent | React.MouseEvent): { x: number; y: number } {
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    const src = "touches" in e && e.touches?.length ? e.touches[0] : (e as React.MouseEvent);
+    return {
+      x: (src.clientX - rect.left) * (canvas.width / rect.width),
+      y: (src.clientY - rect.top) * (canvas.height / rect.height),
+    };
   }
 
-  function eraseBrush(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  function fogErase(ctx: CanvasRenderingContext2D, from: { x: number; y: number }, to: { x: number; y: number }) {
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
-    const r = BRUSH_RADIUS * dpr.current;
-    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-    grad.addColorStop(0, "rgba(0,0,0,1)");
-    grad.addColorStop(0.6, "rgba(0,0,0,0.6)");
-    grad.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = grad;
+    ctx.lineWidth = 3 * dpr.current;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba(0,0,0,1)";
     ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
     ctx.restore();
   }
 
-  function interpolate(
-    ctx: CanvasRenderingContext2D,
-    from: { x: number; y: number },
-    to: { x: number; y: number }
-  ) {
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const step = BRUSH_RADIUS * dpr.current * 0.3;
-    const steps = Math.max(1, Math.ceil(dist / step));
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      eraseBrush(ctx, from.x + dx * t, from.y + dy * t);
-    }
-  }
-
+  /* ── touch handlers ────────────────────── */
   function onTouchStart(e: React.TouchEvent) {
     e.preventDefault();
-    const pos = getTouchPos(e);
+    const pos = getPos(e);
     lastPos.current = pos;
-    const ctx = getCtx();
-    if (ctx) eraseBrush(ctx, pos.x, pos.y);
   }
 
   function onTouchMove(e: React.TouchEvent) {
     e.preventDefault();
     const ctx = getCtx();
     if (!ctx) return;
-    const pos = getTouchPos(e);
-    if (lastPos.current) {
-      interpolate(ctx, lastPos.current, pos);
-    } else {
-      eraseBrush(ctx, pos.x, pos.y);
-    }
+    const pos = getPos(e);
+    fogErase(ctx, lastPos.current ?? pos, pos);
     lastPos.current = pos;
   }
 
@@ -315,28 +297,17 @@ export default function FogmailPage() {
   /* ── mouse handlers (for devtools) ──────── */
   const mouseDown = useRef(false);
 
-  function getMousePos(e: React.MouseEvent): { x: number; y: number } {
-    return { x: e.clientX * dpr.current, y: e.clientY * dpr.current };
-  }
-
   function onMouseDown(e: React.MouseEvent) {
     mouseDown.current = true;
-    const pos = getMousePos(e);
-    lastPos.current = pos;
-    const ctx = getCtx();
-    if (ctx) eraseBrush(ctx, pos.x, pos.y);
+    lastPos.current = getPos(e);
   }
 
   function onMouseMove(e: React.MouseEvent) {
     if (!mouseDown.current) return;
     const ctx = getCtx();
     if (!ctx) return;
-    const pos = getMousePos(e);
-    if (lastPos.current) {
-      interpolate(ctx, lastPos.current, pos);
-    } else {
-      eraseBrush(ctx, pos.x, pos.y);
-    }
+    const pos = getPos(e);
+    fogErase(ctx, lastPos.current ?? pos, pos);
     lastPos.current = pos;
   }
 
@@ -380,13 +351,13 @@ export default function FogmailPage() {
       <div
         style={{
           position: "fixed",
-          inset: 0,
+          top: 0,
+          left: 0,
           width: "100vw",
           height: "100dvh",
           overflow: "hidden",
           fontFamily: "'LINE Seed JP', sans-serif",
-          marginTop: "-64px",
-          paddingTop: "64px",
+          zIndex: 50,
         }}
       >
         {/* Background cityscape */}
