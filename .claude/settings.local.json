@@ -281,7 +281,9 @@
       "Bash(git add app/components/ContactSection.tsx && git commit -m \"$\\(cat <<'EOF'\nfix: お問い合わせフォームをライトグレー背景に変更・CVR改善\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git status)",
       "Bash(npx tsc --noEmit --pretty 2>&1 | head -40)",
       "Bash(npx tsc --noEmit --pretty 2>&1)",
-      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfeat: fogmail追加\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfeat: fogmail追加\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npx next --version 2>&1)",
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: falClient直接importに変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)"
     ]
   }
 }

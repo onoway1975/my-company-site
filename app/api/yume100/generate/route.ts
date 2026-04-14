@@ -1,5 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { fal } from "@/app/lib/falClient";
+import { fal } from "@fal-ai/client";
+
+fal.config({ credentials: process.env.FAL_KEY });
 import { NextRequest, NextResponse } from "next/server";
 import { getClientIP, checkRateLimit } from "@/app/yume100/lib/rateLimit";
 
