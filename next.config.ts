@@ -35,6 +35,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.mzstatic.com",
       },
+      {
+        protocol: "https",
+        hostname: "fal.media",
+      },
+      {
+        protocol: "https",
+        hostname: "**.fal.media",
+      },
     ],
   },
   // 本番ビルドでconsole.logを除去

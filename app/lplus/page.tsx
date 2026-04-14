@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, createContext, useContext, useCallback } from 'react'
 import { Poppins, Noto_Sans_JP } from 'next/font/google'
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
@@ -89,6 +89,34 @@ interface SelectedPart {
   id:         PartId
   options:    PartOptions
   isExpanded: boolean
+}
+
+// ── Text editing ─────────────────────────────────────────────────────────
+type TextEdits = Record<string, string>
+
+const SectionUidContext = createContext<number>(0)
+const TextEditContext = createContext<{
+  edits: TextEdits
+  updateText: (uid: number, key: string, value: string) => void
+}>({ edits: {}, updateText: () => {} })
+
+function EditableText({ textKey, children }: { textKey: string; children: string }) {
+  const uid = useContext(SectionUidContext)
+  const { edits, updateText } = useContext(TextEditContext)
+  const ck = `${uid}:${textKey}`
+  return (
+    <span
+      contentEditable
+      suppressContentEditableWarning
+      onBlur={(e) => {
+        const v = e.currentTarget.textContent ?? ''
+        if (v !== children) updateText(uid, textKey, v)
+      }}
+      style={{ outline: 'none' }}
+    >
+      {ck in edits ? edits[ck] : children}
+    </span>
+  )
 }
 
 // ── Colors ───────────────────────────────────────────────────────────────
@@ -209,8 +237,8 @@ const PARTS: Part[] = [
 ]
 
 const TABS: { id: ActiveTab; label: string; disabled?: boolean }[] = [
-  { id: 'area',      label: 'エリア' },
   { id: 'hero',      label: 'ヒーロー' },
+  { id: 'area',      label: 'エリア' },
   { id: 'media',     label: 'メディア' },
   { id: 'data',      label: 'データ' },
   { id: 'closing',   label: 'クロージング' },
@@ -452,7 +480,7 @@ function PreviewHeroBasic() {
       <Layout size={18} color="rgba(244,244,244,0.35)" />
       <p style={{ fontSize: 12, fontWeight: 700, color: '#F4F4F4', lineHeight: 1.4 }}>あなたの事業を、次のステージへ</p>
       <p style={{ fontSize: 9, color: 'rgba(244,244,244,0.4)' }}>サービスの説明がここに入ります</p>
-      <div style={{ marginTop: 4, padding: '3px 10px', border: '1px solid rgba(244,244,244,0.5)', color: '#F4F4F4', borderRadius: 2, fontSize: 9 }}>無料で始める</div>
+      <div style={{ marginTop: 4, padding: '3px 10px', border: '1px solid rgba(244,244,244,0.5)', color: '#F4F4F4', borderRadius: 2, fontSize: 9, alignSelf: 'center' }}>無料で始める</div>
     </div>
   )
 }
@@ -650,7 +678,7 @@ function PreviewHeroCenter() {
     <div className="h-[160px] flex flex-col items-center justify-center gap-2 px-4 text-center" style={{ background: C.main }}>
       <p style={{ fontSize: 13, fontWeight: 700, color: '#F4F4F4', lineHeight: 1.4 }}>あなたの事業を<br />次のステージへ</p>
       <p style={{ fontSize: 9, color: 'rgba(244,244,244,0.4)' }}>サービスの説明がここに入ります</p>
-      <div style={{ marginTop: 4, padding: '3px 10px', border: '1px solid rgba(244,244,244,0.5)', color: '#F4F4F4', borderRadius: 2, fontSize: 9 }}>無料で始める</div>
+      <div style={{ marginTop: 4, padding: '3px 10px', border: '1px solid rgba(244,244,244,0.5)', color: '#F4F4F4', borderRadius: 2, fontSize: 9, alignSelf: 'center' }}>無料で始める</div>
     </div>
   )
 }
@@ -1735,9 +1763,9 @@ function SectionHeroBasic({ options }: { options: PartOptions }) {
   const py = getSpacingPx(options.spacing)
   return (
     <section className="flex flex-col items-center justify-center text-center gap-6 px-8" style={{ background: bg, minHeight: 440, paddingTop: py, paddingBottom: py }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1.35, maxWidth: 480 }}>あなたの事業を、次のステージへ</h1>
-      <p style={{ fontSize: 13, color: subColor, maxWidth: 360, lineHeight: 1.8 }}>サービスの説明テキストがここに入ります。</p>
-      {renderButton(options.buttonStyle, color)}
+      <h1 style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1.35, maxWidth: 480 }}><EditableText textKey="heading">あなたの事業を、次のステージへ</EditableText></h1>
+      <p style={{ fontSize: 13, color: subColor, maxWidth: 360, lineHeight: 1.8 }}><EditableText textKey="desc">サービスの説明テキストがここに入ります。</EditableText></p>
+      <div style={{ alignSelf: 'center' }}>{renderButton(options.buttonStyle, color)}</div>
     </section>
   )
 }
@@ -1747,8 +1775,8 @@ function SectionFeatures({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>FEATURES</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>選ばれる3つの理由</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">FEATURES</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">選ばれる3つの理由</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: getGridCols(options.columns), gap: 20, maxWidth: 960, margin: '0 auto' }}>
         {([
@@ -1759,8 +1787,8 @@ function SectionFeatures({ options }: { options: PartOptions }) {
         ] as const).slice(0, options.columns).map(([Icon, title, desc], i) => (
           <div key={i} className="p-6 flex flex-col gap-3" style={{ background: cardBg, border: `1px solid ${bdColor}`, borderRadius: 2 }}>
             <Icon size={20} color={subColor} />
-            <p style={{ fontSize: 13, fontWeight: 600, color }}>{title}</p>
-            <p style={{ fontSize: 11, color: subColor, lineHeight: 1.8 }}>{desc}</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color }}><EditableText textKey={`feat-title-${i}`}>{title}</EditableText></p>
+            <p style={{ fontSize: 11, color: subColor, lineHeight: 1.8 }}><EditableText textKey={`feat-desc-${i}`}>{desc}</EditableText></p>
           </div>
         ))}
       </div>
@@ -1773,8 +1801,8 @@ function SectionCta({ options }: { options: PartOptions }) {
   const py = getSpacingPx(options.spacing)
   return (
     <section className="flex flex-col items-center justify-center text-center gap-5 px-8" style={{ background: bg, minHeight: 200, paddingTop: py, paddingBottom: py }}>
-      <h2 style={{ fontSize: 22, fontWeight: 700, color }}>今すぐ無料でスタート</h2>
-      <p style={{ fontSize: 12, color: subColor }}>クレジットカード不要。いつでも解約できます。</p>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">今すぐ無料でスタート</EditableText></h2>
+      <p style={{ fontSize: 12, color: subColor }}><EditableText textKey="desc">クレジットカード不要。いつでも解約できます。</EditableText></p>
       <div style={{ display: 'flex', justifyContent: 'center' }}>{renderButton(options.buttonStyle, color)}</div>
     </section>
   )
@@ -1785,18 +1813,18 @@ function SectionTestimonial({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>TESTIMONIALS</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>お客様の声</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">TESTIMONIALS</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">お客様の声</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: getGridCols(options.columns), gap: 20, maxWidth: 960, margin: '0 auto' }}>
         {[['山田 太郎','株式会社A社','導入後3ヶ月で問い合わせが2倍に増えました。'],['鈴木 花子','合同会社B社','ノーコードなのにここまで自由度が高いとは。'],['佐藤 次郎','株式会社C社','圧倒的なコスパで大変助かっています。'],['田中 一郎','株式会社D社','サポートが非常に丁寧で安心できます。']].slice(0, options.columns).map(([n,co,t], i) => (
           <div key={i} className="p-5 flex flex-col gap-3" style={{ background: cardBg, border: `1px solid ${bdColor}`, borderRadius: 2 }}>
             <MessageSquare size={16} color={hintColor} />
             <p style={{ fontSize: 9, color: subColor }}>★★★★★</p>
-            <p style={{ fontSize: 11, color: subColor, lineHeight: 1.9, flex: 1 }}>"{t}"</p>
+            <p style={{ fontSize: 11, color: subColor, lineHeight: 1.9, flex: 1 }}>"<EditableText textKey={`testi-${i}`}>{t}</EditableText>"</p>
             <div style={{ borderTop: `1px solid ${bdColor}`, paddingTop: 10 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color }}>{n}</p>
-              <p style={{ fontSize: 10, color: hintColor, marginTop: 2 }}>{co}</p>
+              <p style={{ fontSize: 12, fontWeight: 600, color }}><EditableText textKey={`testi-name-${i}`}>{n}</EditableText></p>
+              <p style={{ fontSize: 10, color: hintColor, marginTop: 2 }}><EditableText textKey={`testi-co-${i}`}>{co}</EditableText></p>
             </div>
           </div>
         ))}
@@ -1818,17 +1846,17 @@ function SectionFaq({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}>FAQ</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>よくある質問</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}><EditableText textKey="label">FAQ</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">よくある質問</EditableText></h2>
       </div>
       <div className="max-w-2xl mx-auto" style={{ borderTop: `1px solid ${bdColor}` }}>
         {faqs.map((f, i) => (
           <div key={i} style={{ borderBottom: `1px solid ${bdColor}` }}>
             <button className="w-full flex justify-between text-left gap-4" style={{ padding: '16px 0', background: 'transparent', border: 'none' }} onClick={() => setOpenIdx(openIdx === i ? null : i)}>
-              <span style={{ fontSize: 13, fontWeight: 600, color }}>Q. {f.q}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color }}>Q. <EditableText textKey={`faq-q-${i}`}>{f.q}</EditableText></span>
               <span style={{ color: subColor, fontSize: 18, flexShrink: 0 }}>{openIdx === i ? '−' : '+'}</span>
             </button>
-            {openIdx === i && <p style={{ fontSize: 13, color: subColor, paddingBottom: 16, lineHeight: 1.8 }}>A. {f.a}</p>}
+            {openIdx === i && <p style={{ fontSize: 13, color: subColor, paddingBottom: 16, lineHeight: 1.8 }}>A. <EditableText textKey={`faq-a-${i}`}>{f.a}</EditableText></p>}
           </div>
         ))}
       </div>
@@ -1840,7 +1868,7 @@ function SectionLogos({ options }: { options: PartOptions }) {
   const py = getSpacingPx(options.spacing)
   return (
     <section className="px-8 text-center" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
-      <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 32 }}>PARTNERS</p>
+      <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 32 }}><EditableText textKey="label">PARTNERS</EditableText></p>
       <div className="flex flex-wrap items-center justify-center gap-6">
         {[100, 80, 120, 90, 110, 75].map((w, i) => (<div key={i} style={{ width: w, height: 28, background: bdColor, borderRadius: 2 }} />))}
       </div>
@@ -1854,15 +1882,15 @@ function SectionPricing({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>PRICING</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>料金プラン</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">PRICING</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">料金プラン</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: getGridCols(options.columns), gap: 20, maxWidth: 960, margin: '0 auto' }}>
         {plans.slice(0, options.columns).map((p,i) => (
           <div key={i} className="p-6 flex flex-col gap-4" style={{ background: p.featured ? cardBg : bg, border: p.featured ? `1.5px solid ${color}` : `1px solid ${bdColor}`, borderRadius: 2 }}>
             {p.featured && <p style={{ fontSize: 9, fontWeight: 700, color, letterSpacing: '0.1em' }}>RECOMMENDED</p>}
-            <p style={{ fontSize: 14, fontWeight: 600, color }}>{p.name}</p>
-            <p style={{ fontSize: 20, fontWeight: 700, color }}>{p.price}</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color }}><EditableText textKey={`plan-name-${i}`}>{p.name}</EditableText></p>
+            <p style={{ fontSize: 20, fontWeight: 700, color }}><EditableText textKey={`plan-price-${i}`}>{p.price}</EditableText></p>
             <div className="flex flex-col gap-2">
               {['機能A','機能B','機能C'].map(f => (<p key={f} style={{ fontSize: 11, color: subColor }}>✓ {f}</p>))}
             </div>
@@ -1878,12 +1906,12 @@ function SectionStats({ options }: { options: PartOptions }) {
   const py = getSpacingPx(options.spacing)
   return (
     <section className="px-8" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
-      <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, textAlign: 'center', marginBottom: 40 }}>NUMBERS</p>
+      <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, textAlign: 'center', marginBottom: 40 }}><EditableText textKey="label">NUMBERS</EditableText></p>
       <div className="grid grid-cols-4 gap-6 max-w-3xl mx-auto text-center">
         {[['1,200+','導入企業数'],['98%','継続率'],['4.8','顧客満足度'],['3×','成果向上']].map(([n,l],i) => (
           <div key={i}>
-            <p style={{ fontSize: 36, fontWeight: 700, color, lineHeight: 1 }}>{n}</p>
-            <p style={{ fontSize: 12, color: subColor, marginTop: 8 }}>{l}</p>
+            <p style={{ fontSize: 36, fontWeight: 700, color, lineHeight: 1 }}><EditableText textKey={`stat-val-${i}`}>{n}</EditableText></p>
+            <p style={{ fontSize: 12, color: subColor, marginTop: 8 }}><EditableText textKey={`stat-lbl-${i}`}>{l}</EditableText></p>
           </div>
         ))}
       </div>
@@ -1897,16 +1925,16 @@ function SectionTeam({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>TEAM</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>チームメンバー</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">TEAM</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">チームメンバー</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: getGridCols(options.columns), gap: 24, maxWidth: 960, margin: '0 auto' }}>
         {members.slice(0, options.columns).map(([n,r],i) => (
           <div key={i} className="flex flex-col items-center gap-3">
             <div style={{ width: 80, height: 80, background: mutedBg, borderRadius: 2 }} />
             <div className="text-center">
-              <p style={{ fontSize: 14, fontWeight: 600, color }}>{n}</p>
-              <p style={{ fontSize: 11, color: subColor, marginTop: 2 }}>{r}</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color }}><EditableText textKey={`member-name-${i}`}>{n}</EditableText></p>
+              <p style={{ fontSize: 11, color: subColor, marginTop: 2 }}><EditableText textKey={`member-role-${i}`}>{r}</EditableText></p>
             </div>
           </div>
         ))}
@@ -1921,8 +1949,8 @@ function SectionBlog({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>BLOG</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>最新の記事</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">BLOG</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">最新の記事</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: getGridCols(options.columns), gap: 20, maxWidth: 960, margin: '0 auto' }}>
         {Array.from({ length: options.columns }).map((_, i) => (
@@ -1942,9 +1970,9 @@ function SectionNewsletter({ options }: { options: PartOptions }) {
   const py = getSpacingPx(options.spacing)
   return (
     <section className="px-8 text-center" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
-      <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 16 }}>NEWSLETTER</p>
-      <h2 style={{ fontSize: 22, fontWeight: 700, color, marginBottom: 8 }}>最新情報を受け取る</h2>
-      <p style={{ fontSize: 13, color: subColor, marginBottom: 24 }}>週1回のニュースレターで最新情報をお届けします。</p>
+      <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 16 }}><EditableText textKey="label">NEWSLETTER</EditableText></p>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color, marginBottom: 8 }}><EditableText textKey="heading">最新情報を受け取る</EditableText></h2>
+      <p style={{ fontSize: 13, color: subColor, marginBottom: 24 }}><EditableText textKey="desc">週1回のニュースレターで最新情報をお届けします。</EditableText></p>
       <div className="flex justify-center gap-3 max-w-sm mx-auto">
         <input style={{ flex: 1, padding: '10px 14px', border: `1px solid ${bdColor}`, borderRadius: 2, fontSize: 13, background: cardBg, color }} placeholder="メールアドレス" readOnly />
         <button style={{ padding: '10px 20px', background: color, color: bg, border: 'none', borderRadius: 2, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>登録する</button>
@@ -1958,16 +1986,16 @@ function SectionSteps({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>HOW IT WORKS</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>導入ステップ</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">HOW IT WORKS</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">導入ステップ</EditableText></h2>
       </div>
       <div className="flex items-start max-w-3xl mx-auto">
         {[['01','アカウント登録','メールアドレスで簡単登録。'],['02','設定する','ガイドに沿って設定。'],['03','公開する','ワンクリックで公開。']].map(([n,t,d],i) => (
           <div key={i} className="flex items-start flex-1">
             <div className="flex flex-col items-center flex-1">
               <div className="flex items-center justify-center mb-4" style={{ width: 36, height: 36, border: `1px solid ${color}`, borderRadius: '50%', fontSize: 11, fontWeight: 700, color }}>{n}</div>
-              <p style={{ fontSize: 13, fontWeight: 600, color, textAlign: 'center', marginBottom: 6 }}>{t}</p>
-              <p style={{ fontSize: 11, color: subColor, textAlign: 'center', lineHeight: 1.7 }}>{d}</p>
+              <p style={{ fontSize: 13, fontWeight: 600, color, textAlign: 'center', marginBottom: 6 }}><EditableText textKey={`step-title-${i}`}>{t}</EditableText></p>
+              <p style={{ fontSize: 11, color: subColor, textAlign: 'center', lineHeight: 1.7 }}><EditableText textKey={`step-desc-${i}`}>{d}</EditableText></p>
             </div>
             {i < 2 && <div style={{ width: 40, height: 1, background: bdColor, marginTop: 18, flexShrink: 0 }} />}
           </div>
@@ -1983,8 +2011,8 @@ function SectionContact({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>CONTACT</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>お問い合わせ</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">CONTACT</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">お問い合わせ</EditableText></h2>
       </div>
       <div className="max-w-lg mx-auto flex flex-col gap-6">
         {['お名前','メールアドレス','メッセージ'].map((l,i) => (
@@ -2005,8 +2033,8 @@ function SectionFooter({ options }: { options: PartOptions }) {
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="flex justify-between max-w-4xl mx-auto mb-10">
         <div>
-          <p style={{ fontSize: 18, fontWeight: 700, color, marginBottom: 8 }}>LOGO</p>
-          <p style={{ fontSize: 12, color: subColor, lineHeight: 1.7 }}>キャッチコピーがここに入ります</p>
+          <p style={{ fontSize: 18, fontWeight: 700, color, marginBottom: 8 }}><EditableText textKey="logo">LOGO</EditableText></p>
+          <p style={{ fontSize: 12, color: subColor, lineHeight: 1.7 }}><EditableText textKey="tagline">キャッチコピーがここに入ります</EditableText></p>
         </div>
         <div className="flex gap-12">
           {[['Company','About','Service','Works'],['Support','FAQ','Contact','Blog']].map((col, ci) => (
@@ -2018,7 +2046,7 @@ function SectionFooter({ options }: { options: PartOptions }) {
         </div>
       </div>
       <div style={{ borderTop: `1px solid ${bdColor}`, paddingTop: 20 }}>
-        <p style={{ fontSize: 11, color: subColor }}>© 2026 Company Name. All rights reserved.</p>
+        <p style={{ fontSize: 11, color: subColor }}><EditableText textKey="copyright">© 2026 Company Name. All rights reserved.</EditableText></p>
       </div>
     </section>
   )
@@ -2029,9 +2057,9 @@ function SectionHeroCenter({ options }: { options: PartOptions }) {
   const py = getSpacingPx(options.spacing)
   return (
     <section className="flex flex-col items-center justify-center text-center gap-6 px-8" style={{ background: bg, minHeight: 440, paddingTop: py, paddingBottom: py }}>
-      <h1 style={{ fontSize: 30, fontWeight: 700, color, lineHeight: 1.3, maxWidth: 480 }}>あなたの事業を、次のステージへ</h1>
-      <p style={{ fontSize: 13, color: subColor, maxWidth: 360, lineHeight: 1.8 }}>サービスの説明テキストがここに入ります。</p>
-      {renderButton(options.buttonStyle, color)}
+      <h1 style={{ fontSize: 30, fontWeight: 700, color, lineHeight: 1.3, maxWidth: 480 }}><EditableText textKey="heading">あなたの事業を、次のステージへ</EditableText></h1>
+      <p style={{ fontSize: 13, color: subColor, maxWidth: 360, lineHeight: 1.8 }}><EditableText textKey="desc">サービスの説明テキストがここに入ります。</EditableText></p>
+      <div style={{ alignSelf: 'center' }}>{renderButton(options.buttonStyle, color)}</div>
     </section>
   )
 }
@@ -2041,9 +2069,9 @@ function SectionHeroSplit({ options }: { options: PartOptions }) {
   return (
     <section className="flex" style={{ background: bg, minHeight: 440 }}>
       <div className="flex-1 flex flex-col justify-center px-12 gap-6" style={{ paddingTop: py, paddingBottom: py }}>
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}>YOUR TAGLINE</p>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}><EditableText textKey="tagline">YOUR TAGLINE</EditableText></p>
         <h1 style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1.3 }}>あなたの事業を<br />次のステージへ</h1>
-        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}>サービスの説明テキスト</p>
+        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}><EditableText textKey="desc">サービスの説明テキスト</EditableText></p>
         {renderButton(options.buttonStyle, color)}
       </div>
       <div className="flex-1" style={{ background: mutedBg, minHeight: 440 }} />
@@ -2057,7 +2085,7 @@ function SectionHeroDarkSplit({ options }: { options: PartOptions }) {
     <section className="flex" style={{ background: bg, minHeight: 440 }}>
       <div className="flex-1 flex flex-col justify-center px-12 gap-6" style={{ paddingTop: py, paddingBottom: py }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1.3 }}>あなたの事業を<br />次のステージへ</h1>
-        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}>サービスの説明テキスト</p>
+        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}><EditableText textKey="desc">サービスの説明テキスト</EditableText></p>
         {renderButton(options.buttonStyle, color)}
       </div>
       <div className="flex-1" style={{ background: mutedBg, minHeight: 440 }} />
@@ -2082,8 +2110,8 @@ function SectionHeroWithVideo({ options }: { options: PartOptions }) {
       <div className="flex items-center justify-center" style={{ width: 56, height: 56, border: `2px solid ${subColor}`, borderRadius: '50%' }}>
         <div style={{ width: 0, height: 0, borderTop: '10px solid transparent', borderBottom: '10px solid transparent', borderLeft: `18px solid ${color}`, marginLeft: 4 }} />
       </div>
-      <h1 style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1.3 }}>あなたの事業を、次のステージへ</h1>
-      {renderButton(options.buttonStyle, color)}
+      <h1 style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1.3 }}><EditableText textKey="heading">あなたの事業を、次のステージへ</EditableText></h1>
+      <div style={{ alignSelf: 'center' }}>{renderButton(options.buttonStyle, color)}</div>
     </section>
   )
 }
@@ -2106,8 +2134,8 @@ function SectionImageGallery({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>GALLERY</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>ギャラリー</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">GALLERY</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">ギャラリー</EditableText></h2>
       </div>
       <div className="grid grid-cols-3 gap-3 max-w-3xl mx-auto">
         {Array.from({ length: 6 }).map((_, i) => (<div key={i} style={{ aspectRatio: '1', background: mutedBg, borderRadius: 2 }} />))}
@@ -2122,9 +2150,9 @@ function SectionImageText({ options }: { options: PartOptions }) {
     <section className="flex" style={{ background: bg, minHeight: 360 }}>
       <div className="flex-1" style={{ background: mutedBg }} />
       <div className="flex-1 flex flex-col justify-center px-12 gap-5" style={{ paddingTop: py, paddingBottom: py }}>
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}>ABOUT</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1.4 }}>セクションタイトル</h2>
-        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.9 }}>サービスの説明テキストがここに入ります。詳細な内容を伝える段落です。</p>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}><EditableText textKey="label">ABOUT</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1.4 }}><EditableText textKey="heading">セクションタイトル</EditableText></h2>
+        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.9 }}><EditableText textKey="desc">サービスの説明テキストがここに入ります。詳細な内容を伝える段落です。</EditableText></p>
         {renderButton(options.buttonStyle, color)}
       </div>
     </section>
@@ -2136,9 +2164,9 @@ function SectionImageTextRight({ options }: { options: PartOptions }) {
   return (
     <section className="flex" style={{ background: bg, minHeight: 360 }}>
       <div className="flex-1 flex flex-col justify-center px-12 gap-5" style={{ paddingTop: py, paddingBottom: py }}>
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}>ABOUT</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1.4 }}>セクションタイトル</h2>
-        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.9 }}>サービスの説明テキストがここに入ります。詳細な内容を伝える段落です。</p>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}><EditableText textKey="label">ABOUT</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1.4 }}><EditableText textKey="heading">セクションタイトル</EditableText></h2>
+        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.9 }}><EditableText textKey="desc">サービスの説明テキストがここに入ります。詳細な内容を伝える段落です。</EditableText></p>
         {renderButton(options.buttonStyle, color)}
       </div>
       <div className="flex-1 flex items-center justify-center" style={{ background: mutedBg }}>
@@ -2156,7 +2184,7 @@ function SectionVideoEmbed({ options }: { options: PartOptions }) {
         <div className="flex items-center justify-center" style={{ width: 56, height: 56, border: `2px solid ${subColor}`, borderRadius: '50%' }}>
           <div style={{ width: 0, height: 0, borderTop: '10px solid transparent', borderBottom: '10px solid transparent', borderLeft: `18px solid ${subColor}`, marginLeft: 4 }} />
         </div>
-        <p style={{ fontSize: 12, color: hintColor }}>動画タイトルが入ります</p>
+        <p style={{ fontSize: 12, color: hintColor }}><EditableText textKey="heading">動画タイトルが入ります</EditableText></p>
       </div>
     </section>
   )
@@ -2205,7 +2233,7 @@ function SectionText2col({ options }: { options: PartOptions }) {
   const py = getSpacingPx(options.spacing)
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
-      <h2 style={{ fontSize: 22, fontWeight: 700, color, textAlign: 'center', marginBottom: 40 }}>セクション見出し</h2>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color, textAlign: 'center', marginBottom: 40 }}><EditableText textKey="heading">セクション見出し</EditableText></h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, maxWidth: 800, margin: '0 auto' }}>
         {[0,1].map(i => (
           <p key={i} style={{ fontSize: 13, color: subColor, lineHeight: 2.0 }}>
@@ -2224,8 +2252,8 @@ function SectionFeatures4colImage({ options }: { options: PartOptions }) {
   return (
     <section className="px-8" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-10">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>FEATURES</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>4つの特徴</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">FEATURES</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">4つの特徴</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: getGridCols(options.columns), gap: 16, maxWidth: 960, margin: '0 auto' }}>
         {titles.slice(0, options.columns).map((title, i) => (
@@ -2234,8 +2262,8 @@ function SectionFeatures4colImage({ options }: { options: PartOptions }) {
               <ImageIcon size={20} color={hintColor} />
             </div>
             <div style={{ padding: '12px 14px' }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color, marginBottom: 6 }}>{title}</p>
-              <p style={{ fontSize: 11, color: subColor, lineHeight: 1.7 }}>機能の説明テキストが入ります。</p>
+              <p style={{ fontSize: 13, fontWeight: 600, color, marginBottom: 6 }}><EditableText textKey={`feat-title-${i}`}>{title}</EditableText></p>
+              <p style={{ fontSize: 11, color: subColor, lineHeight: 1.7 }}><EditableText textKey={`feat-desc-${i}`}>機能の説明テキストが入ります。</EditableText></p>
             </div>
           </div>
         ))}
@@ -2257,16 +2285,16 @@ function SectionTeamHorizontal({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-10">
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>チームメンバー</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">チームメンバー</EditableText></h2>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 640, margin: '0 auto' }}>
         {allMembers.slice(0, count).map((m, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 20, background: cardBg, padding: 20, borderRadius: 4, border: `1px solid ${bdColor}` }}>
             <div style={{ width: 80, height: 80, background: mutedBg, borderRadius: 4, flexShrink: 0 }} />
             <div>
-              <p style={{ fontSize: 10, letterSpacing: '0.15em', color: hintColor, marginBottom: 4 }}>{m.label}</p>
-              <p style={{ fontSize: 16, fontWeight: 700, color, marginBottom: 4 }}>{m.name}</p>
-              <p style={{ fontSize: 12, color: subColor }}>{m.title}</p>
+              <p style={{ fontSize: 10, letterSpacing: '0.15em', color: hintColor, marginBottom: 4 }}><EditableText textKey={`member-label-${i}`}>{m.label}</EditableText></p>
+              <p style={{ fontSize: 16, fontWeight: 700, color, marginBottom: 4 }}><EditableText textKey={`member-name-${i}`}>{m.name}</EditableText></p>
+              <p style={{ fontSize: 12, color: subColor }}><EditableText textKey={`member-title-${i}`}>{m.title}</EditableText></p>
             </div>
           </div>
         ))}
@@ -2281,7 +2309,7 @@ function SectionGallerySlider({ options }: { options: PartOptions }) {
   return (
     <section className="relative" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-10 px-8">
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>ギャラリー</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">ギャラリー</EditableText></h2>
       </div>
       <div style={{ position: 'relative', padding: '0 40px' }}>
         <div style={{ display: 'flex', gap: 12 }}>
@@ -2308,8 +2336,8 @@ function SectionFeaturesIconCircle({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>FEATURES</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>3つの強み</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">FEATURES</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">3つの強み</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: getGridCols(options.columns), gap: 32, maxWidth: 960, margin: '0 auto' }}>
         {items.slice(0, options.columns).map(([Icon, title, desc], i) => (
@@ -2317,8 +2345,8 @@ function SectionFeaturesIconCircle({ options }: { options: PartOptions }) {
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: mutedBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Icon size={26} color={subColor} />
             </div>
-            <p style={{ fontSize: 14, fontWeight: 700, color }}>{title}</p>
-            <p style={{ fontSize: 12, color: subColor, lineHeight: 1.8 }}>{desc}</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color }}><EditableText textKey={`feat-title-${i}`}>{title}</EditableText></p>
+            <p style={{ fontSize: 12, color: subColor, lineHeight: 1.8 }}><EditableText textKey={`feat-desc-${i}`}>{desc}</EditableText></p>
           </div>
         ))}
       </div>
@@ -2331,8 +2359,8 @@ function SectionTestimonialSlider({ options }: { options: PartOptions }) {
   return (
     <section className="relative" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-10 px-8">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>TESTIMONIAL</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>お客様の声</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">TESTIMONIAL</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">お客様の声</EditableText></h2>
       </div>
       <div style={{ position: 'relative', padding: '0 40px' }}>
         <div style={{ display: 'flex', gap: 16 }}>
@@ -2343,9 +2371,9 @@ function SectionTestimonialSlider({ options }: { options: PartOptions }) {
           ].map((t, i) => (
             <div key={i} style={{ flex: 1, background: cardBg, borderRadius: 4, padding: 20, border: `1px solid ${bdColor}` }}>
               <div style={{ height: 80, background: mutedBg, borderRadius: 2, marginBottom: 14 }} />
-              <p style={{ fontSize: 11, color: subColor, lineHeight: 1.8, marginBottom: 12 }}>{t.comment}</p>
-              <p style={{ fontSize: 12, fontWeight: 600, color }}>{t.name}</p>
-              <p style={{ fontSize: 10, color: hintColor }}>{t.company}</p>
+              <p style={{ fontSize: 11, color: subColor, lineHeight: 1.8, marginBottom: 12 }}><EditableText textKey={`testi-${i}`}>{t.comment}</EditableText></p>
+              <p style={{ fontSize: 12, fontWeight: 600, color }}><EditableText textKey={`testi-name-${i}`}>{t.name}</EditableText></p>
+              <p style={{ fontSize: 10, color: hintColor }}><EditableText textKey={`testi-co-${i}`}>{t.company}</EditableText></p>
             </div>
           ))}
         </div>
@@ -2361,8 +2389,8 @@ function SectionSteps5({ options }: { options: PartOptions }) {
   return (
     <section className="px-8" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>PROCESS</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>5ステップで導入完了</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">PROCESS</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">5ステップで導入完了</EditableText></h2>
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 32 }}>
         {['お申し込み', 'ヒアリング', '設計・開発'].map((label, i) => (
@@ -2390,8 +2418,8 @@ function SectionMap({ options }: { options: PartOptions }) {
   return (
     <section style={{ background: bg }}>
       <div className="px-10 text-center" style={{ paddingTop: py, paddingBottom: 24 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color, marginBottom: 8 }}>アクセス</h2>
-        <p style={{ fontSize: 13, color: subColor }}>東京都千代田区〇〇1-2-3</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color, marginBottom: 8 }}><EditableText textKey="heading">アクセス</EditableText></h2>
+        <p style={{ fontSize: 13, color: subColor }}><EditableText textKey="address">東京都千代田区〇〇1-2-3</EditableText></p>
       </div>
       <div style={{ width: '100%', height: 320, background: mutedBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
         <MapPin size={32} color={hintColor} />
@@ -2414,10 +2442,10 @@ function SectionServicesLabeled({ options }: { options: PartOptions }) {
       <div style={{ display: 'grid', gridTemplateColumns: getGridCols(options.columns), gap: 20, maxWidth: 960, margin: '0 auto' }}>
         {services.slice(0, options.columns).map(({ label, title, desc, tag }, i) => (
           <div key={i} style={{ background: cardBg, padding: 20, borderRadius: 4, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <p style={{ fontSize: 9, letterSpacing: '0.2em', color: hintColor, fontWeight: 600 }}>{label}</p>
-            <p style={{ fontSize: 15, fontWeight: 700, color }}>{title}</p>
-            <p style={{ fontSize: 11, color: subColor, lineHeight: 1.8, flex: 1 }}>{desc}</p>
-            <span style={{ fontSize: 10, color: hintColor, border: `1px solid ${bdColor}`, padding: '2px 8px', borderRadius: 99, alignSelf: 'flex-start' }}>{tag}</span>
+            <p style={{ fontSize: 9, letterSpacing: '0.2em', color: hintColor, fontWeight: 600 }}><EditableText textKey={`svc-label-${i}`}>{label}</EditableText></p>
+            <p style={{ fontSize: 15, fontWeight: 700, color }}><EditableText textKey={`svc-title-${i}`}>{title}</EditableText></p>
+            <p style={{ fontSize: 11, color: subColor, lineHeight: 1.8, flex: 1 }}><EditableText textKey={`svc-desc-${i}`}>{desc}</EditableText></p>
+            <span style={{ fontSize: 10, color: hintColor, border: `1px solid ${bdColor}`, padding: '2px 8px', borderRadius: 99, alignSelf: 'flex-start' }}><EditableText textKey={`svc-tag-${i}`}>{tag}</EditableText></span>
           </div>
         ))}
       </div>
@@ -2436,8 +2464,8 @@ function SectionMissionSplit({ options }: { options: PartOptions }) {
           <div style={{ marginTop: 24 }}>{renderButton(options.buttonStyle, color)}</div>
         </div>
         <div style={{ padding: `${py}px 0 ${py}px 40px`, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
-          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.9 }}>私たちは、デザインの力で日本企業のブランド価値を高めることを使命としています。</p>
-          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.9 }}>単なるビジュアル制作にとどまらず、ユーザー体験の設計から事業戦略まで一貫してサポートします。</p>
+          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.9 }}><EditableText textKey="desc-1">私たちは、デザインの力で日本企業のブランド価値を高めることを使命としています。</EditableText></p>
+          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.9 }}><EditableText textKey="desc-2">単なるビジュアル制作にとどまらず、ユーザー体験の設計から事業戦略まで一貫してサポートします。</EditableText></p>
         </div>
       </div>
     </section>
@@ -2450,14 +2478,14 @@ function SectionBulletPoints({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>FEATURES</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>選ばれる理由</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">FEATURES</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">選ばれる理由</EditableText></h2>
       </div>
       <div className="max-w-xl mx-auto flex flex-col gap-5">
         {['導入コストを大幅に削減', '運用効率が3倍にアップ', '24時間のサポート体制', '高い拡張性とカスタマイズ性', '充実したドキュメント'].map((t, i) => (
           <div key={i} className="flex items-center gap-4">
             <span style={{ fontSize: 16, color: subColor }}>✓</span>
-            <span style={{ fontSize: 14, color }}>{ t }</span>
+            <span style={{ fontSize: 14, color }}><EditableText textKey={`bullet-${i}`}>{ t }</EditableText></span>
           </div>
         ))}
       </div>
@@ -2471,8 +2499,8 @@ function SectionIconCards2x2({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>FEATURES</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>4つの特徴</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">FEATURES</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">4つの特徴</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 700, margin: '0 auto' }}>
         {([
@@ -2485,8 +2513,8 @@ function SectionIconCards2x2({ options }: { options: PartOptions }) {
             <div style={{ width: 48, height: 48, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Icon size={22} color={subColor} />
             </div>
-            <p style={{ fontSize: 14, fontWeight: 600, color }}>{title}</p>
-            <p style={{ fontSize: 12, color: subColor, lineHeight: 1.7 }}>{desc}</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color }}><EditableText textKey={`card-title-${i}`}>{title}</EditableText></p>
+            <p style={{ fontSize: 12, color: subColor, lineHeight: 1.7 }}><EditableText textKey={`card-desc-${i}`}>{desc}</EditableText></p>
           </div>
         ))}
       </div>
@@ -2505,8 +2533,8 @@ function SectionTimelineSteps({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>PROCESS</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>導入の流れ</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">PROCESS</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">導入の流れ</EditableText></h2>
       </div>
       <div className="max-w-lg mx-auto flex flex-col">
         {steps.map(([title, desc], i) => (
@@ -2516,8 +2544,8 @@ function SectionTimelineSteps({ options }: { options: PartOptions }) {
               {i < steps.length - 1 && <div style={{ width: 1, flex: 1, background: bdColor }} />}
             </div>
             <div style={{ paddingBottom: i < steps.length - 1 ? 28 : 0 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color, marginBottom: 4 }}>{title}</p>
-              <p style={{ fontSize: 12, color: subColor, lineHeight: 1.8 }}>{desc}</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color, marginBottom: 4 }}><EditableText textKey={`step-title-${i}`}>{title}</EditableText></p>
+              <p style={{ fontSize: 12, color: subColor, lineHeight: 1.8 }}><EditableText textKey={`step-desc-${i}`}>{desc}</EditableText></p>
             </div>
           </div>
         ))}
@@ -2533,11 +2561,11 @@ function SectionQuoteFullscreen({ options }: { options: PartOptions }) {
     <section className="flex flex-col items-center justify-center text-center gap-8 px-10" style={{ background: bg, minHeight: 400, paddingTop: py, paddingBottom: py }}>
       <span style={{ fontSize: 48, color: subColor, lineHeight: 1, fontFamily: 'serif', opacity: 0.3 }}>"</span>
       <p style={{ fontSize: 22, color, lineHeight: 1.7, maxWidth: 600, fontStyle: 'italic', fontWeight: 300 }}>
-        このサービスのおかげで、私たちのビジネスは大きく変わりました。心からおすすめします。
+        <EditableText textKey="quote">このサービスのおかげで、私たちのビジネスは大きく変わりました。心からおすすめします。</EditableText>
       </p>
       <div>
-        <p style={{ fontSize: 13, fontWeight: 600, color }}>山田 太郎</p>
-        <p style={{ fontSize: 11, color: subColor, marginTop: 4 }}>株式会社A CEO</p>
+        <p style={{ fontSize: 13, fontWeight: 600, color }}><EditableText textKey="name">山田 太郎</EditableText></p>
+        <p style={{ fontSize: 11, color: subColor, marginTop: 4 }}><EditableText textKey="company">株式会社A CEO</EditableText></p>
       </div>
     </section>
   )
@@ -2549,10 +2577,10 @@ function SectionQuoteSideAccent({ options }: { options: PartOptions }) {
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="max-w-2xl mx-auto" style={{ borderLeft: `4px solid ${color}`, paddingLeft: 32 }}>
         <p style={{ fontSize: 18, color, lineHeight: 1.8, fontStyle: 'italic', marginBottom: 16 }}>
-          "導入後3ヶ月で問い合わせが2倍に増えました。サポートも手厚く、安心して利用しています。"
+          "<EditableText textKey="quote">導入後3ヶ月で問い合わせが2倍に増えました。サポートも手厚く、安心して利用しています。</EditableText>"
         </p>
-        <p style={{ fontSize: 13, fontWeight: 600, color }}>鈴木 花子</p>
-        <p style={{ fontSize: 11, color: subColor, marginTop: 2 }}>合同会社B マーケティング部長</p>
+        <p style={{ fontSize: 13, fontWeight: 600, color }}><EditableText textKey="name">鈴木 花子</EditableText></p>
+        <p style={{ fontSize: 11, color: subColor, marginTop: 2 }}><EditableText textKey="company">合同会社B マーケティング部長</EditableText></p>
       </div>
     </section>
   )
@@ -2563,16 +2591,16 @@ function SectionBeforeAfter({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>Before / After</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">Before / After</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 800, margin: '0 auto' }}>
         <div className="p-6 flex flex-col gap-4" style={{ background: mutedBg, borderRadius: 4 }}>
           <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, fontWeight: 600 }}>BEFORE</p>
-          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}>作業に時間がかかり、チーム間の連携もスムーズではありませんでした。</p>
+          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}><EditableText textKey="before">作業に時間がかかり、チーム間の連携もスムーズではありませんでした。</EditableText></p>
         </div>
         <div className="p-6 flex flex-col gap-4" style={{ background: cardBg, border: `1.5px solid ${color}`, borderRadius: 4 }}>
           <p style={{ fontSize: 10, letterSpacing: '0.2em', color, fontWeight: 600 }}>AFTER</p>
-          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}>導入後、作業時間は半減。チームの生産性が大幅に向上しました。</p>
+          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}><EditableText textKey="after">導入後、作業時間は半減。チームの生産性が大幅に向上しました。</EditableText></p>
         </div>
       </div>
     </section>
@@ -2584,7 +2612,7 @@ function SectionCompareTwoOption({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>プランを選ぶ</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">プランを選ぶ</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 700, margin: '0 auto' }}>
         {[
@@ -2611,14 +2639,14 @@ function SectionProblemBackground({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>PROBLEM</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>こんな課題ありませんか？</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">PROBLEM</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">こんな課題ありませんか？</EditableText></h2>
       </div>
       <div className="max-w-xl mx-auto flex flex-col gap-6">
         {['集客が思うように伸びない', 'コンバージョン率が低い', '運用コストが高すぎる', 'チーム間の連携が取れない'].map((t, i) => (
           <div key={i} className="flex items-start gap-4">
             <span style={{ fontSize: 14, fontWeight: 700, color: subColor, flexShrink: 0 }}>!</span>
-            <p style={{ fontSize: 14, color, lineHeight: 1.7 }}>{t}</p>
+            <p style={{ fontSize: 14, color, lineHeight: 1.7 }}><EditableText textKey={`problem-${i}`}>{t}</EditableText></p>
           </div>
         ))}
       </div>
@@ -2636,7 +2664,7 @@ function SectionMissionStatement({ options }: { options: PartOptions }) {
       </h1>
       <div style={{ width: 40, height: 1, background: subColor, opacity: 0.3 }} />
       <p style={{ fontSize: 13, color: subColor, maxWidth: 420, lineHeight: 1.8 }}>
-        私たちは、テクノロジーとクリエイティビティの融合で、より良い未来を創造します。
+        <EditableText textKey="desc">私たちは、テクノロジーとクリエイティビティの融合で、より良い未来を創造します。</EditableText>
       </p>
     </section>
   )
@@ -2651,7 +2679,7 @@ function SectionImageCaption({ options }: { options: PartOptions }) {
         <div style={{ aspectRatio: '16/9', background: getBgStyle('light').mutedBg, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
           <ImageIcon size={36} color={hintColor} />
         </div>
-        <p style={{ fontSize: 12, color, lineHeight: 1.7 }}>画像のキャプションテキストがここに入ります。撮影場所や説明を記載できます。</p>
+        <p style={{ fontSize: 12, color, lineHeight: 1.7 }}><EditableText textKey="caption">画像のキャプションテキストがここに入ります。撮影場所や説明を記載できます。</EditableText></p>
       </div>
     </section>
   )
@@ -2662,8 +2690,8 @@ function SectionImageThreeGrid({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>GALLERY</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>フォトギャラリー</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">GALLERY</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">フォトギャラリー</EditableText></h2>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, maxWidth: 900, margin: '0 auto' }}>
         {[0, 1, 2].map(i => (
@@ -2684,8 +2712,8 @@ function SectionBigNumber({ options }: { options: PartOptions }) {
       <div className="flex justify-center gap-16 max-w-3xl mx-auto text-center">
         {[['98%', '顧客満足度'], ['3x', '成果向上'], ['24h', 'サポート対応']].map(([n, l], i) => (
           <div key={i}>
-            <p style={{ fontSize: 64, fontWeight: 700, color, lineHeight: 1 }}>{n}</p>
-            <p style={{ fontSize: 13, color: subColor, marginTop: 12 }}>{l}</p>
+            <p style={{ fontSize: 64, fontWeight: 700, color, lineHeight: 1 }}><EditableText textKey={`num-val-${i}`}>{n}</EditableText></p>
+            <p style={{ fontSize: 13, color: subColor, marginTop: 12 }}><EditableText textKey={`num-lbl-${i}`}>{l}</EditableText></p>
           </div>
         ))}
       </div>
@@ -2700,8 +2728,8 @@ function SectionChartBar({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>DATA</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>月別推移</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">DATA</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">月別推移</EditableText></h2>
       </div>
       <div className="max-w-xl mx-auto flex items-end gap-4" style={{ height: 200, borderBottom: `1px solid ${bdColor}` }}>
         {data.map((d, i) => (
@@ -2721,8 +2749,8 @@ function SectionChartDonut({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>DATA</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>顧客満足度</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">DATA</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">顧客満足度</EditableText></h2>
       </div>
       <div className="flex flex-col items-center gap-8">
         <div style={{ position: 'relative', width: 180, height: 180 }}>
@@ -2754,8 +2782,8 @@ function SectionChartLine({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>TREND</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>成長推移</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">TREND</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">成長推移</EditableText></h2>
       </div>
       <div className="flex justify-center">
         <svg viewBox={`-30 -10 ${w + 40} ${h + 30}`} width={w + 40} height={h + 40} style={{ maxWidth: '100%' }}>
@@ -2809,8 +2837,8 @@ function SectionCompareTable({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>COMPARE</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>プラン比較</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">COMPARE</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">プラン比較</EditableText></h2>
       </div>
       <div className="max-w-2xl mx-auto" style={{ background: cardBg, borderRadius: 4, border: `1px solid ${bdColor}`, overflow: 'hidden' }}>
         <div className="flex" style={{ borderBottom: `1px solid ${bdColor}`, background: bg }}>
@@ -2839,7 +2867,7 @@ function SectionClosingThankyou({ options }: { options: PartOptions }) {
   const py = getSpacingPx(options.spacing)
   return (
     <section className="flex flex-col items-center justify-center text-center gap-6 px-10" style={{ background: bg, minHeight: 400, paddingTop: py, paddingBottom: py }}>
-      <h1 style={{ fontSize: 40, fontWeight: 300, color, letterSpacing: '0.1em' }}>Thank You</h1>
+      <h1 style={{ fontSize: 40, fontWeight: 300, color, letterSpacing: '0.1em' }}><EditableText textKey="heading">Thank You</EditableText></h1>
       <p style={{ fontSize: 13, color: subColor, maxWidth: 400, lineHeight: 1.8 }}>
         ご清聴ありがとうございました。<br />ご不明点がございましたら、お気軽にお問い合わせください。
       </p>
@@ -2854,8 +2882,8 @@ function SectionClosingContactCard({ options }: { options: PartOptions }) {
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="max-w-md mx-auto p-8 flex flex-col gap-5" style={{ background: cardBg, border: `1px solid ${bdColor}`, borderRadius: 4 }}>
         <div className="text-center mb-4">
-          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>CONTACT</p>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color }}>お問い合わせ</h2>
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">CONTACT</EditableText></p>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color }}><EditableText textKey="heading">お問い合わせ</EditableText></h2>
         </div>
         {[
           ['✉', 'info@example.com'],
@@ -2878,18 +2906,18 @@ function SectionSpeakerBio({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>SPEAKER</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>スピーカー紹介</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">SPEAKER</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">スピーカー紹介</EditableText></h2>
       </div>
       <div className="max-w-xl mx-auto flex gap-8 items-center">
         <div style={{ width: 120, height: 120, borderRadius: '50%', background: mutedBg, flexShrink: 0 }} />
         <div className="flex flex-col gap-3">
           <div>
-            <p style={{ fontSize: 18, fontWeight: 700, color }}>山田 太郎</p>
-            <p style={{ fontSize: 12, color: subColor, marginTop: 4 }}>株式会社A 代表取締役</p>
+            <p style={{ fontSize: 18, fontWeight: 700, color }}><EditableText textKey="name">山田 太郎</EditableText></p>
+            <p style={{ fontSize: 12, color: subColor, marginTop: 4 }}><EditableText textKey="title">株式会社A 代表取締役</EditableText></p>
           </div>
           <p style={{ fontSize: 12, color: subColor, lineHeight: 1.8 }}>
-            2010年に創業。デザインとテクノロジーの融合を通じて、多くの企業のDXを支援してきた。講演多数。
+            <EditableText textKey="bio">2010年に創業。デザインとテクノロジーの融合を通じて、多くの企業のDXを支援してきた。講演多数。</EditableText>
           </p>
         </div>
       </div>
@@ -2909,7 +2937,7 @@ function SectionAgendaToc({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>Agenda</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">Agenda</EditableText></h2>
       </div>
       <div className="max-w-lg mx-auto flex flex-col">
         {items.map(([num, title, time], i) => (
@@ -2930,8 +2958,8 @@ function SectionHeroSlider({ options }: { options: PartOptions }) {
   return (
     <section className="relative flex items-center justify-center text-center px-8" style={{ background: bg, minHeight: 440, paddingTop: py, paddingBottom: py }}>
       <div className="flex flex-col gap-5 z-10 items-center">
-        <h1 style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1.35 }}>スライド1: メインビジュアル</h1>
-        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}>キャプションテキストがここに入ります</p>
+        <h1 style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1.35 }}><EditableText textKey="heading">スライド1: メインビジュアル</EditableText></h1>
+        <p style={{ fontSize: 13, color: subColor, lineHeight: 1.8 }}><EditableText textKey="desc">キャプションテキストがここに入ります</EditableText></p>
         {renderButton(options.buttonStyle, color)}
       </div>
       <button style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', width: 40, height: 40, background: 'rgba(128,128,128,0.2)', border: 'none', color, fontSize: 22, cursor: 'pointer', borderRadius: 2 }}>‹</button>
@@ -3173,7 +3201,7 @@ function SectionMarqueeStatement({ options }: { options: PartOptions }) {
   return (
     <section style={{ background: bg, paddingTop: py, paddingBottom: py, overflow: 'hidden' }}>
       <p style={{ fontSize: 'clamp(40px, 6vw, 80px)', fontWeight: 300, color, whiteSpace: 'nowrap', letterSpacing: '-0.02em' }}>
-        Rewriting the future of design — Creating value through creativity —
+        <EditableText textKey="statement">Rewriting the future of design — Creating value through creativity —</EditableText>
       </p>
     </section>
   )
@@ -3190,8 +3218,8 @@ function SectionWorksGrid({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>WORKS</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>実績・事例</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">WORKS</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">実績・事例</EditableText></h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
         {works.map((w, i) => (
@@ -3223,15 +3251,15 @@ function SectionUspNumbered({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>WHY US</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>選ばれる理由</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">WHY US</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">選ばれる理由</EditableText></h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-        {items.map(item => (
+        {items.map((item, i) => (
           <div key={item.n} style={{ borderBottom: `1px solid ${bdColor}`, paddingBottom: 20 }}>
             <span style={{ fontSize: 28, fontWeight: 300, color: hintColor }}>{item.n}</span>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color, marginTop: 12 }}>{item.title}</h3>
-            <p style={{ fontSize: 13, color: subColor, lineHeight: 1.7, marginTop: 8 }}>{item.desc}</p>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color, marginTop: 12 }}><EditableText textKey={`usp-title-${i}`}>{item.title}</EditableText></h3>
+            <p style={{ fontSize: 13, color: subColor, lineHeight: 1.7, marginTop: 8 }}><EditableText textKey={`usp-desc-${i}`}>{item.desc}</EditableText></p>
           </div>
         ))}
       </div>
@@ -3251,8 +3279,8 @@ function SectionKnowledgeList({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>KNOWLEDGE</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>ナレッジ</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">KNOWLEDGE</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">ナレッジ</EditableText></h2>
       </div>
       <div className="max-w-3xl mx-auto">
         {articles.map((a, i) => (
@@ -3281,8 +3309,8 @@ function SectionProductCards({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="text-center mb-12">
-        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}>PRODUCTS</p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>商品・サービス</h2>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor, marginBottom: 8 }}><EditableText textKey="label">PRODUCTS</EditableText></p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">商品・サービス</EditableText></h2>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
         {products.map((p, i) => (
@@ -3291,8 +3319,8 @@ function SectionProductCards({ options }: { options: PartOptions }) {
               <ImageIcon size={28} color={hintColor} />
             </div>
             <div style={{ padding: '14px 16px' }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color }}>{p.name}</p>
-              <p style={{ fontSize: 13, color: subColor, marginTop: 4 }}>{p.price}</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color }}><EditableText textKey={`prod-name-${i}`}>{p.name}</EditableText></p>
+              <p style={{ fontSize: 13, color: subColor, marginTop: 4 }}><EditableText textKey={`prod-price-${i}`}>{p.price}</EditableText></p>
               <p style={{ fontSize: 12, color: subColor, marginTop: 8, cursor: 'pointer' }}>詳しく見る →</p>
             </div>
           </div>
@@ -3310,7 +3338,7 @@ function SectionScrollStatement({ options }: { options: PartOptions }) {
         未来をつくる、<br />その一歩を。
       </h2>
       <p style={{ fontSize: 13, color: subColor, maxWidth: 400 }}>
-        私たちと一緒に、新しい価値を生み出しませんか。
+        <EditableText textKey="desc">私たちと一緒に、新しい価値を生み出しませんか。</EditableText>
       </p>
       {renderButton(options.buttonStyle, color)}
       <div className="flex flex-col items-center gap-2 mt-4">
@@ -3327,7 +3355,7 @@ function SectionHorizontalScrollCards({ options }: { options: PartOptions }) {
   return (
     <section className="px-10" style={{ background: bg, paddingTop: py, paddingBottom: py }}>
       <div className="flex items-center justify-between mb-8">
-        <h2 style={{ fontSize: 22, fontWeight: 700, color }}>プロジェクト</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color }}><EditableText textKey="heading">プロジェクト</EditableText></h2>
         <div className="flex gap-2">
           <span style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${bdColor}`, borderRadius: 4, fontSize: 14, color: hintColor, cursor: 'pointer' }}>＜</span>
           <span style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${bdColor}`, borderRadius: 4, fontSize: 14, color: hintColor, cursor: 'pointer' }}>＞</span>
@@ -3340,8 +3368,8 @@ function SectionHorizontalScrollCards({ options }: { options: PartOptions }) {
               <ImageIcon size={24} color={hintColor} />
             </div>
             <div style={{ padding: '12px 16px' }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color }}>{c}</p>
-              <p style={{ fontSize: 12, color: subColor, marginTop: 4 }}>プロジェクトの説明テキスト</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color }}><EditableText textKey={`card-title-${i}`}>{c}</EditableText></p>
+              <p style={{ fontSize: 12, color: subColor, marginTop: 4 }}><EditableText textKey={`card-desc-${i}`}>プロジェクトの説明テキスト</EditableText></p>
             </div>
           </div>
         ))}
@@ -3359,9 +3387,9 @@ function SectionCtaWithImage({ options }: { options: PartOptions }) {
           <ImageIcon size={36} color={hintColor} />
         </div>
         <div className="flex flex-col justify-center gap-4 px-10 py-8">
-          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}>CONTACT</p>
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: hintColor }}><EditableText textKey="label">CONTACT</EditableText></p>
           <h2 style={{ fontSize: 24, fontWeight: 700, color, lineHeight: 1.3 }}>まずはお気軽に<br />ご相談ください</h2>
-          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.7 }}>プロジェクトの規模を問わず、お気軽にお問い合わせください。</p>
+          <p style={{ fontSize: 13, color: subColor, lineHeight: 1.7 }}><EditableText textKey="desc">プロジェクトの規模を問わず、お気軽にお問い合わせください。</EditableText></p>
           {renderButton(options.buttonStyle, color)}
         </div>
       </div>
@@ -3376,7 +3404,7 @@ function SectionHeroFullbleedText({ options }: { options: PartOptions }) {
       <h1 style={{ fontSize: 'clamp(48px, 7vw, 120px)', fontWeight: 300, color, lineHeight: 1.05, letterSpacing: '-0.03em' }}>
         Design<br />Matters.
       </h1>
-      <p style={{ fontSize: 14, color: subColor, maxWidth: 400 }}>テクノロジーとクリエイティビティの融合で、より良い未来を創造します。</p>
+      <p style={{ fontSize: 14, color: subColor, maxWidth: 400 }}><EditableText textKey="desc">テクノロジーとクリエイティビティの融合で、より良い未来を創造します。</EditableText></p>
       {renderButton(options.buttonStyle, color)}
     </section>
   )
@@ -3389,7 +3417,7 @@ function SectionHeroSplitTicker({ options }: { options: PartOptions }) {
       <div className="grid grid-cols-1 md:grid-cols-2" style={{ minHeight: '80vh', paddingTop: py, paddingBottom: 0 }}>
         <div className="flex flex-col justify-center gap-5 px-10 py-12">
           <h1 style={{ fontSize: 32, fontWeight: 700, color, lineHeight: 1.2 }}>ブランドを、<br />もっと強くする。</h1>
-          <p style={{ fontSize: 14, color: hintColor, lineHeight: 1.7 }}>Web・映像・ブランディングで、ビジネスの成長を加速させます。</p>
+          <p style={{ fontSize: 14, color: hintColor, lineHeight: 1.7 }}><EditableText textKey="desc">Web・映像・ブランディングで、ビジネスの成長を加速させます。</EditableText></p>
           {renderButton(options.buttonStyle, color)}
         </div>
         <div style={{ background: options.bgColor === 'dark' ? '#3C3C3C' : '#E8E8E8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -3415,9 +3443,9 @@ function SectionImageOverlayText({ options }: { options: PartOptions }) {
       <div className="relative max-w-5xl mx-auto px-10" style={{ aspectRatio: '16/9', background: options.bgColor === 'dark' ? '#3C3C3C' : '#DCDCDC', borderRadius: 4, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <ImageIcon size={48} color={hintColor} />
         <div className="absolute inset-x-0 bottom-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', padding: '40px 32px 24px' }}>
-          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: 'rgba(244,244,244,0.5)', marginBottom: 8 }}>ABOUT</p>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.3 }}>テキストオーバーレイ</h2>
-          <p style={{ fontSize: 13, color: 'rgba(244,244,244,0.7)', marginTop: 8 }}>画像の上にテキストを重ねるレイアウトです。</p>
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', color: 'rgba(244,244,244,0.5)', marginBottom: 8 }}><EditableText textKey="label">ABOUT</EditableText></p>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.3 }}><EditableText textKey="heading">テキストオーバーレイ</EditableText></h2>
+          <p style={{ fontSize: 13, color: 'rgba(244,244,244,0.7)', marginTop: 8 }}><EditableText textKey="desc">画像の上にテキストを重ねるレイアウトです。</EditableText></p>
         </div>
       </div>
     </section>
@@ -3496,7 +3524,21 @@ const SECTION_MAP: Record<PartId, React.FC<{ options: PartOptions }>> = {
 }
 
 // ── Prompt generators ────────────────────────────────────────────────────
-function genChatPrompt(parts: SelectedPart[], fontId?: string | null): string {
+function formatTextEdits(parts: SelectedPart[], textEdits?: TextEdits): string {
+  if (!textEdits || Object.keys(textEdits).length === 0) return ''
+  const lines: string[] = []
+  for (const sp of parts) {
+    const prefix = `${sp.uid}:`
+    const edits = Object.entries(textEdits).filter(([k]) => k.startsWith(prefix))
+    if (edits.length === 0) continue
+    const partName = PARTS.find(p => p.id === sp.id)!.name
+    lines.push(`\n### ${partName}`)
+    edits.forEach(([k, v]) => lines.push(`- ${k.slice(prefix.length)}: ${v}`))
+  }
+  return lines.length > 0 ? `\n\n## カスタムテキスト\n以下のテキストをそのまま使用してください:${lines.join('\n')}` : ''
+}
+
+function genChatPrompt(parts: SelectedPart[], fontId?: string | null, textEdits?: TextEdits): string {
   const contentParts = parts.filter(sp => !ANIM_IDS.has(sp.id))
   const animParts    = parts.filter(sp => ANIM_IDS.has(sp.id))
   const list = contentParts.map((sp, i) => {
@@ -3524,10 +3566,10 @@ ${list}
 - CTAボタンは目立つ色にしてください
 
 ## 出力形式
-HTMLファイル1つにまとめて出力してください。${animSection}${fontSection}`
+HTMLファイル1つにまとめて出力してください。${animSection}${fontSection}${formatTextEdits(contentParts, textEdits)}`
 }
 
-function genCodePrompt(parts: SelectedPart[], path: string, fontId?: string | null): string {
+function genCodePrompt(parts: SelectedPart[], path: string, fontId?: string | null, textEdits?: TextEdits): string {
   const contentParts = parts.filter(sp => !ANIM_IDS.has(sp.id))
   const animParts    = parts.filter(sp => ANIM_IDS.has(sp.id))
   const contentIds = contentParts.map(sp => sp.id)
@@ -3605,7 +3647,7 @@ ${guides}
 ■ 全体確認
 - 実装後に各セクションの間に不自然な空白がないか確認する
 - デベロッパーツールで各セクションの高さを確認して
-  意図せず大きなスペースが生まれていないか検証する`
+  意図せず大きなスペースが生まれていないか検証する${formatTextEdits(contentParts, textEdits)}`
 }
 
 // ── Options Panel ─────────────────────────────────────────────────────────
@@ -3773,6 +3815,10 @@ export default function LPlusPage() {
   const [selectedFontId, setSelectedFontId]         = useState<string | null>(null)
   const [fontCategoryFilter, setFontCategoryFilter] = useState('すべて')
   const [pptxGenerating, setPptxGenerating]         = useState(false)
+  const [textEdits, setTextEdits] = useState<TextEdits>({})
+  const updateText = useCallback((uid: number, key: string, value: string) => {
+    setTextEdits(prev => ({ ...prev, [`${uid}:${key}`]: value }))
+  }, [])
 
   // Derived: selected font object
   const selectedFont = selectedFontId ? (FONT_LIST.find(f => f.id === selectedFontId) ?? null) : null
@@ -3836,8 +3882,8 @@ export default function LPlusPage() {
   }
 
   const promptText =
-    promptTab === 'chat' ? genChatPrompt(selectedParts, selectedFontId) :
-    promptTab === 'code' ? genCodePrompt(selectedParts, pagePath.trim() || 'lp', selectedFontId) : ''
+    promptTab === 'chat' ? genChatPrompt(selectedParts, selectedFontId, textEdits) :
+    promptTab === 'code' ? genCodePrompt(selectedParts, pagePath.trim() || 'lp', selectedFontId, textEdits) : ''
 
   async function handleCopy() {
     await navigator.clipboard.writeText(promptText)
@@ -4642,6 +4688,8 @@ export default function LPlusPage() {
       addTxt(last, 'LP.LUS', { x: 0, y: 5.0, w: 10, h: 0.4, fontSize: 12, color: '888888', align: 'center', fontFace: 'Calibri' })
 
       await prs.writeFile({ fileName: `lp-plan-${dateStr}.pptx` })
+    } catch (err) {
+      console.error('[lplus] generatePptx error:', err)
     } finally {
       setPptxGenerating(false)
     }
@@ -4655,7 +4703,7 @@ export default function LPlusPage() {
       const { toJpeg } = await import('html-to-image')
       const now = new Date()
       const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`
-      const dataUrl = await toJpeg(el, { quality: 0.95, height: el.scrollHeight })
+      const dataUrl = await toJpeg(el, { quality: 0.95, width: el.scrollWidth, height: el.scrollHeight })
       const link = document.createElement('a')
       link.download = `lp-preview-${dateStr}.jpg`
       link.href = dataUrl
@@ -4872,6 +4920,7 @@ export default function LPlusPage() {
                     </div>
                   </div>
                 )}
+                <p style={{ fontSize: 11, color: C.hint }}>テキストをクリックして編集できます</p>
                 <p className="font-bold tracking-widest uppercase" style={{ fontSize: 10, color: C.hint }}>プロンプト</p>
 
                 <div className="flex items-center gap-2">
@@ -4937,23 +4986,29 @@ export default function LPlusPage() {
                 <p style={{ fontSize: 12, color: C.hint }}>左のリストにパーツを追加するとここにプレビューが表示されます</p>
               </div>
             ) : (
-              <div ref={lpPreviewRef} className="lplus-preview">
-                {selectedParts.map(sp => {
-                  const Section = SECTION_MAP[sp.id]
-                  if (ANIM_IDS.has(sp.id)) return <Section key={sp.uid} options={sp.options} />
-                  return (
-                    <AnimatedSectionWrapper
-                      key={sp.uid}
-                      scrollAnimId={activeScrollAnimId}
-                      textAnimId={activeTextAnimId}
-                      btnAnimId={activeBtnAnimId}
-                      rootRef={modalRightRef}
-                    >
-                      <Section options={sp.options} />
-                    </AnimatedSectionWrapper>
-                  )
-                })}
-              </div>
+              <TextEditContext.Provider value={{ edits: textEdits, updateText }}>
+                <div ref={lpPreviewRef} className="lplus-preview" lang="ja">
+                  {selectedParts.map(sp => {
+                    const Section = SECTION_MAP[sp.id]
+                    return (
+                      <SectionUidContext.Provider key={sp.uid} value={sp.uid}>
+                        {ANIM_IDS.has(sp.id) ? (
+                          <Section options={sp.options} />
+                        ) : (
+                          <AnimatedSectionWrapper
+                            scrollAnimId={activeScrollAnimId}
+                            textAnimId={activeTextAnimId}
+                            btnAnimId={activeBtnAnimId}
+                            rootRef={modalRightRef}
+                          >
+                            <Section options={sp.options} />
+                          </AnimatedSectionWrapper>
+                        )}
+                      </SectionUidContext.Provider>
+                    )
+                  })}
+                </div>
+              </TextEditContext.Provider>
             )}
           </main>
         </div>
