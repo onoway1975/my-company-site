@@ -39,35 +39,37 @@ export function WorksGrid({ works }: { works: Work[] }) {
         ))}
       </div>
 
-      {/* SP: List */}
-      <div className="lg:hidden">
-        {filtered.map((work, i, arr) => (
+      {/* SP: Grid 2col */}
+      <div className="lg:hidden grid grid-cols-2 gap-3">
+        {filtered.map((work) => (
           <Link
             key={work.slug}
             href={`/works/${work.slug}`}
             data-gtm-click="works_card"
             data-gtm-location="works_section"
             data-gtm-label={work.slug}
-            className={`group flex items-center gap-4 py-4 hover:opacity-70 transition-opacity duration-200${i < arr.length - 1 ? " border-b border-dashed border-[#e2e2e2]" : ""}`}
+            className="group bg-white border border-[#e8e8e8] rounded-[1.25rem] p-5 hover:scale-[1.02] hover:shadow-md transition-all duration-200"
           >
-            {work.thumbnail ? (
-              <Image
-                src={work.thumbnail}
-                alt={work.title}
-                width={56}
-                height={56}
-                className="w-14 h-14 rounded-xl object-cover shrink-0"
-                sizes="56px"
-              />
-            ) : (
-              <div className="w-14 h-14 rounded-xl bg-surface shrink-0" />
-            )}
-            <div className="flex-1 min-w-0 pointer-events-none" style={{ pointerEvents: "none" }}>
-              <p className="text-[10px] tracking-[0.1em] text-muted uppercase mb-1">
-                {work.category.join(" / ")}
-              </p>
-              <p className="text-sm font-bold text-ink leading-snug">{work.title}</p>
+            <div className="overflow-hidden rounded-[0.75rem] aspect-[4/3] bg-surface mb-4 pointer-events-none">
+              {work.thumbnail ? (
+                <Image
+                  src={work.thumbnail}
+                  alt={work.title}
+                  width={800}
+                  height={600}
+                  className="w-full h-full object-cover object-center"
+                  sizes="50vw"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full">
+                  <span className="text-[9px] tracking-widest text-muted uppercase">ciraf</span>
+                </div>
+              )}
             </div>
+            <p className="text-[0.75rem] tracking-[0.1em] text-[#888888] uppercase mb-1">
+              {work.category.join(" / ")}
+            </p>
+            <h3 className="text-base font-bold text-ink">{work.title}</h3>
           </Link>
         ))}
       </div>
