@@ -264,16 +264,28 @@ export default function FogmailPage() {
   }
 
   function fogErase(ctx: CanvasRenderingContext2D, from: { x: number; y: number }, to: { x: number; y: number }) {
+    const r = 14 * dpr.current;
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const step = 2 * dpr.current;
+    const steps = Math.max(1, Math.ceil(dist / step));
+
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
-    ctx.lineWidth = 14 * dpr.current;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = "rgba(0,0,0,1)";
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const x = from.x + dx * t;
+      const y = from.y + dy * t;
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+      grad.addColorStop(0, "rgba(0,0,0,1)");
+      grad.addColorStop(0.5, "rgba(0,0,0,0.5)");
+      grad.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
   }
 
