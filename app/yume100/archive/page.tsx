@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Anthropic from "@anthropic-ai/sdk";
 import { supabaseAdmin } from "@/lib/supabase";
+
+export const metadata: Metadata = {
+  title: "提案書アーカイブ | ゆめハンドレッド",
+  description:
+    "100人の指が止まった夢の一覧です。みんなの未来への提案書をご覧ください。",
+};
 
 export const revalidate = 0;
 

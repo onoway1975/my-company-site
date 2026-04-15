@@ -294,7 +294,8 @@
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: アーカイブページの宣言書を提案書に変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfeat: noteカードに本文冒頭50字の説明文を追加\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)",
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: worksページSP用一覧を2列グリッド・トップと同カードスタイルに変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)",
-      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: worksページSP用一覧を1列グリッドに変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)"
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: worksページSP用一覧を1列グリッドに変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)",
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: OGP画像パスをjpgに変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)"
     ]
   }
 }
