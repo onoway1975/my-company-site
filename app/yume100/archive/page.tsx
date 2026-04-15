@@ -84,7 +84,7 @@ export default async function YumeArchivePage() {
       <div className="max-w-3xl mx-auto px-6 py-16">
         <header className="text-center mb-12">
           <h1 className="text-3xl font-bold text-[#111]">
-            宣言書アーカイブ
+            提案書アーカイブ
           </h1>
           <p className="text-sm text-[#767676] mt-2">
             100人の「この指止まれ」が集まった夢たち
@@ -118,7 +118,7 @@ export default async function YumeArchivePage() {
                     {proposal ? (
                       <div className="bg-[#FFFDF7] rounded-xl p-4 border border-[#F5A623]/20">
                         <p className="text-[10px] tracking-[0.2em] text-[#F5A623] uppercase mb-2 font-bold">
-                          宣言書
+                          提案書
                         </p>
                         <p className="text-base font-bold text-[#111] mb-1">
                           {proposal.title}
@@ -130,7 +130,7 @@ export default async function YumeArchivePage() {
                     ) : dream.proposal_text ? (
                       <div className="bg-[#FFFDF7] rounded-xl p-4 border border-[#F5A623]/20">
                         <p className="text-[10px] tracking-[0.2em] text-[#F5A623] uppercase mb-2 font-bold">
-                          宣言書
+                          提案書
                         </p>
                         <p className="text-sm text-[#111] leading-relaxed whitespace-pre-wrap">
                           {dream.proposal_text}
@@ -139,7 +139,7 @@ export default async function YumeArchivePage() {
                     ) : (
                       <div className="bg-[#FFFDF7] rounded-xl p-4 border border-[#e2e2e2]">
                         <p className="text-sm text-[#767676] text-center">
-                          宣言書の生成に失敗しました
+                          提案書の生成に失敗しました
                         </p>
                       </div>
                     )}
