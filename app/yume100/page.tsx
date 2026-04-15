@@ -80,7 +80,7 @@ function DreamCard({
 
   return (
     <div
-      className="rounded-2xl overflow-hidden mb-4 break-inside-avoid"
+      className="rounded-2xl overflow-hidden"
       style={{ backgroundColor: color }}
     >
       <div className="relative">
@@ -112,13 +112,15 @@ function DreamCard({
             }}
           />
         </div>
-        <div className="flex items-center justify-between">
+        {/* SP: 2段 / PC: 横一列 */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-1 md:gap-0">
           <span className="text-xs text-[#767676]">
             {count}/100
           </span>
 
           {/* この指止まれボタン */}
-          <div className="relative">
+          <div className="relative flex items-center justify-end gap-2">
+            {!achieved && <span className="text-[#999]" style={{ fontSize: 11 }}>いいな！と思ったら</span>}
             {hearts.map((hid) => (
               <span
                 key={hid}
@@ -147,6 +149,42 @@ function DreamCard({
   );
 }
 
+function MasonryGrid({ dreams, clientId }: { dreams: Dream[]; clientId: string }) {
+  const [cols, setCols] = useState(2);
+
+  useEffect(() => {
+    function updateCols() {
+      setCols(window.innerWidth >= 1280 ? 3 : 2);
+    }
+    updateCols();
+    window.addEventListener("resize", updateCols);
+    return () => window.removeEventListener("resize", updateCols);
+  }, []);
+
+  // 左から順にカラムに振り分け
+  const columns: Dream[][] = Array.from({ length: cols }, () => []);
+  dreams.forEach((dream, i) => {
+    columns[i % cols].push(dream);
+  });
+
+  return (
+    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+      {columns.map((colDreams, colIdx) => (
+        <div key={colIdx} className="flex flex-col gap-4">
+          {colDreams.map((dream, i) => (
+            <DreamCard
+              key={dream.id}
+              dream={dream}
+              index={colIdx + i * cols}
+              clientId={clientId}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Yume100Page() {
   const [dreams, setDreams] = useState<Dream[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -154,6 +192,9 @@ export default function Yume100Page() {
   const [loadingMore, setLoadingMore] = useState(false);
   const clientId = useRef("");
   const observerRef = useRef<HTMLDivElement>(null);
+  const heroBtnRef = useRef<HTMLAnchorElement>(null);
+  const archiveBtnRef = useRef<HTMLDivElement>(null);
+  const [showFixedCta, setShowFixedCta] = useState(false);
 
   const fetchDreams = useCallback(async (cursor?: string) => {
     const url = cursor
@@ -193,25 +234,48 @@ export default function Yume100Page() {
     return () => observer.disconnect();
   }, [nextCursor, loadingMore, fetchDreams]);
 
+  // Fixed CTA visibility
+  useEffect(() => {
+    let heroVisible = true;
+    let archiveVisible = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.target === heroBtnRef.current) heroVisible = entry.isIntersecting;
+          if (entry.target === archiveBtnRef.current) archiveVisible = entry.isIntersecting;
+        }
+        setShowFixedCta(!heroVisible && !archiveVisible);
+      },
+      { threshold: 0 }
+    );
+
+    if (heroBtnRef.current) observer.observe(heroBtnRef.current);
+    if (archiveBtnRef.current) observer.observe(archiveBtnRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#FFFDF7" }}>
       {/* ヒーロー */}
       <header className="text-center pt-16 pb-10 px-6">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src="/yume100/logo.png"
           alt="夢100"
-          width={240}
-          height={80}
           className="h-40 w-auto mx-auto"
-          priority
         />
-        <p className="text-lg font-bold text-[#111] mt-3">
+        <p className="text-2xl md:text-3xl font-bold text-[#111] mt-3">
           こんな未来、良いよね！
         </p>
-        <p className="text-xs text-[#767676] mt-2 mb-8">
-          あなたの言葉がAI画像になる。100人の指が止まったら、未来への提案書になります。
+        <p className="text-lg md:text-xl font-bold text-[#111] mt-1">
+          ゆめハンドレッド
+        </p>
+        <p className="text-base md:text-lg text-[#767676] mt-2 mb-8">
+          あなたの言葉がAI画像になる。100人の指が止まったら、<br />未来への提案書になります。
         </p>
         <Link
+          ref={heroBtnRef}
           href="/yume100/post/"
           className="inline-block rounded-full px-8 py-3.5 text-white font-bold text-base transition-transform hover:scale-105 active:scale-95"
           style={{ backgroundColor: "#F5A623" }}
@@ -221,7 +285,7 @@ export default function Yume100Page() {
       </header>
 
       {/* タイムライン */}
-      <main className="max-w-3xl mx-auto px-4 pb-20">
+      <main className="max-w-6xl mx-auto px-4 pb-20">
         {loading ? (
           <div className="text-center py-20">
             <div className="animate-spin inline-block w-8 h-8 border-2 border-[#F5A623] border-t-transparent rounded-full" />
@@ -231,16 +295,7 @@ export default function Yume100Page() {
             まだ夢がありません。最初の夢を書いてみましょう！
           </p>
         ) : (
-          <div className="columns-1 sm:columns-2 gap-4">
-            {dreams.map((dream, i) => (
-              <DreamCard
-                key={dream.id}
-                dream={dream}
-                index={i}
-                clientId={clientId.current}
-              />
-            ))}
-          </div>
+          <MasonryGrid dreams={dreams} clientId={clientId.current} />
         )}
 
         {/* Infinite scroll sentinel */}
@@ -252,7 +307,7 @@ export default function Yume100Page() {
         )}
 
         {/* アーカイブリンク */}
-        <div className="text-center mt-8">
+        <div ref={archiveBtnRef} className="text-center mt-8">
           <Link
             href="/yume100/archive/"
             className="inline-block rounded-full px-8 py-3.5 font-bold text-base text-[#F5A623] bg-white hover:bg-[#F5A623] hover:text-white transition-colors duration-200"
@@ -262,6 +317,23 @@ export default function Yume100Page() {
           </Link>
         </div>
       </main>
+
+      {/* 固定CTA */}
+      <Link
+        href="/yume100/post/"
+        className="fixed rounded-full px-8 py-3.5 text-white font-bold text-base transition-opacity duration-300 hover:scale-105 active:scale-95"
+        style={{
+          backgroundColor: "#F5A623",
+          bottom: 24,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 50,
+          opacity: showFixedCta ? 1 : 0,
+          pointerEvents: showFixedCta ? "auto" : "none",
+        }}
+      >
+        夢を書く
+      </Link>
     </div>
   );
 }

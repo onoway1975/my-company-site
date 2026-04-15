@@ -83,14 +83,7 @@ export default async function YumeArchivePage() {
     <div className="min-h-screen" style={{ backgroundColor: "#FFFDF7" }}>
       <div className="max-w-3xl mx-auto px-6 py-16">
         <header className="text-center mb-12">
-          <Link
-            href="/yume100/"
-            className="inline-block rounded-full px-8 py-3.5 font-bold text-base text-[#F5A623] bg-white hover:bg-[#F5A623] hover:text-white transition-colors duration-200"
-            style={{ border: "1.5px solid #F5A623" }}
-          >
-            &larr; タイムラインに戻る
-          </Link>
-          <h1 className="text-3xl font-bold text-[#111] mt-4">
+          <h1 className="text-3xl font-bold text-[#111]">
             宣言書アーカイブ
           </h1>
           <p className="text-sm text-[#767676] mt-2">
@@ -168,6 +161,16 @@ export default async function YumeArchivePage() {
             })}
           </div>
         )}
+
+        <div className="text-center mt-10">
+          <Link
+            href="/yume100/"
+            className="inline-block rounded-full px-8 py-3.5 font-bold text-base text-[#F5A623] bg-white hover:bg-[#F5A623] hover:text-white transition-colors duration-200"
+            style={{ border: "1.5px solid #F5A623" }}
+          >
+            &larr; タイムラインに戻る
+          </Link>
+        </div>
       </div>
     </div>
   );

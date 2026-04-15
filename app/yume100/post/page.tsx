@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 type Step = 1 | 2 | 3;
 
@@ -195,6 +196,16 @@ export default function YumePostPage() {
             </p>
           </div>
         )}
+        {/* タイムラインに戻る */}
+        <div className="text-center mt-10">
+          <Link
+            href="/yume100/"
+            className="inline-block rounded-full px-8 py-3.5 font-bold text-base text-[#F5A623] bg-white hover:bg-[#F5A623] hover:text-white transition-colors duration-200"
+            style={{ border: "1.5px solid #F5A623" }}
+          >
+            &larr; タイムラインに戻る
+          </Link>
+        </div>
       </div>
     </div>
   );
