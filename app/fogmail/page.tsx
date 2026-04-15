@@ -7,86 +7,6 @@ const FOG_DURATION_SEC = 60;
 const FOG_MAX_ALPHA = 0.85;
 const BRUSH_RADIUS = 14;
 
-/* ── Night Cityscape SVG ───────────────────── */
-function NightCityscape() {
-  return (
-    <svg
-      viewBox="0 0 390 844"
-      preserveAspectRatio="xMidYMax slice"
-      className="absolute inset-0 w-full h-full"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#0a0e1a" />
-          <stop offset="40%" stopColor="#121830" />
-          <stop offset="70%" stopColor="#1a2040" />
-          <stop offset="100%" stopColor="#252a3a" />
-        </linearGradient>
-        <radialGradient id="glow" cx="50%" cy="95%" r="60%">
-          <stop offset="0%" stopColor="rgba(255,200,120,0.08)" />
-          <stop offset="100%" stopColor="transparent" />
-        </radialGradient>
-      </defs>
-
-      {/* Sky */}
-      <rect width="390" height="844" fill="url(#sky)" />
-      <rect width="390" height="844" fill="url(#glow)" />
-
-      {/* Stars */}
-      {[
-        [40, 60], [120, 30], [200, 80], [300, 50], [350, 100],
-        [80, 150], [250, 130], [170, 45], [60, 200], [320, 180],
-        [150, 220], [280, 250], [100, 280], [220, 300], [50, 340],
-      ].map(([cx, cy], i) => (
-        <circle key={i} cx={cx} cy={cy} r={0.8 + (i % 3) * 0.4} fill="rgba(255,255,255,0.5)" />
-      ))}
-
-      {/* Buildings - far back layer */}
-      <rect x="0" y="580" width="45" height="264" fill="#0d1020" />
-      <rect x="50" y="540" width="55" height="304" fill="#10142a" />
-      <rect x="110" y="600" width="35" height="244" fill="#0e1225" />
-      <rect x="150" y="520" width="60" height="324" fill="#111630" />
-      <rect x="215" y="560" width="40" height="284" fill="#0f1328" />
-      <rect x="260" y="500" width="50" height="344" fill="#12162e" />
-      <rect x="315" y="570" width="35" height="274" fill="#0d1022" />
-      <rect x="355" y="530" width="35" height="314" fill="#10142a" />
-
-      {/* Buildings - front layer */}
-      <rect x="20" y="620" width="50" height="224" fill="#0a0d18" />
-      <rect x="80" y="580" width="65" height="264" fill="#0c1020" />
-      <rect x="155" y="640" width="40" height="204" fill="#0b0f1c" />
-      <rect x="200" y="560" width="55" height="284" fill="#0d1122" />
-      <rect x="265" y="610" width="45" height="234" fill="#0a0e1a" />
-      <rect x="320" y="580" width="70" height="264" fill="#0c1020" />
-
-      {/* Windows */}
-      {[
-        [30, 640], [30, 665], [30, 690], [50, 640], [50, 665],
-        [95, 600], [95, 625], [95, 650], [95, 675], [120, 600], [120, 650],
-        [170, 660], [170, 685], [170, 710],
-        [215, 580], [215, 610], [215, 640], [235, 580], [235, 640],
-        [275, 630], [275, 660], [295, 630],
-        [340, 600], [340, 630], [340, 660], [360, 600], [360, 660], [375, 630],
-      ].map(([x, y], i) => (
-        <rect
-          key={`w${i}`}
-          x={x}
-          y={y}
-          width={8}
-          height={12}
-          rx={1}
-          fill={i % 3 === 0 ? "rgba(255,220,140,0.6)" : "rgba(180,200,255,0.3)"}
-        />
-      ))}
-
-      {/* Street glow at bottom */}
-      <rect x="0" y="820" width="390" height="24" fill="rgba(255,180,80,0.05)" />
-      <line x1="0" y1="840" x2="390" y2="840" stroke="rgba(255,200,120,0.08)" strokeWidth="4" />
-    </svg>
-  );
-}
-
 /* ── PC fallback ───────────────────────────── */
 function PCFallback() {
   const [url, setUrl] = useState("");
@@ -378,10 +298,12 @@ export default function FogmailPage() {
           overflow: "hidden",
           fontFamily: "'LINE Seed JP', sans-serif",
           zIndex: 50,
+          backgroundImage: "url('/fogmail/bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
       >
-        {/* Background cityscape */}
-        <NightCityscape />
 
         {/* Fog canvas (表示用) */}
         <canvas

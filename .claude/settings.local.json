@@ -298,7 +298,8 @@
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: OGP画像パスをjpgに変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfeat: fogmail ブラシエッジをぼかして馴染む描画に変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: fogmail はーっ→霧→じわじわ晴れる仕様に修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: fogmail はーっボタン複数回押せるよう修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)"
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: fogmail はーっボタン複数回押せるよう修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)",
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfeat: fogmail 背景を実写写真に変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)"
     ]
   }
 }
