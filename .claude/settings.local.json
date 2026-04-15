@@ -300,7 +300,8 @@
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: fogmail はーっ→霧→じわじわ晴れる仕様に修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: fogmail はーっボタン複数回押せるよう修正\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)",
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfeat: fogmail 背景を実写写真に変更\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)",
-      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: fogmail はーっボタン常時表示・何度でも押せる\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)"
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfix: fogmail はーっボタン常時表示・何度でも押せる\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)",
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nfeat: fogmail 息を吹くたびに霧が重なる演出\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push origin main)"
     ]
   }
 }

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /* ── constants ─────────────────────────────── */
 const FOG_DURATION_SEC = 60;
-const FOG_MAX_ALPHA = 0.85;
 const BRUSH_RADIUS = 14;
+const FADE_ALPHA = 0.05; // 毎秒 destination-out する alpha (60秒で約95%消える)
 
 /* ── PC fallback ───────────────────────────── */
 function PCFallback() {
@@ -53,15 +53,11 @@ function PCFallback() {
 
 /* ── Main Component ────────────────────────── */
 export default function FogmailPage() {
-  // fogCanvas: 霧を表示する (毎フレーム描き直す)
   const fogCanvasRef = useRef<HTMLCanvasElement>(null);
-  // drawCanvas: 消した軌跡を保持する (destination-out マスク)
-  const drawCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const [isPC, setIsPC] = useState<boolean | null>(null);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
   const dpr = useRef(1);
-  const fogAmount = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /* ── detect PC ──────────────────────────── */
@@ -70,96 +66,56 @@ export default function FogmailPage() {
     setIsPC(pc);
   }, []);
 
-  /* ── init canvases ─────────────────────── */
+  /* ── init canvas ────────────────────────── */
   useEffect(() => {
     if (isPC !== false) return;
     const fogC = fogCanvasRef.current;
-    const drawC = drawCanvasRef.current;
-    if (!fogC || !drawC) return;
+    if (!fogC) return;
 
     dpr.current = window.devicePixelRatio || 1;
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    for (const c of [fogC, drawC]) {
-      c.width = w * dpr.current;
-      c.height = h * dpr.current;
-      c.style.width = `${w}px`;
-      c.style.height = `${h}px`;
-    }
-
-    // drawCanvas を白で塗りつぶし (destination-out のマスクとして使う)
-    const dCtx = drawC.getContext("2d");
-    if (dCtx) {
-      dCtx.fillStyle = "white";
-      dCtx.fillRect(0, 0, drawC.width, drawC.height);
-    }
+    fogC.width = w * dpr.current;
+    fogC.height = h * dpr.current;
+    fogC.style.width = `${w}px`;
+    fogC.style.height = `${h}px`;
   }, [isPC]);
 
-  /* ── renderFog: fogCanvas を描き直す ────── */
-  const renderFog = useCallback(() => {
-    const fogC = fogCanvasRef.current;
-    const drawC = drawCanvasRef.current;
-    if (!fogC || !drawC) return;
-    const ctx = fogC.getContext("2d");
-    if (!ctx) return;
-
-    const W = fogC.width;
-    const H = fogC.height;
-    const alpha = fogAmount.current;
-
-    // 全面クリア
-    ctx.clearRect(0, 0, W, H);
-
-    if (alpha <= 0) return;
-
-    // 霧を全面描画
-    ctx.save();
-    ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = `rgba(148, 168, 196, ${alpha})`;
-    ctx.fillRect(0, 0, W, H);
-
-    // drawCanvas の消し軌跡をマスクとして適用
-    // drawCanvas は白ベースで、消した部分が透明になっている
-    // destination-in で drawCanvas と交差させる → 消した部分の霧が消える
-    ctx.globalCompositeOperation = "destination-in";
-    ctx.drawImage(drawC, 0, 0);
-    ctx.restore();
-  }, []);
-
-  /* ── タイマー開始 ──────────────────────── */
+  /* ── タイマー: 霧をじわじわ晴らす ──────── */
   function startTimer() {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
 
-    const alphaStep = FOG_MAX_ALPHA / FOG_DURATION_SEC;
+    let ticks = 0;
 
     timerRef.current = setInterval(() => {
-      fogAmount.current -= alphaStep;
-      if (fogAmount.current <= 0) {
-        fogAmount.current = 0;
+      ticks++;
+      const fogC = fogCanvasRef.current;
+      if (!fogC) return;
+      const ctx = fogC.getContext("2d");
+      if (!ctx) return;
+
+      // 毎秒、全ピクセルのalphaを少しずつ減らす
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = `rgba(0,0,0,${FADE_ALPHA})`;
+      ctx.fillRect(0, 0, fogC.width, fogC.height);
+      ctx.restore();
+
+      if (ticks >= FOG_DURATION_SEC) {
+        ctx.clearRect(0, 0, fogC.width, fogC.height);
         if (timerRef.current) clearInterval(timerRef.current);
         timerRef.current = null;
-        // drawCanvas リセット
-        const drawC = drawCanvasRef.current;
-        if (drawC) {
-          const dCtx = drawC.getContext("2d");
-          if (dCtx) {
-            dCtx.clearRect(0, 0, drawC.width, drawC.height);
-            dCtx.fillStyle = "white";
-            dCtx.fillRect(0, 0, drawC.width, drawC.height);
-          }
-        }
       }
-      renderFog();
     }, 1000);
   }
 
   /* ── getPos ────────────────────────────── */
   function getPos(e: React.TouchEvent | React.MouseEvent): { x: number; y: number } {
-    const canvas = drawCanvasRef.current!;
+    const canvas = fogCanvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const src = "touches" in e && e.touches?.length ? e.touches[0] : (e as React.MouseEvent);
     return {
@@ -168,11 +124,11 @@ export default function FogmailPage() {
     };
   }
 
-  /* ── drawCanvas に消し軌跡を描く ────────── */
+  /* ── fogCanvas の霧を指で消す ────────────── */
   function eraseAt(from: { x: number; y: number }, to: { x: number; y: number }) {
-    const drawC = drawCanvasRef.current;
-    if (!drawC) return;
-    const ctx = drawC.getContext("2d");
+    const fogC = fogCanvasRef.current;
+    if (!fogC) return;
+    const ctx = fogC.getContext("2d");
     if (!ctx) return;
 
     const r = BRUSH_RADIUS * dpr.current;
@@ -198,21 +154,16 @@ export default function FogmailPage() {
       ctx.fill();
     }
     ctx.restore();
-
-    // fogCanvas を再描画
-    renderFog();
   }
 
   /* ── touch handlers ────────────────────── */
   function onTouchStart(e: React.TouchEvent) {
     e.preventDefault();
-    if (fogAmount.current <= 0) return;
     lastPos.current = getPos(e);
   }
 
   function onTouchMove(e: React.TouchEvent) {
     e.preventDefault();
-    if (fogAmount.current <= 0) return;
     const pos = getPos(e);
     eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
@@ -226,13 +177,12 @@ export default function FogmailPage() {
   const mouseDown = useRef(false);
 
   function onMouseDown(e: React.MouseEvent) {
-    if (fogAmount.current <= 0) return;
     mouseDown.current = true;
     lastPos.current = getPos(e);
   }
 
   function onMouseMove(e: React.MouseEvent) {
-    if (!mouseDown.current || fogAmount.current <= 0) return;
+    if (!mouseDown.current) return;
     const pos = getPos(e);
     eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
@@ -243,22 +193,32 @@ export default function FogmailPage() {
     lastPos.current = null;
   }
 
-  /* ── breathe (はーっ) ──────────────────── */
+  /* ── breathe (はーっ): 霧を重ねて追加 ──── */
   function breatheFog() {
-    fogAmount.current = FOG_MAX_ALPHA;
+    const fogC = fogCanvasRef.current;
+    if (!fogC) return;
+    const ctx = fogC.getContext("2d");
+    if (!ctx) return;
 
-    // drawCanvas リセット (白で塗りつぶし)
-    const drawC = drawCanvasRef.current;
-    if (drawC) {
-      const dCtx = drawC.getContext("2d");
-      if (dCtx) {
-        dCtx.clearRect(0, 0, drawC.width, drawC.height);
-        dCtx.fillStyle = "white";
-        dCtx.fillRect(0, 0, drawC.width, drawC.height);
-      }
+    const W = fogC.width;
+    const H = fogC.height;
+    const count = 3 + Math.floor(Math.random() * 3); // 3〜5個
+
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    for (let i = 0; i < count; i++) {
+      const x = Math.random() * W;
+      const y = Math.random() * H;
+      const r = W * (0.3 + Math.random() * 0.2);
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, r);
+      grd.addColorStop(0, "rgba(148,168,196,0.28)");
+      grd.addColorStop(1, "rgba(148,168,196,0)");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, W, H);
     }
+    ctx.restore();
 
-    renderFog();
+    // タイマーリセット (最後のボタン押下から1分)
     startTimer();
   }
 
@@ -294,21 +254,9 @@ export default function FogmailPage() {
         }}
       >
 
-        {/* Fog canvas (表示用) */}
+        {/* Fog canvas (霧の描画 + タッチ受付) */}
         <canvas
           ref={fogCanvasRef}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Draw canvas (軌跡保持・タッチ受付) */}
-        <canvas
-          ref={drawCanvasRef}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -322,7 +270,6 @@ export default function FogmailPage() {
             width: "100%",
             height: "100%",
             touchAction: "none",
-            opacity: 0,
           }}
         />
 
