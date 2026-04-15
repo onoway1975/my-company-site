@@ -40,7 +40,7 @@ export function WorksGrid({ works }: { works: Work[] }) {
       </div>
 
       {/* SP: Grid 2col */}
-      <div className="lg:hidden grid grid-cols-2 gap-3">
+      <div className="lg:hidden grid grid-cols-1 gap-3">
         {filtered.map((work) => (
           <Link
             key={work.slug}
