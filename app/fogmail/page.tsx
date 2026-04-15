@@ -59,8 +59,6 @@ export default function FogmailPage() {
   const drawCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const [isPC, setIsPC] = useState<boolean | null>(null);
-  // "idle" = 霧なし・ボタン表示, "fogged" = 霧あり・描画中
-  const [phase, setPhase] = useState<"idle" | "fogged">("idle");
   const lastPos = useRef<{ x: number; y: number } | null>(null);
   const dpr = useRef(1);
   const fogAmount = useRef(0);
@@ -129,9 +127,12 @@ export default function FogmailPage() {
     ctx.restore();
   }, []);
 
-  /* ── タイマー: 霧をじわじわ晴らす ──────── */
-  useEffect(() => {
-    if (phase !== "fogged") return;
+  /* ── タイマー開始 ──────────────────────── */
+  function startTimer() {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
 
     const alphaStep = FOG_MAX_ALPHA / FOG_DURATION_SEC;
 
@@ -140,6 +141,7 @@ export default function FogmailPage() {
       if (fogAmount.current <= 0) {
         fogAmount.current = 0;
         if (timerRef.current) clearInterval(timerRef.current);
+        timerRef.current = null;
         // drawCanvas リセット
         const drawC = drawCanvasRef.current;
         if (drawC) {
@@ -150,15 +152,10 @@ export default function FogmailPage() {
             dCtx.fillRect(0, 0, drawC.width, drawC.height);
           }
         }
-        setPhase("idle");
       }
       renderFog();
     }, 1000);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [phase, renderFog]);
+  }
 
   /* ── getPos ────────────────────────────── */
   function getPos(e: React.TouchEvent | React.MouseEvent): { x: number; y: number } {
@@ -209,13 +206,13 @@ export default function FogmailPage() {
   /* ── touch handlers ────────────────────── */
   function onTouchStart(e: React.TouchEvent) {
     e.preventDefault();
-    if (phase !== "fogged") return;
+    if (fogAmount.current <= 0) return;
     lastPos.current = getPos(e);
   }
 
   function onTouchMove(e: React.TouchEvent) {
     e.preventDefault();
-    if (phase !== "fogged") return;
+    if (fogAmount.current <= 0) return;
     const pos = getPos(e);
     eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
@@ -229,13 +226,13 @@ export default function FogmailPage() {
   const mouseDown = useRef(false);
 
   function onMouseDown(e: React.MouseEvent) {
-    if (phase !== "fogged") return;
+    if (fogAmount.current <= 0) return;
     mouseDown.current = true;
     lastPos.current = getPos(e);
   }
 
   function onMouseMove(e: React.MouseEvent) {
-    if (!mouseDown.current || phase !== "fogged") return;
+    if (!mouseDown.current || fogAmount.current <= 0) return;
     const pos = getPos(e);
     eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
@@ -248,12 +245,6 @@ export default function FogmailPage() {
 
   /* ── breathe (はーっ) ──────────────────── */
   function breatheFog() {
-    // 既存タイマーをクリア
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-
     fogAmount.current = FOG_MAX_ALPHA;
 
     // drawCanvas リセット (白で塗りつぶし)
@@ -268,14 +259,12 @@ export default function FogmailPage() {
     }
 
     renderFog();
-    setPhase("fogged");
+    startTimer();
   }
 
   /* ── loading / PC states ────────────────── */
   if (isPC === null) return null;
   if (isPC) return <PCFallback />;
-
-  const showButton = phase === "idle";
 
   return (
     <>
@@ -333,63 +322,36 @@ export default function FogmailPage() {
             width: "100%",
             height: "100%",
             touchAction: "none",
-            cursor: phase === "fogged" ? "crosshair" : "default",
             opacity: 0,
           }}
         />
 
-        {/* Breath button - only in idle phase */}
-        {showButton && (
-          <button
-            onClick={breatheFog}
-            style={{
-              position: "absolute",
-              bottom: 48,
-              left: "50%",
-              transform: "translateX(-50%)",
-              background: "rgba(255,255,255,0.12)",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: 999,
-              padding: "14px 36px",
-              color: "rgba(255,255,255,0.85)",
-              fontSize: 16,
-              fontWeight: 700,
-              fontFamily: "'LINE Seed JP', sans-serif",
-              letterSpacing: "0.15em",
-              cursor: "pointer",
-              zIndex: 10,
-              transition: "all 0.3s ease",
-            }}
-          >
-            はーっ
-          </button>
-        )}
-
-        {/* Hint text - only in idle phase */}
-        {showButton && (
-          <p
-            style={{
-              position: "absolute",
-              top: "40%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              color: "rgba(255,255,255,0.4)",
-              fontSize: 13,
-              textAlign: "center",
-              lineHeight: 2,
-              zIndex: 5,
-              pointerEvents: "none",
-            }}
-          >
-            下の「はーっ」ボタンで
-            <br />
-            ガラスを曇らせてから
-            <br />
-            指で文字を書いてみよう
-          </p>
-        )}
+        {/* Breath button - always visible */}
+        <button
+          onClick={breatheFog}
+          style={{
+            position: "absolute",
+            bottom: 48,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(255,255,255,0.12)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: 999,
+            padding: "14px 36px",
+            color: "rgba(255,255,255,0.85)",
+            fontSize: 16,
+            fontWeight: 700,
+            fontFamily: "'LINE Seed JP', sans-serif",
+            letterSpacing: "0.15em",
+            cursor: "pointer",
+            zIndex: 10,
+            transition: "all 0.3s ease",
+          }}
+        >
+          はーっ
+        </button>
       </div>
     </>
   );
