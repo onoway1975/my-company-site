@@ -8,6 +8,7 @@ type NoteCard = {
   url: string;
   date: string;
   eyecatch: string;
+  excerpt: string;
 };
 
 type NoteListItem = {
@@ -70,24 +71,32 @@ async function fetchNoteData(): Promise<FetchResult> {
       const json = await res.json();
       const contents: Array<{
         name?: string;
+        body?: string;
         publishAt?: string;
         eyecatch?: string;
         noteUrl?: string;
       }> = json?.data?.contents ?? [];
 
       if (contents.length > 0) {
-        const articles: NoteCard[] = contents.slice(0, 6).map((item) => ({
-          title: item.name ?? "",
-          url: item.noteUrl ?? "#",
-          date: item.publishAt
-            ? new Date(item.publishAt).toLocaleDateString("ja-JP", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              })
-            : "",
-          eyecatch: item.eyecatch ?? "",
-        }));
+        const articles: NoteCard[] = contents.slice(0, 6).map((item) => {
+          const excerpt = (item.body ?? "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 50);
+          return {
+            title: item.name ?? "",
+            url: item.noteUrl ?? "#",
+            date: item.publishAt
+              ? new Date(item.publishAt).toLocaleDateString("ja-JP", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })
+              : "",
+            eyecatch: item.eyecatch ?? "",
+            excerpt: excerpt ? excerpt + "..." : "",
+          };
+        });
         return { mode: "cards", articles };
       }
     }
@@ -155,6 +164,11 @@ function CardGrid({ articles }: { articles: NoteCard[] }) {
             <p className="text-sm font-semibold text-ink leading-[1.6] line-clamp-2 group-hover:underline underline-offset-2 transition-all">
               {article.title}
             </p>
+            {article.excerpt && (
+              <p className="line-clamp-2 text-[#888]" style={{ fontSize: 12, marginTop: 6 }}>
+                {article.excerpt}
+              </p>
+            )}
           </div>
         </a>
       ))}
