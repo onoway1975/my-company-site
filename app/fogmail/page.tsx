@@ -3,13 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 /* ── constants ─────────────────────────────── */
-const FOG_COLOR = "rgba(148, 168, 196, 0.85)";
-const BREATH_ALPHA = 0.35;
-const REFILL_TOTAL_SEC = 60; // 1分
-const REFILL_INTERVAL_MS = 2000; // 2秒ごと
-const REFILL_STEPS = REFILL_TOTAL_SEC / (REFILL_INTERVAL_MS / 1000); // 300
-const REFILL_ALPHA_PER_STEP = 0.85 / REFILL_STEPS;
-const BREATH_STEPS = 8;
+const FOG_DURATION_SEC = 60;
+const FOG_MAX_ALPHA = 0.85;
+const BRUSH_RADIUS = 14;
 
 /* ── Night Cityscape SVG ───────────────────── */
 function NightCityscape() {
@@ -137,11 +133,18 @@ function PCFallback() {
 
 /* ── Main Component ────────────────────────── */
 export default function FogmailPage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // fogCanvas: 霧を表示する (毎フレーム描き直す)
+  const fogCanvasRef = useRef<HTMLCanvasElement>(null);
+  // drawCanvas: 消した軌跡を保持する (destination-out マスク)
+  const drawCanvasRef = useRef<HTMLCanvasElement>(null);
+
   const [isPC, setIsPC] = useState<boolean | null>(null);
-  const [fogLevel, setFogLevel] = useState(0); // 0 = no fog, 1 = full fog
+  // "idle" = 霧なし・ボタン表示, "fogged" = 霧あり・描画中, "cleared" = 完全に晴れた
+  const [phase, setPhase] = useState<"idle" | "fogged" | "cleared">("idle");
   const lastPos = useRef<{ x: number; y: number } | null>(null);
   const dpr = useRef(1);
+  const fogAmount = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /* ── detect PC ──────────────────────────── */
   useEffect(() => {
@@ -149,112 +152,97 @@ export default function FogmailPage() {
     setIsPC(pc);
   }, []);
 
-  /* ── canvas helpers ─────────────────────── */
-  const getCtx = useCallback(() => {
-    return canvasRef.current?.getContext("2d") ?? null;
-  }, []);
-
-  const drawFog = useCallback(
-    (ctx: CanvasRenderingContext2D, alpha: number) => {
-      ctx.save();
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = FOG_COLOR.replace("0.85", String(alpha));
-      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      ctx.restore();
-    },
-    []
-  );
-
-  const drawDroplets = useCallback(
-    (ctx: CanvasRenderingContext2D) => {
-      const w = ctx.canvas.width;
-      const h = ctx.canvas.height;
-      ctx.save();
-      ctx.globalCompositeOperation = "source-over";
-
-      // Small round droplets
-      for (let i = 0; i < 120; i++) {
-        const x = Math.random() * w;
-        const y = Math.random() * h;
-        const r = 1 + Math.random() * 3;
-        ctx.beginPath();
-        ctx.arc(x, y, r * dpr.current, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 215, 230, ${0.15 + Math.random() * 0.25})`;
-        ctx.fill();
-      }
-
-      // Drip streaks
-      for (let i = 0; i < 15; i++) {
-        const x = Math.random() * w;
-        const y0 = Math.random() * h * 0.5;
-        const len = 40 + Math.random() * 120;
-        ctx.beginPath();
-        ctx.moveTo(x, y0);
-        // Slightly wavy drip path
-        const steps = 8;
-        for (let s = 1; s <= steps; s++) {
-          const t = s / steps;
-          const dx = (Math.random() - 0.5) * 4 * dpr.current;
-          ctx.lineTo(x + dx, y0 + len * t * dpr.current);
-        }
-        ctx.strokeStyle = `rgba(180, 200, 220, ${0.1 + Math.random() * 0.15})`;
-        ctx.lineWidth = (1 + Math.random() * 2) * dpr.current;
-        ctx.lineCap = "round";
-        ctx.stroke();
-      }
-
-      ctx.restore();
-    },
-    []
-  );
-
-  /* ── init canvas ────────────────────────── */
+  /* ── init canvases ─────────────────────── */
   useEffect(() => {
     if (isPC !== false) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const fogC = fogCanvasRef.current;
+    const drawC = drawCanvasRef.current;
+    if (!fogC || !drawC) return;
 
     dpr.current = window.devicePixelRatio || 1;
     const w = window.innerWidth;
     const h = window.innerHeight;
-    canvas.width = w * dpr.current;
-    canvas.height = h * dpr.current;
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    for (const c of [fogC, drawC]) {
+      c.width = w * dpr.current;
+      c.height = h * dpr.current;
+      c.style.width = `${w}px`;
+      c.style.height = `${h}px`;
+    }
 
-    // No initial fog — user breathes first
-    setFogLevel(0);
+    // drawCanvas を白で塗りつぶし (destination-out のマスクとして使う)
+    const dCtx = drawC.getContext("2d");
+    if (dCtx) {
+      dCtx.fillStyle = "white";
+      dCtx.fillRect(0, 0, drawC.width, drawC.height);
+    }
   }, [isPC]);
 
-  /* ── auto refill (全体の霧がじわじわ戻る) ── */
-  const refillTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  /* ── renderFog: fogCanvas を描き直す ────── */
+  const renderFog = useCallback(() => {
+    const fogC = fogCanvasRef.current;
+    const drawC = drawCanvasRef.current;
+    if (!fogC || !drawC) return;
+    const ctx = fogC.getContext("2d");
+    if (!ctx) return;
 
+    const W = fogC.width;
+    const H = fogC.height;
+    const alpha = fogAmount.current;
+
+    // 全面クリア
+    ctx.clearRect(0, 0, W, H);
+
+    if (alpha <= 0) return;
+
+    // 霧を全面描画
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = `rgba(148, 168, 196, ${alpha})`;
+    ctx.fillRect(0, 0, W, H);
+
+    // drawCanvas の消し軌跡をマスクとして適用
+    // drawCanvas は白ベースで、消した部分が透明になっている
+    // destination-in で drawCanvas と交差させる → 消した部分の霧が消える
+    ctx.globalCompositeOperation = "destination-in";
+    ctx.drawImage(drawC, 0, 0);
+    ctx.restore();
+  }, []);
+
+  /* ── タイマー: 霧をじわじわ晴らす ──────── */
   useEffect(() => {
-    if (isPC !== false) return;
-    if (fogLevel === 0) return;
+    if (phase !== "fogged") return;
 
-    // fogLevel が 1 になったら setInterval 開始
-    refillTimer.current = setInterval(() => {
-      const ctx = getCtx();
-      if (!ctx) return;
-      ctx.save();
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = `rgba(148, 168, 196, ${REFILL_ALPHA_PER_STEP})`;
-      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      ctx.restore();
-    }, REFILL_INTERVAL_MS);
+    const alphaStep = FOG_MAX_ALPHA / FOG_DURATION_SEC;
+
+    timerRef.current = setInterval(() => {
+      fogAmount.current -= alphaStep;
+      if (fogAmount.current <= 0) {
+        fogAmount.current = 0;
+        if (timerRef.current) clearInterval(timerRef.current);
+        // drawCanvas リセット
+        const drawC = drawCanvasRef.current;
+        if (drawC) {
+          const dCtx = drawC.getContext("2d");
+          if (dCtx) {
+            dCtx.clearRect(0, 0, drawC.width, drawC.height);
+            dCtx.fillStyle = "white";
+            dCtx.fillRect(0, 0, drawC.width, drawC.height);
+          }
+        }
+        setPhase("idle");
+      }
+      renderFog();
+    }, 1000);
 
     return () => {
-      if (refillTimer.current) clearInterval(refillTimer.current);
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPC, fogLevel, getCtx]);
+  }, [phase, renderFog]);
 
-  /* ── unified getPos ─────────────────────── */
+  /* ── getPos ────────────────────────────── */
   function getPos(e: React.TouchEvent | React.MouseEvent): { x: number; y: number } {
-    const canvas = canvasRef.current!;
+    const canvas = drawCanvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const src = "touches" in e && e.touches?.length ? e.touches[0] : (e as React.MouseEvent);
     return {
@@ -263,8 +251,14 @@ export default function FogmailPage() {
     };
   }
 
-  function fogErase(ctx: CanvasRenderingContext2D, from: { x: number; y: number }, to: { x: number; y: number }) {
-    const r = 14 * dpr.current;
+  /* ── drawCanvas に消し軌跡を描く ────────── */
+  function eraseAt(from: { x: number; y: number }, to: { x: number; y: number }) {
+    const drawC = drawCanvasRef.current;
+    if (!drawC) return;
+    const ctx = drawC.getContext("2d");
+    if (!ctx) return;
+
+    const r = BRUSH_RADIUS * dpr.current;
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -287,21 +281,23 @@ export default function FogmailPage() {
       ctx.fill();
     }
     ctx.restore();
+
+    // fogCanvas を再描画
+    renderFog();
   }
 
   /* ── touch handlers ────────────────────── */
   function onTouchStart(e: React.TouchEvent) {
     e.preventDefault();
-    const pos = getPos(e);
-    lastPos.current = pos;
+    if (phase !== "fogged") return;
+    lastPos.current = getPos(e);
   }
 
   function onTouchMove(e: React.TouchEvent) {
     e.preventDefault();
-    const ctx = getCtx();
-    if (!ctx) return;
+    if (phase !== "fogged") return;
     const pos = getPos(e);
-    fogErase(ctx, lastPos.current ?? pos, pos);
+    eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
   }
 
@@ -313,16 +309,15 @@ export default function FogmailPage() {
   const mouseDown = useRef(false);
 
   function onMouseDown(e: React.MouseEvent) {
+    if (phase !== "fogged") return;
     mouseDown.current = true;
     lastPos.current = getPos(e);
   }
 
   function onMouseMove(e: React.MouseEvent) {
-    if (!mouseDown.current) return;
-    const ctx = getCtx();
-    if (!ctx) return;
+    if (!mouseDown.current || phase !== "fogged") return;
     const pos = getPos(e);
-    fogErase(ctx, lastPos.current ?? pos, pos);
+    eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
   }
 
@@ -333,24 +328,28 @@ export default function FogmailPage() {
 
   /* ── breathe (はーっ) ──────────────────── */
   function breatheFog() {
-    const ctx = getCtx();
-    if (!ctx) return;
+    fogAmount.current = FOG_MAX_ALPHA;
 
-    let step = 0;
-    function applyStep() {
-      if (step >= BREATH_STEPS) return;
-      drawFog(ctx!, BREATH_ALPHA / BREATH_STEPS);
-      step++;
-      requestAnimationFrame(applyStep);
+    // drawCanvas リセット (白で塗りつぶし)
+    const drawC = drawCanvasRef.current;
+    if (drawC) {
+      const dCtx = drawC.getContext("2d");
+      if (dCtx) {
+        dCtx.clearRect(0, 0, drawC.width, drawC.height);
+        dCtx.fillStyle = "white";
+        dCtx.fillRect(0, 0, drawC.width, drawC.height);
+      }
     }
-    applyStep();
-    drawDroplets(ctx);
-    setFogLevel(1);
+
+    renderFog();
+    setPhase("fogged");
   }
 
   /* ── loading / PC states ────────────────── */
   if (isPC === null) return null;
   if (isPC) return <PCFallback />;
+
+  const showButton = phase === "idle";
 
   return (
     <>
@@ -378,9 +377,21 @@ export default function FogmailPage() {
         {/* Background cityscape */}
         <NightCityscape />
 
-        {/* Fog canvas */}
+        {/* Fog canvas (表示用) */}
         <canvas
-          ref={canvasRef}
+          ref={fogCanvasRef}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Draw canvas (軌跡保持・タッチ受付) */}
+        <canvas
+          ref={drawCanvasRef}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -394,39 +405,42 @@ export default function FogmailPage() {
             width: "100%",
             height: "100%",
             touchAction: "none",
-            cursor: "crosshair",
+            cursor: phase === "fogged" ? "crosshair" : "default",
+            opacity: 0,
           }}
         />
 
-        {/* Breath button */}
-        <button
-          onClick={breatheFog}
-          style={{
-            position: "absolute",
-            bottom: 48,
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "rgba(255,255,255,0.12)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            borderRadius: 999,
-            padding: "14px 36px",
-            color: "rgba(255,255,255,0.85)",
-            fontSize: 16,
-            fontWeight: 700,
-            fontFamily: "'LINE Seed JP', sans-serif",
-            letterSpacing: "0.15em",
-            cursor: "pointer",
-            zIndex: 10,
-            transition: "all 0.3s ease",
-          }}
-        >
-          はーっ
-        </button>
+        {/* Breath button - only in idle phase */}
+        {showButton && (
+          <button
+            onClick={breatheFog}
+            style={{
+              position: "absolute",
+              bottom: 48,
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "rgba(255,255,255,0.12)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: 999,
+              padding: "14px 36px",
+              color: "rgba(255,255,255,0.85)",
+              fontSize: 16,
+              fontWeight: 700,
+              fontFamily: "'LINE Seed JP', sans-serif",
+              letterSpacing: "0.15em",
+              cursor: "pointer",
+              zIndex: 10,
+              transition: "all 0.3s ease",
+            }}
+          >
+            はーっ
+          </button>
+        )}
 
-        {/* Hint text - only show when no fog */}
-        {fogLevel === 0 && (
+        {/* Hint text - only in idle phase */}
+        {showButton && (
           <p
             style={{
               position: "absolute",
