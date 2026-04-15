@@ -139,8 +139,8 @@ export default function FogmailPage() {
   const drawCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const [isPC, setIsPC] = useState<boolean | null>(null);
-  // "idle" = 霧なし・ボタン表示, "fogged" = 霧あり・描画中, "cleared" = 完全に晴れた
-  const [phase, setPhase] = useState<"idle" | "fogged" | "cleared">("idle");
+  // "idle" = 霧なし・ボタン表示, "fogged" = 霧あり・描画中
+  const [phase, setPhase] = useState<"idle" | "fogged">("idle");
   const lastPos = useRef<{ x: number; y: number } | null>(null);
   const dpr = useRef(1);
   const fogAmount = useRef(0);
@@ -328,6 +328,12 @@ export default function FogmailPage() {
 
   /* ── breathe (はーっ) ──────────────────── */
   function breatheFog() {
+    // 既存タイマーをクリア
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
     fogAmount.current = FOG_MAX_ALPHA;
 
     // drawCanvas リセット (白で塗りつぶし)
