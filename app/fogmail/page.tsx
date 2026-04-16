@@ -381,6 +381,7 @@ export default function FogmailPage() {
             textAlign: "center",
             textShadow: "0 1px 4px rgba(0,0,0,0.5)",
             margin: 0,
+            marginTop: "100px",
             letterSpacing: "0.05em",
           }}
         >
