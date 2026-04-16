@@ -1,3 +1,9 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "fog mail",
+};
+
 export default function FogmailLayout({
   children,
 }: {
@@ -13,13 +19,14 @@ export default function FogmailLayout({
           font-display: swap;
         }
         #hubspot-messages-iframe-container,
-        .hs-shadow-container,
-        [id*="hubspot"],
-        [class*="hubspot"] {
+        div[class*="hubspot"],
+        div[id*="hubspot"],
+        iframe[id*="hubspot"],
+        .hs-shadow-container {
           display: none !important;
           visibility: hidden !important;
-          opacity: 0 !important;
           pointer-events: none !important;
+          opacity: 0 !important;
         }
       `}</style>
       <div

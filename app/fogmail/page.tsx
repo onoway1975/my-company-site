@@ -361,7 +361,9 @@ export default function FogmailPage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          gap: 32,
           padding: "40px 24px",
+          margin: 0,
         }}
       >
         <p
@@ -371,22 +373,34 @@ export default function FogmailPage() {
             fontWeight: 700,
             letterSpacing: "0.16em",
             textAlign: "center",
-            marginBottom: 44,
+            margin: 0,
           }}
         >
           曇りガラスに指で送るメッセージ
         </p>
 
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/fogmail/logo.png"
+          alt=""
+          style={{
+            width: "80%",
+            maxWidth: 280,
+            height: "auto",
+            display: "block",
+          }}
+        />
+
         <p
           style={{
-            color: "rgba(255,255,255,0.9)",
+            color: "#fff",
             fontSize: 13,
             fontWeight: 700,
-            lineHeight: 2,
+            lineHeight: 1.9,
             textAlign: "center",
-            marginBottom: 48,
             maxWidth: 320,
             letterSpacing: "0.05em",
+            margin: 0,
           }}
         >
           「はーっ」ボタンを押して
@@ -410,6 +424,7 @@ export default function FogmailPage() {
             letterSpacing: "0.18em",
             cursor: "pointer",
             boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+            marginTop: 8,
           }}
         >
           始める
