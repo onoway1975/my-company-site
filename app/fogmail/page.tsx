@@ -62,7 +62,6 @@ export default function FogmailPage() {
   const [phase, setPhase] = useState<Phase>("top");
   const [shareId, setShareId] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
-  const [shareError, setShareError] = useState<string | null>(null);
 
   const lastPos = useRef<Point | null>(null);
   const dpr = useRef(1);
@@ -81,18 +80,14 @@ export default function FogmailPage() {
 
   /* ── hide external chat widgets ─────────── */
   useEffect(() => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-      #hs-eu-cookie-confirmation,
-      .hs-shadow-container,
-      #hubspot-messages-iframe-container,
-      [id*="chat"],
-      [class*="chat-widget"] { display: none !important; }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      style.remove();
+    const hide = () => {
+      const el = document.getElementById("hubspot-messages-iframe-container");
+      if (el) el.style.setProperty("display", "none", "important");
     };
+    hide();
+    const observer = new MutationObserver(hide);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, []);
 
   /* ── init canvas when entering draw phase ─ */
@@ -124,7 +119,6 @@ export default function FogmailPage() {
     strokesRef.current = [];
     currentStrokeRef.current = null;
     setShareId(null);
-    setShareError(null);
   }, [phase]);
 
   /* ── タイマー: 霧をじわじわ晴らす ──────── */
@@ -285,11 +279,10 @@ export default function FogmailPage() {
   /* ── メールアイコン → Supabase保存 → modal ── */
   async function handleOpenMail() {
     if (sharing) return;
-    setShareError(null);
+    setShareId(null);
 
-    // 何も描かれていない場合でも開けるが、IDなしで運用
+    // 何も描かれていない場合はそのままモーダルを開く
     if (strokesRef.current.length === 0) {
-      setShareId(null);
       setPhase("modal");
       return;
     }
@@ -306,17 +299,14 @@ export default function FogmailPage() {
         .select("id")
         .single();
 
-      if (error || !data) {
-        throw error || new Error("insert failed");
-      }
-      setShareId(data.id as string);
-      setPhase("modal");
+      if (error) throw error;
+      if (data?.id) setShareId(data.id as string);
     } catch (e) {
       console.error("[fogmail] save failed", e);
-      setShareError("保存に失敗しました。もう一度お試しください");
-      setShareId(null);
+      // エラーでもモーダルは表示する（id無しで通常の共有リンク）
     } finally {
       setSharing(false);
+      setPhase("modal");
     }
   }
 
@@ -378,26 +368,22 @@ export default function FogmailPage() {
           padding: "40px 24px",
         }}
       >
-        <div
+        <p
           style={{
-            width: "70%",
-            maxWidth: 300,
+            color: "#fff",
+            fontSize: 14,
+            fontWeight: 700,
+            letterSpacing: "0.16em",
+            textAlign: "center",
             marginBottom: 44,
-            display: "flex",
-            justifyContent: "center",
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/fogmail/logo.png"
-            alt=""
-            style={{ width: "100%", height: "auto", display: "block" }}
-          />
-        </div>
+          曇りガラスに指で送るメッセージ
+        </p>
 
         <p
           style={{
-            color: "rgba(255,255,255,0.88)",
+            color: "rgba(255,255,255,0.9)",
             fontSize: 13,
             fontWeight: 700,
             lineHeight: 2,
@@ -417,18 +403,17 @@ export default function FogmailPage() {
         <button
           onClick={() => setPhase("draw")}
           style={{
-            background: "rgba(255,255,255,0.15)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.3)",
-            borderRadius: 999,
-            padding: "16px 56px",
-            color: "#fff",
+            background: "#fff",
+            color: "#1A4A6B",
+            border: "none",
+            borderRadius: 24,
+            padding: "12px 48px",
             fontSize: 15,
             fontWeight: 700,
             fontFamily: "inherit",
-            letterSpacing: "0.24em",
+            letterSpacing: "0.18em",
             cursor: "pointer",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
           }}
         >
           始める
@@ -542,27 +527,6 @@ export default function FogmailPage() {
       >
         はーっ
       </button>
-
-      {shareError && (
-        <p
-          style={{
-            position: "absolute",
-            bottom: 118,
-            left: "50%",
-            transform: "translateX(-50%)",
-            color: "#fff",
-            background: "rgba(200,40,40,0.85)",
-            padding: "6px 14px",
-            borderRadius: 999,
-            fontSize: 12,
-            fontWeight: 700,
-            zIndex: 15,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {shareError}
-        </p>
-      )}
 
       {/* Modal */}
       {phase === "modal" && (
