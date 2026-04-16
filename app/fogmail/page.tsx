@@ -303,7 +303,7 @@ export default function FogmailPage() {
       setPhase("modal");
     } catch (err) {
       console.error("[fogmail] error:", err);
-      // エラーでもモーダルは開く（URLなしで）
+      alert("[fogmail] error: " + JSON.stringify(err));
       setShareUrl("https://ciraf.jp/fogmail/");
       setPhase("modal");
     }
