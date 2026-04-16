@@ -5,7 +5,9 @@ import { useEffect, useRef, useState } from "react";
 /* ── constants ─────────────────────────────── */
 const FOG_DURATION_SEC = 60;
 const BRUSH_RADIUS = 14;
-const FADE_ALPHA = 0.05; // 毎秒 destination-out する alpha (60秒で約95%消える)
+const FADE_ALPHA = 0.05;
+
+type Phase = "top" | "draw" | "modal";
 
 /* ── PC fallback ───────────────────────────── */
 function PCFallback() {
@@ -17,14 +19,13 @@ function PCFallback() {
   return (
     <div
       style={{
-        minHeight: "100dvh",
+        position: "absolute",
+        inset: 0,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         background: "#fff",
-        fontFamily: "'LINE Seed JP', sans-serif",
-        marginTop: "-64px",
       }}
     >
       <p style={{ fontSize: 20, fontWeight: 700, color: "#111", marginBottom: 12 }}>
@@ -42,6 +43,7 @@ function PCFallback() {
             padding: "8px 16px",
             borderRadius: 8,
             wordBreak: "break-all",
+            maxWidth: "80%",
           }}
         >
           {url}
@@ -54,11 +56,12 @@ function PCFallback() {
 /* ── Main Component ────────────────────────── */
 export default function FogmailPage() {
   const fogCanvasRef = useRef<HTMLCanvasElement>(null);
-
   const [isPC, setIsPC] = useState<boolean | null>(null);
+  const [phase, setPhase] = useState<Phase>("top");
   const lastPos = useRef<{ x: number; y: number } | null>(null);
   const dpr = useRef(1);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mouseDown = useRef(false);
 
   /* ── detect PC ──────────────────────────── */
   useEffect(() => {
@@ -66,9 +69,10 @@ export default function FogmailPage() {
     setIsPC(pc);
   }, []);
 
-  /* ── init canvas ────────────────────────── */
+  /* ── init canvas when entering draw phase ─ */
   useEffect(() => {
     if (isPC !== false) return;
+    if (phase === "top") return;
     const fogC = fogCanvasRef.current;
     if (!fogC) return;
 
@@ -76,11 +80,22 @@ export default function FogmailPage() {
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    fogC.width = w * dpr.current;
-    fogC.height = h * dpr.current;
-    fogC.style.width = `${w}px`;
-    fogC.style.height = `${h}px`;
-  }, [isPC]);
+    if (fogC.width !== w * dpr.current) {
+      fogC.width = w * dpr.current;
+      fogC.height = h * dpr.current;
+      fogC.style.width = `${w}px`;
+      fogC.style.height = `${h}px`;
+    }
+  }, [isPC, phase]);
+
+  /* ── cleanup on return to top ───────────── */
+  useEffect(() => {
+    if (phase !== "top") return;
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, [phase]);
 
   /* ── タイマー: 霧をじわじわ晴らす ──────── */
   function startTimer() {
@@ -88,23 +103,18 @@ export default function FogmailPage() {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-
     let ticks = 0;
-
     timerRef.current = setInterval(() => {
       ticks++;
       const fogC = fogCanvasRef.current;
       if (!fogC) return;
       const ctx = fogC.getContext("2d");
       if (!ctx) return;
-
-      // 毎秒、全ピクセルのalphaを少しずつ減らす
       ctx.save();
       ctx.globalCompositeOperation = "destination-out";
       ctx.fillStyle = `rgba(0,0,0,${FADE_ALPHA})`;
       ctx.fillRect(0, 0, fogC.width, fogC.height);
       ctx.restore();
-
       if (ticks >= FOG_DURATION_SEC) {
         ctx.clearRect(0, 0, fogC.width, fogC.height);
         if (timerRef.current) clearInterval(timerRef.current);
@@ -124,7 +134,7 @@ export default function FogmailPage() {
     };
   }
 
-  /* ── fogCanvas の霧を指で消す ────────────── */
+  /* ── 指で霧を消す ──────────────────────── */
   function eraseAt(from: { x: number; y: number }, to: { x: number; y: number }) {
     const fogC = fogCanvasRef.current;
     if (!fogC) return;
@@ -161,39 +171,33 @@ export default function FogmailPage() {
     e.preventDefault();
     lastPos.current = getPos(e);
   }
-
   function onTouchMove(e: React.TouchEvent) {
     e.preventDefault();
     const pos = getPos(e);
     eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
   }
-
   function onTouchEnd() {
     lastPos.current = null;
   }
 
-  /* ── mouse handlers (for devtools) ──────── */
-  const mouseDown = useRef(false);
-
+  /* ── mouse handlers ────────────────────── */
   function onMouseDown(e: React.MouseEvent) {
     mouseDown.current = true;
     lastPos.current = getPos(e);
   }
-
   function onMouseMove(e: React.MouseEvent) {
     if (!mouseDown.current) return;
     const pos = getPos(e);
     eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
   }
-
   function onMouseUp() {
     mouseDown.current = false;
     lastPos.current = null;
   }
 
-  /* ── breathe (はーっ): 霧を重ねて追加 ──── */
+  /* ── はーっ: 霧を追加 ──────────────────── */
   function breatheFog() {
     const fogC = fogCanvasRef.current;
     if (!fogC) return;
@@ -202,7 +206,7 @@ export default function FogmailPage() {
 
     const W = fogC.width;
     const H = fogC.height;
-    const count = 3 + Math.floor(Math.random() * 3); // 3〜5個
+    const count = 3 + Math.floor(Math.random() * 3);
 
     ctx.save();
     ctx.globalCompositeOperation = "source-over";
@@ -217,89 +221,335 @@ export default function FogmailPage() {
       ctx.fillRect(0, 0, W, H);
     }
     ctx.restore();
-
-    // タイマーリセット (最後のボタン押下から1分)
     startTimer();
   }
 
-  /* ── loading / PC states ────────────────── */
+  /* ── states ─────────────────────────────── */
   if (isPC === null) return null;
   if (isPC) return <PCFallback />;
 
-  return (
-    <>
-      <style>{`
-        @font-face {
-          font-family: 'LINE Seed JP';
-          src: url('/fonts/LINESeedJP_OTF_Bd.woff2') format('woff2');
-          font-weight: 700;
-          font-display: swap;
-        }
-      `}</style>
+  const lineBody = "曇ったガラスにメッセージを書きました。\nhttps://ciraf.jp/fogmail/";
+  const mailHref =
+    "mailto:?subject=" +
+    encodeURIComponent("fog mailからのメッセージ") +
+    "&body=" +
+    encodeURIComponent("曇ったガラスにメッセージを書きました。\n\nhttps://ciraf.jp/fogmail/");
+  const lineHref = "https://line.me/R/msg/text/?" + encodeURIComponent(lineBody);
 
+  /* ── TOP phase ──────────────────────────── */
+  if (phase === "top") {
+    return (
       <div
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100dvh",
-          overflow: "hidden",
-          fontFamily: "'LINE Seed JP', sans-serif",
-          zIndex: 50,
-          backgroundImage: "url('/fogmail/bg.jpg')",
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "url('/fogmail/bg_start.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "40px 24px",
         }}
       >
+        <p
+          style={{
+            color: "rgba(255,255,255,0.92)",
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: "0.22em",
+            marginBottom: 36,
+            textAlign: "center",
+          }}
+        >
+          曇りガラスに指で送るメッセージ
+        </p>
 
-        {/* Fog canvas (霧の描画 + タッチ受付) */}
-        <canvas
-          ref={fogCanvasRef}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
+        <div
+          style={{
+            width: "70%",
+            maxWidth: 300,
+            marginBottom: 44,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/fogmail/logo.png"
+            alt="fog mail"
+            style={{ width: "100%", height: "auto", display: "block" }}
+          />
+        </div>
+
+        <p
+          style={{
+            color: "rgba(255,255,255,0.88)",
+            fontSize: 13,
+            fontWeight: 700,
+            lineHeight: 2,
+            textAlign: "center",
+            marginBottom: 48,
+            maxWidth: 320,
+            letterSpacing: "0.05em",
+          }}
+        >
+          「はーっ」ボタンを押して
+          <br />
+          曇ったガラスに指で
+          <br />
+          メッセージを書いてみよう
+        </p>
+
+        <button
+          onClick={() => setPhase("draw")}
+          style={{
+            background: "rgba(255,255,255,0.15)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.3)",
+            borderRadius: 999,
+            padding: "16px 56px",
+            color: "#fff",
+            fontSize: 15,
+            fontWeight: 700,
+            fontFamily: "inherit",
+            letterSpacing: "0.24em",
+            cursor: "pointer",
+          }}
+        >
+          始める
+        </button>
+      </div>
+    );
+  }
+
+  /* ── DRAW & MODAL ───────────────────────── */
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        backgroundImage: "url('/fogmail/bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <canvas
+        ref={fogCanvasRef}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          touchAction: "none",
+        }}
+      />
+
+      {/* ↩ 戻る → top */}
+      <button
+        onClick={() => setPhase("top")}
+        aria-label="トップに戻る"
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+          width: 44,
+          height: 44,
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.15)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          border: "1px solid rgba(255,255,255,0.25)",
+          color: "rgba(255,255,255,0.9)",
+          fontSize: 20,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 20,
+          padding: 0,
+          fontFamily: "inherit",
+        }}
+      >
+        ↩
+      </button>
+
+      {/* ✉ メール → modal */}
+      <button
+        onClick={() => setPhase("modal")}
+        aria-label="メッセージを送る"
+        style={{
+          position: "absolute",
+          bottom: 48,
+          left: 24,
+          width: 52,
+          height: 52,
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.15)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          border: "1px solid rgba(255,255,255,0.25)",
+          color: "rgba(255,255,255,0.9)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 20,
+          padding: 0,
+        }}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="M3 7l9 6 9-6" />
+        </svg>
+      </button>
+
+      {/* はーっ */}
+      <button
+        onClick={breatheFog}
+        style={{
+          position: "absolute",
+          bottom: 48,
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "rgba(255,255,255,0.12)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid rgba(255,255,255,0.2)",
+          borderRadius: 999,
+          padding: "14px 36px",
+          color: "rgba(255,255,255,0.85)",
+          fontSize: 16,
+          fontWeight: 700,
+          fontFamily: "inherit",
+          letterSpacing: "0.15em",
+          cursor: "pointer",
+          zIndex: 10,
+        }}
+      >
+        はーっ
+      </button>
+
+      {/* Modal */}
+      {phase === "modal" && (
+        <div
+          onClick={() => setPhase("draw")}
           style={{
             position: "absolute",
             inset: 0,
-            width: "100%",
-            height: "100%",
-            touchAction: "none",
-          }}
-        />
-
-        {/* Breath button - always visible */}
-        <button
-          onClick={breatheFog}
-          style={{
-            position: "absolute",
-            bottom: 48,
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "rgba(255,255,255,0.12)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            borderRadius: 999,
-            padding: "14px 36px",
-            color: "rgba(255,255,255,0.85)",
-            fontSize: 16,
-            fontWeight: 700,
-            fontFamily: "'LINE Seed JP', sans-serif",
-            letterSpacing: "0.15em",
-            cursor: "pointer",
-            zIndex: 10,
-            transition: "all 0.3s ease",
+            background: "rgba(0,0,0,0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 30,
+            padding: 24,
           }}
         >
-          はーっ
-        </button>
-      </div>
-    </>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: 360,
+              background: "#1A6B5A",
+              borderRadius: 24,
+              padding: "44px 28px 36px",
+              position: "relative",
+              color: "#fff",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
+            }}
+          >
+            <button
+              onClick={() => setPhase("draw")}
+              aria-label="閉じる"
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                background: "transparent",
+                border: "none",
+                color: "rgba(255,255,255,0.9)",
+                fontSize: 22,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+                fontFamily: "inherit",
+              }}
+            >
+              ×
+            </button>
+
+            <p
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: "0.18em",
+                textAlign: "center",
+                marginBottom: 28,
+              }}
+            >
+              メッセージを送る
+            </p>
+
+            <a
+              href={mailHref}
+              style={{
+                display: "block",
+                width: "80%",
+                margin: "0 auto 14px",
+                padding: "14px 0",
+                borderRadius: 999,
+                background: "#fff",
+                color: "#1A6B5A",
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: "0.24em",
+                textAlign: "center",
+                textDecoration: "none",
+              }}
+            >
+              MAIL
+            </a>
+
+            <a
+              href={lineHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                width: "80%",
+                margin: "0 auto",
+                padding: "14px 0",
+                borderRadius: 999,
+                background: "#06C755",
+                color: "#fff",
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: "0.24em",
+                textAlign: "center",
+                textDecoration: "none",
+              }}
+            >
+              LINE
+            </a>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
