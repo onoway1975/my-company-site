@@ -61,8 +61,7 @@ export default function FogmailPage() {
   const fogCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isPC, setIsPC] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<Phase>("top");
-  const [shareId, setShareId] = useState<string | null>(null);
-  const [sharing, setSharing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string>("https://ciraf.jp/fogmail/");
 
   const lastPos = useRef<Point | null>(null);
   const dpr = useRef(1);
@@ -117,7 +116,7 @@ export default function FogmailPage() {
     }
     strokesRef.current = [];
     currentStrokeRef.current = null;
-    setShareId(null);
+    setShareUrl("https://ciraf.jp/fogmail/");
   }, [phase]);
 
   /* ── タイマー: 霧をじわじわ晴らす ──────── */
@@ -276,68 +275,38 @@ export default function FogmailPage() {
   }
 
   /* ── メールアイコン → Supabase保存 → modal ── */
-  async function handleOpenMail() {
-    if (sharing) return;
-    setShareId(null);
-
-    // 何も描かれていない場合はそのままモーダルを開く
-    if (strokesRef.current.length === 0) {
-      setPhase("modal");
-      return;
-    }
-
-    setSharing(true);
+  const handleSend = async () => {
     try {
       const strokes = strokesRef.current;
-      console.log("[fogmail] strokes:", strokes);
-      console.log(
-        "[fogmail] supabase url set?",
-        !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-        "anon key set?",
-        !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      );
+      console.log("[fogmail] strokes count:", strokes.length);
+
       const { data, error } = await supabase
         .from("fogmail_messages")
-        .insert({ stroke_data: strokes })
+        .insert([{ stroke_data: strokes }])
         .select("id")
         .single();
-      console.log("[fogmail] data:", data, "error:", error);
+
+      console.log("[fogmail] result:", data, error);
 
       if (error) throw error;
-      if (data?.id) {
-        setShareId(data.id as string);
-      }
-    } catch (e) {
-      console.error("[fogmail] save failed", e);
-      // エラーでもモーダルは表示する（id無しで通常の共有リンク）
-    } finally {
-      setSharing(false);
+
+      const shareUrl = `https://ciraf.jp/fogmail/view?id=${data.id}`;
+      setShareUrl(shareUrl);
+      setPhase("modal");
+    } catch (err) {
+      console.error("[fogmail] error:", err);
+      // エラーでもモーダルは開く（URLなしで）
+      setShareUrl("https://ciraf.jp/fogmail/");
       setPhase("modal");
     }
-  }
+  };
 
   /* ── states ─────────────────────────────── */
   if (isPC === null) return null;
   if (isPC) return <PCFallback />;
 
-  const shareUrl = shareId
-    ? `https://ciraf.jp/fogmail/view?id=${shareId}`
-    : "https://ciraf.jp/fogmail/";
-
-  const mailSubject = "fog mailからのメッセージ";
-  const mailBodyText = shareId
-    ? `曇ったガラスにメッセージが書かれています。\n10分以内に開いてください。\n\n${shareUrl}`
-    : `曇ったガラスにメッセージを書きました。\n\n${shareUrl}`;
-  const mailHref =
-    "mailto:?subject=" +
-    encodeURIComponent(mailSubject) +
-    "&body=" +
-    encodeURIComponent(mailBodyText);
-
-  const lineBodyText = shareId
-    ? `曇ったガラスにメッセージが書かれています。\n10分以内に開いてください。\n${shareUrl}`
-    : `曇ったガラスにメッセージを書きました。\n${shareUrl}`;
-  const lineHref = "https://line.me/R/msg/text/?" + encodeURIComponent(lineBodyText);
+  const mailHref = `mailto:?subject=fog mailからのメッセージ&body=曇ったガラスにメッセージを書きました。%0A10分以内に開いてください。%0A%0A${encodeURIComponent(shareUrl)}`;
+  const lineHref = `https://line.me/R/msg/text/?曇ったガラスにメッセージを書きました。%0A10分以内に開いてください。%0A${encodeURIComponent(shareUrl)}`;
 
   const iconBtnStyle: React.CSSProperties = {
     width: 52,
@@ -483,16 +452,13 @@ export default function FogmailPage() {
 
       {/* ✉ メール → 保存 → modal */}
       <button
-        onClick={handleOpenMail}
-        disabled={sharing}
+        onClick={handleSend}
         aria-label="メッセージを送る"
         style={{
           ...iconBtnStyle,
           position: "absolute",
           bottom: 48,
           left: 24,
-          opacity: sharing ? 0.6 : 1,
-          cursor: sharing ? "wait" : "pointer",
         }}
       >
         <svg
