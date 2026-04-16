@@ -10,6 +10,7 @@ const FADE_ALPHA = 0.05;
 
 type Phase = "top" | "draw" | "modal";
 type Point = { x: number; y: number };
+type Stroke = { points: Point[] };
 
 /* ── PC fallback ───────────────────────────── */
 function PCFallback() {
@@ -69,25 +70,13 @@ export default function FogmailPage() {
   const mouseDown = useRef(false);
 
   // stroke recording (normalized [0..1] coordinates)
-  const strokesRef = useRef<Point[][]>([]);
-  const currentStrokeRef = useRef<Point[] | null>(null);
+  const strokesRef = useRef<Stroke[]>([]);
+  const currentStrokeRef = useRef<Stroke | null>(null);
 
   /* ── detect PC ──────────────────────────── */
   useEffect(() => {
     const pc = navigator.maxTouchPoints === 0 && window.innerWidth > 768;
     setIsPC(pc);
-  }, []);
-
-  /* ── hide external chat widgets ─────────── */
-  useEffect(() => {
-    const hide = () => {
-      const el = document.getElementById("hubspot-messages-iframe-container");
-      if (el) el.style.setProperty("display", "none", "important");
-    };
-    hide();
-    const observer = new MutationObserver(hide);
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
   }, []);
 
   /* ── init canvas when entering draw phase ─ */
@@ -162,7 +151,7 @@ export default function FogmailPage() {
     if (!currentStrokeRef.current) return;
     const canvas = fogCanvasRef.current;
     if (!canvas || canvas.width === 0 || canvas.height === 0) return;
-    currentStrokeRef.current.push({
+    currentStrokeRef.current.points.push({
       x: pos.x / canvas.width,
       y: pos.y / canvas.height,
     });
@@ -205,7 +194,7 @@ export default function FogmailPage() {
     e.preventDefault();
     const pos = getPos(e);
     lastPos.current = pos;
-    currentStrokeRef.current = [];
+    currentStrokeRef.current = { points: [] };
     recordPoint(pos);
   }
   function onTouchMove(e: React.TouchEvent) {
@@ -216,7 +205,7 @@ export default function FogmailPage() {
     recordPoint(pos);
   }
   function onTouchEnd() {
-    if (currentStrokeRef.current && currentStrokeRef.current.length > 1) {
+    if (currentStrokeRef.current && currentStrokeRef.current.points.length > 1) {
       strokesRef.current.push(currentStrokeRef.current);
     }
     currentStrokeRef.current = null;
@@ -228,7 +217,7 @@ export default function FogmailPage() {
     mouseDown.current = true;
     const pos = getPos(e);
     lastPos.current = pos;
-    currentStrokeRef.current = [];
+    currentStrokeRef.current = { points: [] };
     recordPoint(pos);
   }
   function onMouseMove(e: React.MouseEvent) {
@@ -240,7 +229,7 @@ export default function FogmailPage() {
   }
   function onMouseUp() {
     if (mouseDown.current) {
-      if (currentStrokeRef.current && currentStrokeRef.current.length > 1) {
+      if (currentStrokeRef.current && currentStrokeRef.current.points.length > 1) {
         strokesRef.current.push(currentStrokeRef.current);
       }
       currentStrokeRef.current = null;
@@ -289,18 +278,19 @@ export default function FogmailPage() {
 
     setSharing(true);
     try {
-      const strokeData = {
-        v: 1,
-        strokes: strokesRef.current,
-      };
+      const strokes = strokesRef.current;
+      console.log("[fogmail] saving strokes:", strokes.length, "strokes");
       const { data, error } = await supabase
         .from("fogmail_messages")
-        .insert({ stroke_data: strokeData })
+        .insert({ stroke_data: strokes })
         .select("id")
         .single();
 
       if (error) throw error;
-      if (data?.id) setShareId(data.id as string);
+      if (data?.id) {
+        console.log("[fogmail] saved. id =", data.id);
+        setShareId(data.id as string);
+      }
     } catch (e) {
       console.error("[fogmail] save failed", e);
       // エラーでもモーダルは表示する（id無しで通常の共有リンク）
@@ -315,7 +305,7 @@ export default function FogmailPage() {
   if (isPC) return <PCFallback />;
 
   const shareUrl = shareId
-    ? `https://ciraf.jp/fogmail/view/?id=${shareId}`
+    ? `https://ciraf.jp/fogmail/view?id=${shareId}`
     : "https://ciraf.jp/fogmail/";
 
   const mailSubject = "fog mailからのメッセージ";
@@ -403,13 +393,13 @@ export default function FogmailPage() {
         <button
           onClick={() => setPhase("draw")}
           style={{
-            background: "#fff",
+            background: "#FFFFFF",
             color: "#1A4A6B",
+            fontWeight: "bold",
+            padding: "14px 48px",
+            borderRadius: "28px",
             border: "none",
-            borderRadius: 24,
-            padding: "12px 48px",
-            fontSize: 15,
-            fontWeight: 700,
+            fontSize: "16px",
             fontFamily: "inherit",
             letterSpacing: "0.18em",
             cursor: "pointer",

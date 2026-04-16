@@ -7,35 +7,42 @@ import { supabase } from "@/lib/supabase";
 const BRUSH_RADIUS = 14;
 
 type Point = { x: number; y: number };
-type StrokeData = {
-  v?: number;
-  strokes: Point[][];
-};
+type Stroke = { points: Point[] };
+// 保存形式: Stroke[] （従来の {strokes: Point[][]} 形式も後方互換でサポート）
+type StrokeData = Stroke[] | { strokes?: Point[][] | Stroke[] };
 
 type ViewState = "loading" | "ready" | "expired" | "notfound";
+
+function normalizeStrokes(raw: unknown): Stroke[] {
+  if (!raw) return [];
+  // 新形式: Stroke[]
+  if (Array.isArray(raw)) {
+    return raw
+      .map((s: unknown): Stroke | null => {
+        if (s && typeof s === "object" && "points" in s && Array.isArray((s as Stroke).points)) {
+          return { points: (s as Stroke).points };
+        }
+        if (Array.isArray(s)) {
+          // 古い Point[] 形式
+          return { points: s as Point[] };
+        }
+        return null;
+      })
+      .filter((s): s is Stroke => s !== null);
+  }
+  // 旧形式: { strokes: Point[][] } または { strokes: Stroke[] }
+  if (typeof raw === "object" && raw !== null && "strokes" in raw) {
+    return normalizeStrokes((raw as { strokes: unknown }).strokes);
+  }
+  return [];
+}
 
 function ViewInner() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [state, setState] = useState<ViewState>("loading");
-  const [strokeData, setStrokeData] = useState<StrokeData | null>(null);
-
-  /* ── hide external chat widgets (same as main) ── */
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-      #hs-eu-cookie-confirmation,
-      .hs-shadow-container,
-      #hubspot-messages-iframe-container,
-      [id*="chat"],
-      [class*="chat-widget"] { display: none !important; }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      style.remove();
-    };
-  }, []);
+  const [strokes, setStrokes] = useState<Stroke[]>([]);
 
   /* ── fetch message ─────────────────────── */
   useEffect(() => {
@@ -59,7 +66,7 @@ function ViewInner() {
           setState("expired");
           return;
         }
-        setStrokeData(data.stroke_data as StrokeData);
+        setStrokes(normalizeStrokes(data.stroke_data as StrokeData));
         setState("ready");
       } catch (e) {
         console.error("[fogmail/view]", e);
@@ -70,7 +77,7 @@ function ViewInner() {
 
   /* ── render strokes onto fog canvas ─────── */
   useEffect(() => {
-    if (state !== "ready" || !strokeData) return;
+    if (state !== "ready") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -107,7 +114,6 @@ function ViewInner() {
     ctx.restore();
 
     // animate stroke erasure
-    const strokes = strokeData.strokes || [];
     if (strokes.length === 0) return;
 
     const BRUSH = BRUSH_RADIUS * dpr;
@@ -146,14 +152,14 @@ function ViewInner() {
       const POINTS_PER_FRAME = 3;
       for (let k = 0; k < POINTS_PER_FRAME; k++) {
         if (strokeIdx >= strokes.length) return;
-        const stroke = strokes[strokeIdx];
-        if (pointIdx >= stroke.length - 1) {
+        const points = strokes[strokeIdx].points;
+        if (pointIdx >= points.length - 1) {
           strokeIdx++;
           pointIdx = 0;
           continue;
         }
-        const from = { x: stroke[pointIdx].x * W, y: stroke[pointIdx].y * H };
-        const to = { x: stroke[pointIdx + 1].x * W, y: stroke[pointIdx + 1].y * H };
+        const from = { x: points[pointIdx].x * W, y: points[pointIdx].y * H };
+        const to = { x: points[pointIdx + 1].x * W, y: points[pointIdx + 1].y * H };
         eraseSegment(from, to);
         pointIdx++;
       }
@@ -165,7 +171,7 @@ function ViewInner() {
       canceled = true;
       cancelAnimationFrame(rafId);
     };
-  }, [state, strokeData]);
+  }, [state, strokes]);
 
   /* ── states ───────────────────────────── */
   if (state === "loading") {
