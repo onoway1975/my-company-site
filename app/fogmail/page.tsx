@@ -379,28 +379,25 @@ export default function FogmailPage() {
     return (
       <div
         style={{
-          position: "absolute",
-          inset: 0,
+          width: "100%",
+          height: "100vh",
           backgroundImage: "url('/fogmail/bg_start.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 32,
+          gap: "24px",
           padding: "40px 24px",
-          margin: 0,
         }}
       >
         <p
           style={{
-            color: "#fff",
-            fontSize: 14,
-            fontWeight: 700,
-            letterSpacing: "0.16em",
+            color: "white",
+            fontSize: "13px",
             textAlign: "center",
+            textShadow: "0 1px 4px rgba(0,0,0,0.5)",
             margin: 0,
           }}
         >
@@ -410,49 +407,37 @@ export default function FogmailPage() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/fogmail/logo.png"
-          alt=""
-          style={{
-            width: "80%",
-            maxWidth: 280,
-            height: "auto",
-            display: "block",
-          }}
+          alt="fog mail"
+          style={{ width: "80%", maxWidth: "280px", display: "block" }}
         />
 
         <p
           style={{
-            color: "#fff",
-            fontSize: 13,
-            fontWeight: 700,
-            lineHeight: 1.9,
+            color: "white",
+            fontSize: "13px",
             textAlign: "center",
-            maxWidth: 320,
-            letterSpacing: "0.05em",
+            textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+            lineHeight: 1.8,
             margin: 0,
           }}
         >
-          「はーっ」ボタンを押して
-          <br />
-          曇ったガラスに指で
-          <br />
+          「はーっ」ボタンを押して<br />
+          曇ったガラスに指で<br />
           メッセージを書いてみよう
         </p>
 
         <button
           onClick={() => setPhase("draw")}
           style={{
-            background: "#FFFFFF",
+            marginTop: "8px",
+            padding: "14px 48px",
+            background: "white",
             color: "#1A4A6B",
             fontWeight: "bold",
-            padding: "14px 48px",
-            borderRadius: "28px",
-            border: "none",
             fontSize: "16px",
-            fontFamily: "inherit",
-            letterSpacing: "0.18em",
+            border: "none",
+            borderRadius: "28px",
             cursor: "pointer",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-            marginTop: 8,
           }}
         >
           始める
