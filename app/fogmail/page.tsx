@@ -279,16 +279,22 @@ export default function FogmailPage() {
     setSharing(true);
     try {
       const strokes = strokesRef.current;
-      console.log("[fogmail] saving strokes:", strokes.length, "strokes");
+      console.log("[fogmail] strokes:", strokes);
+      console.log(
+        "[fogmail] supabase url set?",
+        !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        "anon key set?",
+        !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
       const { data, error } = await supabase
         .from("fogmail_messages")
         .insert({ stroke_data: strokes })
         .select("id")
         .single();
+      console.log("[fogmail] data:", data, "error:", error);
 
       if (error) throw error;
       if (data?.id) {
-        console.log("[fogmail] saved. id =", data.id);
         setShareId(data.id as string);
       }
     } catch (e) {
