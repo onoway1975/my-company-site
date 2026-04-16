@@ -8,6 +8,7 @@
 @source "./shiyakusho";
 @source "./yume100";
 @source "./fogmail";
+@source "./renewal";
 
 @theme {
   --color-ink: #111111;
