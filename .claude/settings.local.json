@@ -328,7 +328,8 @@
       "Bash(git add -A && git commit -m \"fix: fogmail Supabase INSERT修正・shareUrl実装\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail はーっボタンのデザイン修正\" && git push)",
       "Bash(git commit --allow-empty -m \"fix: fogmail force redeploy\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: fogmail supabase インライン初期化に変更\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: fogmail supabase インライン初期化に変更\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: fogmail audioエラー修正\" && git push)"
     ]
   }
 }

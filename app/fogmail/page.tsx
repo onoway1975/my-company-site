@@ -281,6 +281,7 @@ export default function FogmailPage() {
 
   /* ── メールアイコン → Supabase保存 → modal ── */
   const handleSend = async () => {
+    console.log("[fogmail] handleSend called");
     console.log("[fogmail] SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
     try {
       const strokes = strokesRef.current;
