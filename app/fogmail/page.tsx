@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabase";
 
 /* ── constants ─────────────────────────────── */
 const FOG_DURATION_SEC = 60;
@@ -281,9 +276,7 @@ export default function FogmailPage() {
 
   /* ── メールアイコン → Supabase保存 → modal ── */
   const handleSend = async () => {
-    console.log("[fogmail] handleSend called!!!");
-    alert("[fogmail] handleSend called"); // 確認用
-    console.log("[fogmail] SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log("[fogmail] handleSend called");
     try {
       const strokes = strokesRef.current;
       console.log("[fogmail] strokes count:", strokes.length);
@@ -303,7 +296,6 @@ export default function FogmailPage() {
       setPhase("modal");
     } catch (err) {
       console.error("[fogmail] error:", err);
-      alert("[fogmail] error: " + JSON.stringify(err));
       setShareUrl("https://ciraf.jp/fogmail/");
       setPhase("modal");
     }
