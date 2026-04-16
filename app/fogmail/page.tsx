@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 /* ── constants ─────────────────────────────── */
 const FOG_DURATION_SEC = 60;
@@ -8,6 +9,7 @@ const BRUSH_RADIUS = 14;
 const FADE_ALPHA = 0.05;
 
 type Phase = "top" | "draw" | "modal";
+type Point = { x: number; y: number };
 
 /* ── PC fallback ───────────────────────────── */
 function PCFallback() {
@@ -58,15 +60,39 @@ export default function FogmailPage() {
   const fogCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isPC, setIsPC] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<Phase>("top");
-  const lastPos = useRef<{ x: number; y: number } | null>(null);
+  const [shareId, setShareId] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+
+  const lastPos = useRef<Point | null>(null);
   const dpr = useRef(1);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mouseDown = useRef(false);
+
+  // stroke recording (normalized [0..1] coordinates)
+  const strokesRef = useRef<Point[][]>([]);
+  const currentStrokeRef = useRef<Point[] | null>(null);
 
   /* ── detect PC ──────────────────────────── */
   useEffect(() => {
     const pc = navigator.maxTouchPoints === 0 && window.innerWidth > 768;
     setIsPC(pc);
+  }, []);
+
+  /* ── hide external chat widgets ─────────── */
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      #hs-eu-cookie-confirmation,
+      .hs-shadow-container,
+      #hubspot-messages-iframe-container,
+      [id*="chat"],
+      [class*="chat-widget"] { display: none !important; }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      style.remove();
+    };
   }, []);
 
   /* ── init canvas when entering draw phase ─ */
@@ -88,13 +114,17 @@ export default function FogmailPage() {
     }
   }, [isPC, phase]);
 
-  /* ── cleanup on return to top ───────────── */
+  /* ── reset state when returning to top ──── */
   useEffect(() => {
     if (phase !== "top") return;
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    strokesRef.current = [];
+    currentStrokeRef.current = null;
+    setShareId(null);
+    setShareError(null);
   }, [phase]);
 
   /* ── タイマー: 霧をじわじわ晴らす ──────── */
@@ -123,8 +153,8 @@ export default function FogmailPage() {
     }, 1000);
   }
 
-  /* ── getPos ────────────────────────────── */
-  function getPos(e: React.TouchEvent | React.MouseEvent): { x: number; y: number } {
+  /* ── getPos (device-pixel space) ───────── */
+  function getPos(e: React.TouchEvent | React.MouseEvent): Point {
     const canvas = fogCanvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const src = "touches" in e && e.touches?.length ? e.touches[0] : (e as React.MouseEvent);
@@ -134,8 +164,18 @@ export default function FogmailPage() {
     };
   }
 
+  function recordPoint(pos: Point) {
+    if (!currentStrokeRef.current) return;
+    const canvas = fogCanvasRef.current;
+    if (!canvas || canvas.width === 0 || canvas.height === 0) return;
+    currentStrokeRef.current.push({
+      x: pos.x / canvas.width,
+      y: pos.y / canvas.height,
+    });
+  }
+
   /* ── 指で霧を消す ──────────────────────── */
-  function eraseAt(from: { x: number; y: number }, to: { x: number; y: number }) {
+  function eraseAt(from: Point, to: Point) {
     const fogC = fogCanvasRef.current;
     if (!fogC) return;
     const ctx = fogC.getContext("2d");
@@ -169,30 +209,48 @@ export default function FogmailPage() {
   /* ── touch handlers ────────────────────── */
   function onTouchStart(e: React.TouchEvent) {
     e.preventDefault();
-    lastPos.current = getPos(e);
+    const pos = getPos(e);
+    lastPos.current = pos;
+    currentStrokeRef.current = [];
+    recordPoint(pos);
   }
   function onTouchMove(e: React.TouchEvent) {
     e.preventDefault();
     const pos = getPos(e);
     eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
+    recordPoint(pos);
   }
   function onTouchEnd() {
+    if (currentStrokeRef.current && currentStrokeRef.current.length > 1) {
+      strokesRef.current.push(currentStrokeRef.current);
+    }
+    currentStrokeRef.current = null;
     lastPos.current = null;
   }
 
   /* ── mouse handlers ────────────────────── */
   function onMouseDown(e: React.MouseEvent) {
     mouseDown.current = true;
-    lastPos.current = getPos(e);
+    const pos = getPos(e);
+    lastPos.current = pos;
+    currentStrokeRef.current = [];
+    recordPoint(pos);
   }
   function onMouseMove(e: React.MouseEvent) {
     if (!mouseDown.current) return;
     const pos = getPos(e);
     eraseAt(lastPos.current ?? pos, pos);
     lastPos.current = pos;
+    recordPoint(pos);
   }
   function onMouseUp() {
+    if (mouseDown.current) {
+      if (currentStrokeRef.current && currentStrokeRef.current.length > 1) {
+        strokesRef.current.push(currentStrokeRef.current);
+      }
+      currentStrokeRef.current = null;
+    }
     mouseDown.current = false;
     lastPos.current = null;
   }
@@ -224,17 +282,83 @@ export default function FogmailPage() {
     startTimer();
   }
 
+  /* ── メールアイコン → Supabase保存 → modal ── */
+  async function handleOpenMail() {
+    if (sharing) return;
+    setShareError(null);
+
+    // 何も描かれていない場合でも開けるが、IDなしで運用
+    if (strokesRef.current.length === 0) {
+      setShareId(null);
+      setPhase("modal");
+      return;
+    }
+
+    setSharing(true);
+    try {
+      const strokeData = {
+        v: 1,
+        strokes: strokesRef.current,
+      };
+      const { data, error } = await supabase
+        .from("fogmail_messages")
+        .insert({ stroke_data: strokeData })
+        .select("id")
+        .single();
+
+      if (error || !data) {
+        throw error || new Error("insert failed");
+      }
+      setShareId(data.id as string);
+      setPhase("modal");
+    } catch (e) {
+      console.error("[fogmail] save failed", e);
+      setShareError("保存に失敗しました。もう一度お試しください");
+      setShareId(null);
+    } finally {
+      setSharing(false);
+    }
+  }
+
   /* ── states ─────────────────────────────── */
   if (isPC === null) return null;
   if (isPC) return <PCFallback />;
 
-  const lineBody = "曇ったガラスにメッセージを書きました。\nhttps://ciraf.jp/fogmail/";
+  const shareUrl = shareId
+    ? `https://ciraf.jp/fogmail/view/?id=${shareId}`
+    : "https://ciraf.jp/fogmail/";
+
+  const mailSubject = "fog mailからのメッセージ";
+  const mailBodyText = shareId
+    ? `曇ったガラスにメッセージが書かれています。\n10分以内に開いてください。\n\n${shareUrl}`
+    : `曇ったガラスにメッセージを書きました。\n\n${shareUrl}`;
   const mailHref =
     "mailto:?subject=" +
-    encodeURIComponent("fog mailからのメッセージ") +
+    encodeURIComponent(mailSubject) +
     "&body=" +
-    encodeURIComponent("曇ったガラスにメッセージを書きました。\n\nhttps://ciraf.jp/fogmail/");
-  const lineHref = "https://line.me/R/msg/text/?" + encodeURIComponent(lineBody);
+    encodeURIComponent(mailBodyText);
+
+  const lineBodyText = shareId
+    ? `曇ったガラスにメッセージが書かれています。\n10分以内に開いてください。\n${shareUrl}`
+    : `曇ったガラスにメッセージを書きました。\n${shareUrl}`;
+  const lineHref = "https://line.me/R/msg/text/?" + encodeURIComponent(lineBodyText);
+
+  const iconBtnStyle: React.CSSProperties = {
+    width: 52,
+    height: 52,
+    borderRadius: "50%",
+    background: "rgba(255,255,255,0.9)",
+    border: "none",
+    color: "#1A6B5A",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 20,
+    padding: 0,
+    boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+    fontFamily: "inherit",
+  };
 
   /* ── TOP phase ──────────────────────────── */
   if (phase === "top") {
@@ -254,19 +378,6 @@ export default function FogmailPage() {
           padding: "40px 24px",
         }}
       >
-        <p
-          style={{
-            color: "rgba(255,255,255,0.92)",
-            fontSize: 13,
-            fontWeight: 700,
-            letterSpacing: "0.22em",
-            marginBottom: 36,
-            textAlign: "center",
-          }}
-        >
-          曇りガラスに指で送るメッセージ
-        </p>
-
         <div
           style={{
             width: "70%",
@@ -279,7 +390,7 @@ export default function FogmailPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/fogmail/logo.png"
-            alt="fog mail"
+            alt=""
             style={{ width: "100%", height: "auto", display: "block" }}
           />
         </div>
@@ -360,56 +471,47 @@ export default function FogmailPage() {
       <button
         onClick={() => setPhase("top")}
         aria-label="トップに戻る"
-        style={{
-          position: "absolute",
-          top: 20,
-          right: 20,
-          width: 44,
-          height: 44,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,0.15)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          border: "1px solid rgba(255,255,255,0.25)",
-          color: "rgba(255,255,255,0.9)",
-          fontSize: 20,
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 20,
-          padding: 0,
-          fontFamily: "inherit",
-        }}
+        style={{ ...iconBtnStyle, position: "absolute", top: 20, right: 20 }}
       >
-        ↩
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M9 14L4 9l5-5" />
+          <path d="M4 9h10a6 6 0 0 1 0 12h-3" />
+        </svg>
       </button>
 
-      {/* ✉ メール → modal */}
+      {/* ✉ メール → 保存 → modal */}
       <button
-        onClick={() => setPhase("modal")}
+        onClick={handleOpenMail}
+        disabled={sharing}
         aria-label="メッセージを送る"
         style={{
+          ...iconBtnStyle,
           position: "absolute",
           bottom: 48,
           left: 24,
-          width: 52,
-          height: 52,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,0.15)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          border: "1px solid rgba(255,255,255,0.25)",
-          color: "rgba(255,255,255,0.9)",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 20,
-          padding: 0,
+          opacity: sharing ? 0.6 : 1,
+          cursor: sharing ? "wait" : "pointer",
         }}
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <rect x="3" y="5" width="18" height="14" rx="2" />
           <path d="M3 7l9 6 9-6" />
         </svg>
@@ -440,6 +542,27 @@ export default function FogmailPage() {
       >
         はーっ
       </button>
+
+      {shareError && (
+        <p
+          style={{
+            position: "absolute",
+            bottom: 118,
+            left: "50%",
+            transform: "translateX(-50%)",
+            color: "#fff",
+            background: "rgba(200,40,40,0.85)",
+            padding: "6px 14px",
+            borderRadius: 999,
+            fontSize: 12,
+            fontWeight: 700,
+            zIndex: 15,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {shareError}
+        </p>
+      )}
 
       {/* Modal */}
       {phase === "modal" && (
