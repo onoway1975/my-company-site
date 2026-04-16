@@ -381,6 +381,7 @@ export default function RenewalPage() {
     Record<string, ExpertReport | null>
   >({});
   const [loadingExperts, setLoadingExperts] = useState(false);
+  const [retryingExperts, setRetryingExperts] = useState<Record<string, boolean>>({});
   const [selectedExpert, setSelectedExpert] = useState<ExpertId>("producer");
   const [selectedChatExpert, setSelectedChatExpert] = useState<ExpertId | null>(
     null
@@ -492,32 +493,90 @@ export default function RenewalPage() {
 
   /* ── STEP 2 → 3: 専門家分析 ───────────── */
 
+  async function fetchExpertReport(
+    expertId: ExpertId,
+    slim: unknown
+  ): Promise<ExpertReport | null> {
+    try {
+      const r = await fetch("/api/renewal/expert/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, siteData: slim, expertId }),
+      });
+      const data = await r.json();
+      if (!r.ok) return null;
+      if (data && Array.isArray(data.issues) && Array.isArray(data.recommendations)) {
+        return data as ExpertReport;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   async function handleStartExperts() {
     addBubble("advisor", "6名の専門家がそれぞれの視点で分析しています...");
     setLoadingExperts(true);
     setStep(3);
     setInvolvedExperts([...EXPERT_IDS]);
 
-    const results = await Promise.allSettled(
-      EXPERT_IDS.map((id) =>
-        fetch("/api/renewal/expert/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url, siteData, expertId: id }),
-        })
-          .then((r) => r.json())
-          .then((data) => ({ id, data }))
+    // siteDataをAPIに渡す前に必要項目だけに絞る（トークン超過対策）
+    const slimSiteData: Record<string, unknown> = {
+      siteName: siteData?.siteName,
+      industry: siteData?.industry,
+      description: siteData?.description,
+      techStack: siteData?.techStack,
+      seoStatus: siteData?.seoStatus,
+      designTone: siteData?.designTone,
+      pageStructure: siteData?.pageStructure?.slice(0, 100),
+    };
+
+    // Phase 1: 200msずつずらして並列リクエスト
+    const initial = await Promise.allSettled(
+      EXPERT_IDS.map(
+        (id, i) =>
+          new Promise<ExpertReport | null>((resolve) => {
+            setTimeout(() => {
+              fetchExpertReport(id, slimSiteData).then(resolve);
+            }, i * 200);
+          })
       )
     );
+
     const reports: Record<string, ExpertReport | null> = {};
-    results.forEach((r, i) => {
-      if (r.status === "fulfilled" && r.value.data.issues) {
-        reports[EXPERT_IDS[i]] = r.value.data;
+    const failedIds: ExpertId[] = [];
+    initial.forEach((r, i) => {
+      const id = EXPERT_IDS[i];
+      if (r.status === "fulfilled" && r.value) {
+        reports[id] = r.value;
       } else {
-        reports[EXPERT_IDS[i]] = null;
+        reports[id] = null;
+        failedIds.push(id);
       }
     });
-    setExpertReports(reports);
+    setExpertReports({ ...reports });
+
+    // Phase 2: 失敗した専門家を500ms後に1回だけリトライ
+    if (failedIds.length > 0) {
+      const retryMap: Record<string, boolean> = {};
+      failedIds.forEach((id) => (retryMap[id] = true));
+      setRetryingExperts(retryMap);
+
+      await new Promise((res) => setTimeout(res, 500));
+
+      const retryResults = await Promise.allSettled(
+        failedIds.map((id) => fetchExpertReport(id, slimSiteData))
+      );
+      retryResults.forEach((r, i) => {
+        const id = failedIds[i];
+        if (r.status === "fulfilled" && r.value) {
+          reports[id] = r.value;
+        }
+      });
+      setExpertReports({ ...reports });
+      setRetryingExperts({});
+    }
+
     setLoadingExperts(false);
     addBubble(
       "advisor",
@@ -1200,18 +1259,18 @@ export default function RenewalPage() {
                               {e.role}
                             </p>
                           </div>
-                          {loadingExperts && !loaded && (
+                          {(loadingExperts && !loaded) || retryingExperts[id] ? (
                             <span
                               style={{
                                 width: 6,
                                 height: 6,
                                 borderRadius: "50%",
-                                background: S.brand,
+                                background: retryingExperts[id] ? "#E8821A" : S.brand,
                                 marginLeft: "auto",
                                 animation: "dotBounce 1.2s ease-in-out infinite",
                               }}
                             />
-                          )}
+                          ) : null}
                         </button>
                       );
                     })}
@@ -1250,7 +1309,7 @@ export default function RenewalPage() {
                             </div>
                           </div>
 
-                          {loadingExperts && !report ? (
+                          {(loadingExperts && !report) || retryingExperts[selectedExpert] ? (
                             <div
                               style={{
                                 textAlign: "center",
@@ -1260,7 +1319,9 @@ export default function RenewalPage() {
                               }}
                             >
                               <LoadingDots />
-                              <p style={{ marginTop: 12 }}>分析中...</p>
+                              <p style={{ marginTop: 12 }}>
+                                {retryingExperts[selectedExpert] ? "再分析中..." : "分析中..."}
+                              </p>
                             </div>
                           ) : report ? (
                             <>

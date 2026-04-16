@@ -339,7 +339,12 @@
       "Bash(npx next lint app/fogmail/page.tsx 2>&1 | head -20)",
       "Bash(git add -A && git commit -m \"fix: fogmail PC表示を一時的に許可\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail get APIルート追加\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: fogmail view fetchデバッグ\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: fogmail view fetchデバッグ\" && git push)",
+      "Bash(if [ -f /Users/onoway/my-company-site/.env.local ]; then\n  if grep -q \"^RENEWAL_BASIC_USER=\" /Users/onoway/my-company-site/.env.local; then\n    echo \"RENEWAL_BASIC_USER already exists in .env.local\"\n  else\n    echo \"\" >> /Users/onoway/my-company-site/.env.local\n    echo \"RENEWAL_BASIC_USER=ciraf\" >> /Users/onoway/my-company-site/.env.local\n    echo \"RENEWAL_BASIC_PASS=renewal2026\" >> /Users/onoway/my-company-site/.env.local\n    echo \"Added RENEWAL_BASIC_USER and RENEWAL_BASIC_PASS to .env.local\"\n  fi\nelse\n  echo \".env.local does not exist\"\nfi)",
+      "Bash(git check-ignore /Users/onoway/my-company-site/.env.local && echo \"gitignored ✓\" || echo \"NOT gitignored - DO NOT COMMIT\")",
+      "Bash(git add middleware.ts && git commit -m \"feat: /renewal にBasic認証を追加\" && git push)",
+      "Bash(git add app/api/renewal/analyze/route.ts && git commit -m \"refactor: /api/renewal/analyze のレート制限を削除\" && git push)",
+      "Bash(git add app/api/renewal/expert/route.ts && git commit -m \"refactor: /api/renewal/expert 各専門家のsystemPromptを職種特化に再設計\" && git push)"
     ]
   }
 }

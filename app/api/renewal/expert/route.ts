@@ -127,8 +127,33 @@ ${expert.systemPrompt}
 
     const rawText =
       response.content[0]?.type === "text" ? response.content[0].text : "";
-    const clean = rawText.replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(clean);
+    const clean = rawText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    let parsed: { issues?: unknown; recommendations?: unknown } | null = null;
+    try {
+      parsed = JSON.parse(clean);
+    } catch {
+      // フォールバック: 本文から {...} 部分だけを抽出
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          parsed = JSON.parse(jsonMatch[0]);
+        } catch (e2) {
+          console.error("[renewal/expert] JSON fallback failed:", e2, clean);
+        }
+      }
+    }
+
+    if (!parsed || !Array.isArray(parsed.issues) || !Array.isArray(parsed.recommendations)) {
+      console.error("[renewal/expert] invalid shape:", clean);
+      return NextResponse.json(
+        { error: "レスポンスの形式が不正です" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(parsed);
   } catch (error) {
