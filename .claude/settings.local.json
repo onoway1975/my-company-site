@@ -332,7 +332,8 @@
       "Bash(git add -A && git commit -m \"fix: fogmail audioエラー修正\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail メールボタンにhandleSend紐付け確認\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail catchエラー内容をalertで表示\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: fogmail supabaseをlib/supabase.tsからimportに変更\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: fogmail supabaseをlib/supabase.tsからimportに変更\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: fogmail Supabase保存をAPIルート経由に変更\" && git push)"
     ]
   }
 }
