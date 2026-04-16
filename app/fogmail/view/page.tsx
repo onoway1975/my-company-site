@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { supabaseAdmin } from "@/lib/supabase";
 
 const BRUSH_RADIUS = 14;
 
@@ -46,32 +45,29 @@ function ViewInner() {
 
   /* ── fetch message ─────────────────────── */
   useEffect(() => {
+    console.log("[view] id:", id);
     if (!id) {
       setState("notfound");
       return;
     }
     (async () => {
       try {
-        const { data, error } = await supabaseAdmin
-          .from("fogmail_messages")
-          .select("stroke_data, expires_at")
-          .eq("id", id)
-          .maybeSingle();
+        const res = await fetch(`/api/fogmail/get?id=${id}`);
+        const json = await res.json();
+        console.log("[view] fetch status:", res.status, "json:", json);
 
-        console.log("[fogmail/view] fetch result:", { data, error });
-
-        if (error || !data) {
+        if (res.status === 410) {
+          setState("expired");
+          return;
+        }
+        if (!res.ok || !json.stroke_data) {
           setState("notfound");
           return;
         }
-        // TODO: テスト後に期限チェックを復活させる
-        // if (data.expires_at && new Date(data.expires_at) < new Date()) {
-        //   setState("expired");
-        //   return;
-        // }
-        const normalized = normalizeStrokes(data.stroke_data as StrokeData);
+
+        const normalized = normalizeStrokes(json.stroke_data as StrokeData);
         console.log(
-          "[fogmail/view] strokes:",
+          "[view] strokes:",
           normalized.length,
           "points:",
           normalized.reduce((n, s) => n + s.points.length, 0)
@@ -79,7 +75,7 @@ function ViewInner() {
         setStrokes(normalized);
         setState("ready");
       } catch (e) {
-        console.error("[fogmail/view]", e);
+        console.error("[view] error:", e);
         setState("notfound");
       }
     })();
