@@ -362,7 +362,7 @@ export default function FogmailPage() {
       <div
         style={{
           width: "100%",
-          height: "100vh",
+          height: "100svh",
           backgroundImage: "url('/fogmail/bg_start.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -370,8 +370,9 @@ export default function FogmailPage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: "24px",
+          gap: "20px",
           padding: "40px 24px",
+          boxSizing: "border-box",
         }}
       >
         <p
@@ -379,7 +380,7 @@ export default function FogmailPage() {
             color: "white",
             fontSize: "13px",
             textAlign: "center",
-            textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+            textShadow: "0 1px 4px rgba(0,0,0,0.6)",
             margin: 0,
           }}
         >
@@ -398,7 +399,7 @@ export default function FogmailPage() {
             color: "white",
             fontSize: "13px",
             textAlign: "center",
-            textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+            textShadow: "0 1px 4px rgba(0,0,0,0.6)",
             lineHeight: 1.8,
             margin: 0,
           }}
