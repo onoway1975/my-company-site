@@ -49,15 +49,47 @@ async function checkAndIncrementLimit(
   return { ok: true, remaining: 20 - count };
 }
 
+/* ── helpers ── */
+
+function normalizeUrl(raw: string): string {
+  let u = raw.trim();
+  if (!/^https?:\/\//i.test(u)) {
+    u = "https://" + u;
+  }
+  // URL として有効か検証（不正なら例外）
+  new URL(u);
+  return u;
+}
+
+function extractDomain(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    // URL正規化後なので通常到達しないが念のため
+    return url.replace(/^https?:\/\//, "").split("/")[0];
+  }
+}
+
 /* ── POST ── */
 
 export async function POST(req: NextRequest) {
   try {
-    const { url } = await req.json();
+    const { url: rawUrl } = await req.json();
 
-    if (!url || typeof url !== "string") {
+    if (!rawUrl || typeof rawUrl !== "string") {
       return NextResponse.json(
         { error: "URLを入力してください" },
+        { status: 400 }
+      );
+    }
+
+    // URL正規化
+    let url: string;
+    try {
+      url = normalizeUrl(rawUrl);
+    } catch {
+      return NextResponse.json(
+        { error: "有効なURLを入力してください" },
         { status: 400 }
       );
     }
@@ -71,7 +103,8 @@ export async function POST(req: NextRequest) {
       if (!limit.ok) {
         return NextResponse.json(
           {
-            error: "本日の利用回数上限（20回）に達しました。明日またお試しください。",
+            error:
+              "本日の利用回数上限（20回）に達しました。明日またお試しください。",
             remaining: 0,
           },
           { status: 429 }
@@ -82,6 +115,7 @@ export async function POST(req: NextRequest) {
     }
 
     // HTMLを取得
+    const domain = extractDomain(url);
     let html = "";
     let fetchFailed = false;
     try {
@@ -93,16 +127,20 @@ export async function POST(req: NextRequest) {
           "User-Agent":
             "Mozilla/5.0 (compatible; CirafBot/1.0; +https://ciraf.jp)",
         },
+        redirect: "follow",
       });
       clearTimeout(timeout);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       const text = await res.text();
       html = text.slice(0, 3000);
-    } catch {
+    } catch (e) {
+      console.warn("[renewal/analyze] fetch failed:", domain, e);
       fetchFailed = true;
     }
 
     // Claude APIで分析
-    const domain = new URL(url).hostname;
     const userContent = fetchFailed
       ? `以下のドメインのWebサイトを推定分析してください。HTMLは取得できませんでした。\nドメイン: ${domain}\nURL: ${url}`
       : `以下のWebサイトのHTMLを分析してください。\nURL: ${url}\n\nHTML:\n${html}`;
@@ -128,7 +166,17 @@ speedEstimateは0〜100の数値で推定してください。`,
     const rawText =
       response.content[0]?.type === "text" ? response.content[0].text : "";
     const clean = rawText.replace(/```json|```/g, "").trim();
-    const siteData = JSON.parse(clean);
+
+    let siteData;
+    try {
+      siteData = JSON.parse(clean);
+    } catch {
+      console.error("[renewal/analyze] JSON parse failed:", clean);
+      return NextResponse.json(
+        { error: "分析結果の解析に失敗しました。もう一度お試しください。" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ siteData, remaining });
   } catch (error) {

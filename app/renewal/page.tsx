@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useStep } from "./StepContext";
 
 /* ── Types ─────────────────────────────────── */
 
@@ -28,15 +29,21 @@ type ExpertReport = {
   recommendations: string[];
 };
 
-type ChatMessage = {
-  role: "user" | "assistant";
-  content: string;
+type PersonaId = "persona1" | "persona2" | "persona3";
+
+type Persona = {
+  id: PersonaId;
+  name: string;
+  age: number;
+  job: string;
+  description: string;
+  needs: string[];
+  concern: string;
 };
 
-type ProposalData = {
-  persona: string;
-  pageStructure: string;
-  kpi: string;
+type ChatBubble = {
+  sender: "advisor" | "user" | ExpertId | PersonaId;
+  content: string;
 };
 
 /* ── Constants ─────────────────────────────── */
@@ -104,250 +111,269 @@ const EXPERT_IDS: ExpertId[] = [
   "engineer",
 ];
 
-const C = {
-  bg: "#F4F4F4",
-  card: "#FFFFFF",
-  border: "#E8E8E8",
-  main: "#0D1B2A",
-  accent: "#E8821A",
-  sidebar: "#F8F8F8",
-  muted: "#888888",
+const PERSONA_COLORS: Record<PersonaId, { bg: string; text: string }> = {
+  persona1: { bg: "#E6F1FB", text: "#185FA5" },
+  persona2: { bg: "#EAF3DE", text: "#3B6D11" },
+  persona3: { bg: "#FAEEDA", text: "#854F0B" },
 };
 
-const STEP_LABELS = ["URL入力", "Research", "専門家分析", "相談チャット", "提案書"];
+const S = {
+  bg: "#F2EFE8",
+  card: "#FFFFFF",
+  border: "#E0DBD0",
+  main: "#1A1A1A",
+  sub: "#888888",
+  accent: "#0D1B2A",
+  brand: "#E8821A",
+};
 
 /* ── Sub-components ────────────────────────── */
 
-function StepIndicator({ current }: { current: number }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 4,
-        padding: "20px 0 16px",
-        background: C.card,
-        borderBottom: `1px solid ${C.border}`,
-      }}
-    >
-      {STEP_LABELS.map((label, i) => {
-        const stepNum = i + 1;
-        const active = stepNum <= current;
-        return (
-          <div
-            key={i}
-            style={{ display: "flex", alignItems: "center", gap: 4 }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 14px",
-                borderRadius: 999,
-                fontSize: 12,
-                fontWeight: active ? 700 : 400,
-                color: active ? "#fff" : C.muted,
-                background: active ? C.main : "#EEEEEE",
-                transition: "all 0.2s",
-              }}
-            >
-              <span>{stepNum}</span>
-              <span>{label}</span>
-            </div>
-            {i < STEP_LABELS.length - 1 && (
-              <div
-                style={{
-                  width: 20,
-                  height: 1,
-                  background: active ? C.main : "#DDD",
-                }}
-              />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function ExpertAvatar({
-  id,
-  size = 36,
+function Avatar({
+  letter,
+  bg,
+  color,
+  size = 32,
 }: {
-  id: ExpertId;
+  letter: string;
+  bg: string;
+  color: string;
   size?: number;
 }) {
-  const e = EXPERTS[id];
   return (
     <div
       style={{
         width: size,
         height: size,
         borderRadius: "50%",
-        background: e.color,
-        color: e.textColor,
+        background: bg,
+        color,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: size * 0.4,
+        fontSize: size * 0.38,
         fontWeight: 700,
         flexShrink: 0,
       }}
     >
-      {e.avatar}
+      {letter}
     </div>
   );
 }
 
-function PageSpeedGauge({ score }: { score: number }) {
-  const r = 40;
-  const circumference = 2 * Math.PI * r;
-  const pct = Math.min(100, Math.max(0, score)) / 100;
-  const offset = circumference * (1 - pct);
-  const color = score >= 70 ? "#22C55E" : score >= 40 ? "#F5A623" : "#EF4444";
+function ExpertAvatar({ id, size = 32 }: { id: ExpertId; size?: number }) {
+  const e = EXPERTS[id];
+  return <Avatar letter={e.avatar} bg={e.color} color={e.textColor} size={size} />;
+}
 
+function AdvisorAvatar({ size = 32 }: { size?: number }) {
+  return <Avatar letter="A" bg={S.brand} color="#fff" size={size} />;
+}
+
+function SectionTitle({ ja, en }: { ja: string; en: string }) {
+  return (
+    <h2 style={{ fontSize: 22, fontWeight: 700, color: S.main, margin: 0 }}>
+      {ja}
+      <span
+        style={{
+          display: "block",
+          fontSize: 12,
+          fontWeight: 400,
+          color: S.brand,
+          marginTop: 2,
+          letterSpacing: "0.05em",
+        }}
+      >
+        {en}
+      </span>
+    </h2>
+  );
+}
+
+function Card({
+  children,
+  style,
+}: {
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <div
+      style={{
+        background: S.card,
+        borderRadius: 16,
+        padding: 32,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+type BtnVariant = "primary" | "secondary" | "outline" | "text";
+type BtnSize = "sm" | "md" | "lg";
+
+const BTN_COLORS: Record<
+  BtnVariant,
+  { bg: string; color: string; border: string; hoverBg?: string; hoverColor?: string }
+> = {
+  primary: {
+    bg: "#0D1B2A",
+    color: "#fff",
+    border: "#0D1B2A",
+    hoverBg: "#1F2F42",
+  },
+  secondary: {
+    bg: "#E8821A",
+    color: "#fff",
+    border: "#E8821A",
+    hoverBg: "#D47410",
+  },
+  outline: {
+    bg: "transparent",
+    color: "#1A1A1A",
+    border: "#1A1A1A",
+    hoverBg: "#1A1A1A",
+    hoverColor: "#fff",
+  },
+  text: {
+    bg: "transparent",
+    color: "#888",
+    border: "transparent",
+    hoverColor: "#1A1A1A",
+  },
+};
+
+const BTN_SIZES: Record<BtnSize, { padding: string; fontSize: number }> = {
+  sm: { padding: "8px 20px", fontSize: 13 },
+  md: { padding: "12px 28px", fontSize: 14 },
+  lg: { padding: "14px 28px", fontSize: 15 },
+};
+
+function PillButton({
+  children,
+  onClick,
+  variant = "primary",
+  size = "md",
+  fullWidth,
+  disabled,
+  style,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  variant?: BtnVariant;
+  size?: BtnSize;
+  fullWidth?: boolean;
+  disabled?: boolean;
+  style?: React.CSSProperties;
+}) {
+  const c = BTN_COLORS[variant];
+  const s = BTN_SIZES[size];
+  const isText = variant === "text";
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={(e) => {
+        if (disabled) return;
+        if (c.hoverBg) e.currentTarget.style.background = c.hoverBg;
+        if (c.hoverColor) e.currentTarget.style.color = c.hoverColor;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = c.bg;
+        e.currentTarget.style.color = c.color;
+      }}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        padding: s.padding,
+        borderRadius: 99,
+        border: isText ? "none" : `1.5px solid ${c.border}`,
+        background: c.bg,
+        color: c.color,
+        fontWeight: 500,
+        fontSize: s.fontSize,
+        letterSpacing: "0.02em",
+        width: fullWidth ? "100%" : undefined,
+        cursor: disabled ? "default" : "pointer",
+        opacity: disabled ? 0.4 : 1,
+        transition: "background 0.15s, color 0.15s, opacity 0.2s",
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function PageSpeedGauge({ score }: { score: number }) {
+  const r = 36;
+  const circ = 2 * Math.PI * r;
+  const pct = Math.min(100, Math.max(0, score)) / 100;
+  const offset = circ * (1 - pct);
+  const color = score >= 70 ? "#22C55E" : score >= 40 ? "#E8821A" : "#EF4444";
   return (
     <div style={{ textAlign: "center" }}>
-      <svg width="100" height="100" viewBox="0 0 100 100">
+      <svg width="88" height="88" viewBox="0 0 88 88">
+        <circle cx="44" cy="44" r={r} fill="none" stroke="#EEE" strokeWidth="7" />
         <circle
-          cx="50"
-          cy="50"
-          r={r}
-          fill="none"
-          stroke="#EEEEEE"
-          strokeWidth="8"
-        />
-        <circle
-          cx="50"
-          cy="50"
+          cx="44"
+          cy="44"
           r={r}
           fill="none"
           stroke={color}
-          strokeWidth="8"
+          strokeWidth="7"
           strokeLinecap="round"
-          strokeDasharray={circumference}
+          strokeDasharray={circ}
           strokeDashoffset={offset}
-          transform="rotate(-90 50 50)"
+          transform="rotate(-90 44 44)"
           style={{ transition: "stroke-dashoffset 0.8s ease" }}
         />
         <text
-          x="50"
-          y="50"
+          x="44"
+          y="44"
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize="20"
+          fontSize="18"
           fontWeight="700"
           fill={color}
         >
           {score}
         </text>
       </svg>
-      <p style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
+      <p style={{ fontSize: 10, color: S.sub, marginTop: 2 }}>
         PageSpeed推定
       </p>
     </div>
   );
 }
 
-function ExpertSidebar({
-  selected,
-  onSelect,
-  reports,
-  loadingExperts,
-}: {
-  selected: ExpertId;
-  onSelect: (id: ExpertId) => void;
-  reports: Record<string, ExpertReport | null>;
-  loadingExperts: boolean;
-}) {
+function LoadingDots() {
   return (
-    <div
-      style={{
-        width: 200,
-        minHeight: "calc(100vh - 120px)",
-        background: C.sidebar,
-        borderRight: `1px solid ${C.border}`,
-        padding: "12px 0",
-        flexShrink: 0,
-      }}
-    >
-      <p
-        style={{
-          fontSize: 10,
-          color: C.muted,
-          textTransform: "uppercase",
-          letterSpacing: "0.15em",
-          padding: "8px 16px",
-          fontWeight: 700,
-        }}
-      >
-        メンバー
-      </p>
-      {EXPERT_IDS.map((id) => {
-        const e = EXPERTS[id];
-        const active = id === selected;
-        const loaded = !!reports[id];
-        return (
-          <button
-            key={id}
-            onClick={() => onSelect(id)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              width: "100%",
-              padding: "10px 16px",
-              border: "none",
-              background: active ? C.card : "transparent",
-              borderLeft: active
-                ? `3px solid ${C.accent}`
-                : "3px solid transparent",
-              cursor: "pointer",
-              textAlign: "left",
-              transition: "all 0.15s",
-            }}
-          >
-            <ExpertAvatar id={id} size={28} />
-            <div>
-              <p
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: C.main,
-                  margin: 0,
-                }}
-              >
-                {e.name}
-              </p>
-              <p style={{ fontSize: 10, color: C.muted, margin: 0 }}>
-                {e.role}
-              </p>
-            </div>
-            {loadingExperts && !loaded && (
-              <div
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: C.accent,
-                  marginLeft: "auto",
-                  animation: "pulse 1s ease-in-out infinite",
-                }}
-              />
-            )}
-          </button>
-        );
-      })}
-    </div>
+    <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          style={{
+            width: 5,
+            height: 5,
+            borderRadius: "50%",
+            background: S.sub,
+            animation: `dotBounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+          }}
+        />
+      ))}
+    </span>
   );
 }
 
 /* ── Main Component ────────────────────────── */
 
 export default function RenewalPage() {
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const { step, setStep } = useStep();
   const [url, setUrl] = useState("");
   const [siteData, setSiteData] = useState<SiteData | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -356,27 +382,85 @@ export default function RenewalPage() {
   >({});
   const [loadingExperts, setLoadingExperts] = useState(false);
   const [selectedExpert, setSelectedExpert] = useState<ExpertId>("producer");
-  const [chatMessages, setChatMessages] = useState<
-    Record<string, ChatMessage[]>
-  >({});
+  const [selectedChatExpert, setSelectedChatExpert] = useState<ExpertId | null>(
+    null
+  );
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-  const [proposalData, setProposalData] = useState<ProposalData | null>(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const [pptxGenerating, setPptxGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
 
+  // Chat
+  const [bubbles, setBubbles] = useState<ChatBubble[]>([
+    {
+      sender: "advisor",
+      content:
+        "こんにちは！Renewal Advisorです。\nリニューアルしたいWebサイトのURLを入力してください。",
+    },
+  ]);
+  const [involvedExperts, setInvolvedExperts] = useState<ExpertId[]>([]);
+  // Per-expert chat history
+  const [expertChatHistory, setExpertChatHistory] = useState<
+    Record<string, { role: string; content: string }[]>
+  >({});
+  const [expertChatSummaries, setExpertChatSummaries] = useState<
+    Record<string, string[]>
+  >({});
+
+  // Persona state
+  const [personas, setPersonas] = useState<Persona[] | null>(null);
+  const [loadingPersonas, setLoadingPersonas] = useState(false);
+  const [selectedPersona, setSelectedPersona] = useState<PersonaId | null>(null);
+  const [personaChatHistory, setPersonaChatHistory] = useState<
+    Record<string, { role: string; content: string }[]>
+  >({});
+  const [personaSummaries, setPersonaSummaries] = useState<
+    Record<string, string[]>
+  >({});
+  const [loadingSummaries, setLoadingSummaries] = useState(false);
+
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const leftRef = useRef<HTMLDivElement>(null);
+  const expertPanelRef = useRef<HTMLDivElement>(null);
+
+  const scrollChat = useCallback(() => {
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+  }, []);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages, selectedExpert]);
+    scrollChat();
+  }, [bubbles, scrollChat]);
+
+  // Scroll behavior on step change
+  useEffect(() => {
+    if (step === 3) {
+      // STEP3は専門家パネルまでスクロール
+      setTimeout(
+        () =>
+          expertPanelRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          }),
+        100
+      );
+    } else {
+      // それ以外は上にスクロール
+      leftRef.current?.scrollTo({ top: 0 });
+    }
+  }, [step]);
+
+  function addBubble(sender: ChatBubble["sender"], content: string) {
+    setBubbles((prev) => [...prev, { sender, content }]);
+  }
 
   /* ── STEP 1 → 2: 分析 ─────────────────── */
 
   async function handleAnalyze() {
     if (!url.trim()) return;
+    addBubble("user", url.trim());
+    addBubble("advisor", "分析を開始します...");
     setAnalyzing(true);
     setError(null);
     try {
@@ -389,12 +473,18 @@ export default function RenewalPage() {
       if (data.remaining !== undefined) setRemaining(data.remaining);
       if (!res.ok) {
         setError(data.error || "分析に失敗しました");
+        addBubble("advisor", data.error || "分析に失敗しました。URLを確認して再度お試しください。");
         return;
       }
       setSiteData(data.siteData);
+      addBubble(
+        "advisor",
+        `「${data.siteData.siteName}」の分析が完了しました！\n左のパネルで結果を確認してください。`
+      );
       setStep(2);
     } catch {
       setError("通信エラーが発生しました");
+      addBubble("advisor", "通信エラーが発生しました。再度お試しください。");
     } finally {
       setAnalyzing(false);
     }
@@ -403,8 +493,11 @@ export default function RenewalPage() {
   /* ── STEP 2 → 3: 専門家分析 ───────────── */
 
   async function handleStartExperts() {
+    addBubble("advisor", "6名の専門家がそれぞれの視点で分析しています...");
     setLoadingExperts(true);
     setStep(3);
+    setInvolvedExperts([...EXPERT_IDS]);
+
     const results = await Promise.allSettled(
       EXPERT_IDS.map((id) =>
         fetch("/api/renewal/expert/", {
@@ -426,107 +519,230 @@ export default function RenewalPage() {
     });
     setExpertReports(reports);
     setLoadingExperts(false);
+    addBubble(
+      "advisor",
+      "全員の分析が完了しました。左のパネルで各専門家のレポートを確認できます。"
+    );
   }
 
   /* ── STEP 4: チャット送信 ──────────────── */
 
-  async function handleChatSend() {
-    if (!chatInput.trim() || chatLoading) return;
-    const newMsg: ChatMessage = { role: "user", content: chatInput.trim() };
-    const prev = chatMessages[selectedExpert] || [];
-    const updated = [...prev, newMsg];
-    setChatMessages((m) => ({ ...m, [selectedExpert]: updated }));
+  function goToChat() {
+    setSelectedChatExpert(selectedExpert);
+    addBubble(
+      "advisor",
+      `${EXPERTS[selectedExpert].name}（${EXPERTS[selectedExpert].role}）とのチャットを開始します。右のチャット欄から自由に質問してください。`
+    );
+  }
+
+  async function fetchPersonas() {
+    if (!siteData || personas) return;
+    setLoadingPersonas(true);
+    try {
+      const res = await fetch("/api/renewal/persona/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ siteData }),
+      });
+      const data = await res.json();
+      if (data.personas && Array.isArray(data.personas)) {
+        setPersonas(data.personas);
+      } else {
+        addBubble("advisor", "ペルソナの生成に失敗しました。");
+      }
+    } catch {
+      addBubble("advisor", "ペルソナの生成中に通信エラーが発生しました。");
+    } finally {
+      setLoadingPersonas(false);
+    }
+  }
+
+  function goToPersona() {
+    addBubble("advisor", "ペルソナ設定に進みます");
+    setStep(4);
+    fetchPersonas();
+  }
+
+  function selectPersona(p: Persona) {
+    setSelectedPersona(p.id);
+    addBubble(
+      "advisor",
+      `${p.name}さん（${p.age}歳・${p.job}）との会話を始めます。自由に質問してください。`
+    );
+  }
+
+  async function handlePersonaChatSend() {
+    if (!chatInput.trim() || chatLoading || !selectedPersona || !personas) return;
+    const persona = personas.find((p) => p.id === selectedPersona);
+    if (!persona) return;
+    const text = chatInput.trim();
+    addBubble("user", text);
     setChatInput("");
     setChatLoading(true);
+
+    const history = personaChatHistory[selectedPersona] || [];
+    const nextHistory = [...history, { role: "user", content: text }];
+
     try {
-      const res = await fetch("/api/renewal/chat/", {
+      const res = await fetch("/api/renewal/persona-chat/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: updated,
-          expertId: selectedExpert,
+          messages: nextHistory,
+          persona,
           siteData,
         }),
       });
       const data = await res.json();
-      const reply: ChatMessage = {
-        role: "assistant",
-        content: data.reply || "回答の生成に失敗しました",
-      };
-      setChatMessages((m) => ({
-        ...m,
-        [selectedExpert]: [...updated, reply],
+      const reply = data.reply || "回答の生成に失敗しました";
+      nextHistory.push({ role: "assistant", content: reply });
+      setPersonaChatHistory((prev) => ({
+        ...prev,
+        [selectedPersona]: nextHistory,
       }));
+      addBubble(selectedPersona, reply);
     } catch {
-      setChatMessages((m) => ({
-        ...m,
-        [selectedExpert]: [
-          ...updated,
-          { role: "assistant", content: "通信エラーが発生しました" },
-        ],
-      }));
+      addBubble(selectedPersona, "通信エラーが発生しました。");
     } finally {
       setChatLoading(false);
     }
   }
 
-  /* ── STEP 3 → 5: 提案書生成 ───────────── */
+  function goToProposalFromPersona() {
+    addBubble(
+      "advisor",
+      "ペルソナとの会話内容を分析レポートに反映しました。分析レポートの作成に進みましょう。"
+    );
+    handleGenerateProposal();
+  }
 
-  async function handleGenerateProposal() {
-    setStep(5);
-    setError(null);
+  async function handleChatSend() {
+    // ペルソナモードならペルソナチャットAPIへ
+    if (step === 4 && selectedPersona) {
+      return handlePersonaChatSend();
+    }
+    // STEP3で専門家チャットがアクティブなときのみ送信可
+    if (step !== 3 || !selectedChatExpert) return;
+    if (!chatInput.trim() || chatLoading) return;
+
+    const chatExpertId = selectedChatExpert;
+    const text = chatInput.trim();
+    addBubble("user", text);
+    setChatInput("");
+    setChatLoading(true);
+
+    const history = expertChatHistory[chatExpertId] || [];
+    const nextHistory = [...history, { role: "user", content: text }];
+
     try {
-      // Claude APIで追加データ生成 (expert APIを流用)
       const res = await fetch("/api/renewal/chat/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [
-            {
-              role: "user",
-              content: `以下のサイト分析結果をもとに、3つのセクションをそれぞれ生成してください。
-
-【セクション1: ペルソナ】
-このサイトのターゲットペルソナを具体的に記述（年齢、職業、課題、ニーズ等）
-
-【セクション2: リニューアル提案構成】
-推奨するページ構成を箇条書きで（各ページの目的も簡潔に）
-
-【セクション3: KPI設計】
-3〜5個のKPI指標と目標値を箇条書きで
-
-以下のJSON形式のみで返してください:
-{"persona":"...","pageStructure":"...","kpi":"..."}
-
-サイト分析結果:
-${JSON.stringify(siteData, null, 2)}`,
-            },
-          ],
-          expertId: "planner",
+          messages: nextHistory,
+          expertId: chatExpertId,
           siteData,
         }),
       });
       const data = await res.json();
-      try {
-        const clean = data.reply.replace(/```json|```/g, "").trim();
-        const parsed = JSON.parse(clean);
-        setProposalData(parsed);
-      } catch {
-        setProposalData({
-          persona: data.reply || "生成に失敗しました",
-          pageStructure: "",
-          kpi: "",
-        });
-      }
+      const reply = data.reply || "回答の生成に失敗しました";
+      nextHistory.push({ role: "assistant", content: reply });
+      setExpertChatHistory((prev) => ({
+        ...prev,
+        [chatExpertId]: nextHistory,
+      }));
+      addBubble(chatExpertId, reply);
     } catch {
-      setError("提案書データの生成に失敗しました");
+      addBubble(chatExpertId, "通信エラーが発生しました。");
+    } finally {
+      setChatLoading(false);
     }
   }
 
-  /* ── STEP 5: PPTX DL ──────────────────── */
+  /* ── STEP 5: 分析レポート生成 ────────────────── */
+
+  async function handleGenerateProposal() {
+    addBubble("advisor", "分析レポートを生成しています...");
+    setStep(5);
+
+    const hasPersonaChat =
+      personas &&
+      personas.some((p) => (personaChatHistory[p.id] || []).length > 0);
+    const expertsWithChat = EXPERT_IDS.filter(
+      (id) => (expertChatHistory[id] || []).length > 0
+    );
+    const hasExpertChat = expertsWithChat.length > 0;
+
+    if (!hasPersonaChat && !hasExpertChat) {
+      addBubble(
+        "advisor",
+        "分析レポートが完成しました！左のパネルでプレビューを確認できます。"
+      );
+      return;
+    }
+
+    setLoadingSummaries(true);
+    try {
+      const tasks: Promise<void>[] = [];
+
+      if (hasPersonaChat) {
+        tasks.push(
+          fetch("/api/renewal/persona-summary/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ personas, personaChatHistory }),
+          })
+            .then((r) => r.json())
+            .then((data) => {
+              if (data.summaries) setPersonaSummaries(data.summaries);
+            })
+            .catch(() => {})
+        );
+      }
+
+      if (hasExpertChat) {
+        const expertSummaryResults = await Promise.allSettled(
+          expertsWithChat.map((id) =>
+            fetch("/api/renewal/chat-summary/", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                expertId: id,
+                messages: expertChatHistory[id],
+              }),
+            })
+              .then((r) => r.json())
+              .then((data) => ({
+                id,
+                summary: Array.isArray(data.summary) ? data.summary : [],
+              }))
+          )
+        );
+        const summaries: Record<string, string[]> = {};
+        expertSummaryResults.forEach((r, i) => {
+          if (r.status === "fulfilled") {
+            summaries[expertsWithChat[i]] = r.value.summary;
+          }
+        });
+        setExpertChatSummaries(summaries);
+      }
+
+      await Promise.all(tasks);
+    } finally {
+      setLoadingSummaries(false);
+    }
+
+    addBubble(
+      "advisor",
+      "分析レポートが完成しました！左のパネルでプレビューを確認できます。"
+    );
+  }
+
+  /* ── PPTX DL ───────────────────────────── */
 
   async function handleDownloadPptx() {
     setPptxGenerating(true);
+    addBubble("advisor", "PowerPointファイルを生成しています...");
     try {
       const res = await fetch("/api/renewal/pptx/", {
         method: "POST",
@@ -534,23 +750,130 @@ ${JSON.stringify(siteData, null, 2)}`,
         body: JSON.stringify({
           siteData: { ...siteData, url },
           expertReports,
-          persona: proposalData?.persona || "",
-          pageStructure: proposalData?.pageStructure || "",
-          kpi: proposalData?.kpi || "",
+          personas: personas || [],
+          personaChatHistory,
+          expertChatHistory,
         }),
       });
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = blobUrl;
-      a.download = "renewal-proposal.pptx";
+      a.download = "renewal-report.pptx";
       a.click();
       URL.revokeObjectURL(blobUrl);
+      addBubble("advisor", "ダウンロードが開始されました！");
     } catch {
-      setError("PPTX生成に失敗しました");
+      addBubble("advisor", "PPTX生成に失敗しました。");
     } finally {
       setPptxGenerating(false);
     }
+  }
+
+  /* ── Quick Replies ─────────────────────── */
+
+  function getQuickReplies(): { label: string; action: () => void }[] {
+    if (step === 2 && siteData && !analyzing) {
+      return [];
+    }
+    if (step === 3 && !loadingExperts && Object.keys(expertReports).length > 0) {
+      return [{ label: "分析レポートを生成", action: handleGenerateProposal }];
+    }
+    return [];
+  }
+
+  const quickReplies = getQuickReplies();
+  const isInputActive =
+    step === 4 || (step === 3 && selectedChatExpert !== null);
+
+  /* ── Render helpers ────────────────────── */
+
+  function renderBubble(b: ChatBubble, i: number) {
+    const isUser = b.sender === "user";
+    const isAdvisor = b.sender === "advisor";
+    const isPersona =
+      b.sender === "persona1" ||
+      b.sender === "persona2" ||
+      b.sender === "persona3";
+    const expertId =
+      !isUser && !isAdvisor && !isPersona ? (b.sender as ExpertId) : null;
+
+    const personaAvatar = () => {
+      if (!isPersona || !personas) return null;
+      const p = personas.find((x) => x.id === b.sender);
+      if (!p) return null;
+      const c = PERSONA_COLORS[b.sender as PersonaId];
+      return (
+        <span
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            background: c.bg,
+            color: c.text,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 12,
+            fontWeight: 700,
+            flexShrink: 0,
+          }}
+        >
+          {p.name.charAt(0)}
+        </span>
+      );
+    };
+
+    return (
+      <div
+        key={i}
+        style={{
+          display: "flex",
+          justifyContent: isUser ? "flex-end" : "flex-start",
+          gap: 8,
+          animation: "slideUp 0.2s ease",
+        }}
+      >
+        {!isUser &&
+          (isAdvisor ? (
+            <AdvisorAvatar size={28} />
+          ) : isPersona ? (
+            personaAvatar()
+          ) : (
+            <ExpertAvatar id={expertId!} size={28} />
+          ))}
+        {isUser ? (
+          <p
+            style={{
+              fontSize: 13,
+              color: S.main,
+              lineHeight: 1.7,
+              margin: 0,
+              maxWidth: "75%",
+              textAlign: "right",
+            }}
+          >
+            {b.content}
+          </p>
+        ) : (
+          <div
+            style={{
+              maxWidth: "80%",
+              padding: "10px 14px",
+              borderRadius: 12,
+              background: S.card,
+              border: `1px solid ${S.border}`,
+              fontSize: 13,
+              color: S.main,
+              lineHeight: 1.7,
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {b.content}
+          </div>
+        )}
+      </div>
+    );
   }
 
   /* ── Render ────────────────────────────── */
@@ -558,1160 +881,1781 @@ ${JSON.stringify(siteData, null, 2)}`,
   return (
     <>
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes dotBounce {
+          0%, 80%, 100% { transform: scale(0); }
+          40% { transform: scale(1); }
         }
       `}</style>
-      <div style={{ minHeight: "100vh", background: C.bg }}>
-        <StepIndicator current={step} />
 
-        {/* ── STEP 1: URL入力 ── */}
-        {step === 1 && (
-          <div
-            style={{
-              maxWidth: 600,
-              margin: "0 auto",
-              padding: "80px 24px",
-              textAlign: "center",
-            }}
-          >
-            <h1
-              style={{
-                fontSize: 28,
-                fontWeight: 700,
-                color: C.main,
-                marginBottom: 8,
-              }}
-            >
-              Webリニューアル提案書メーカー
-            </h1>
-            <p style={{ fontSize: 14, color: C.muted, marginBottom: 40 }}>
-              URLを貼るだけで、Webのプロ6人がリニューアル提案書を作成します
-            </p>
-            <div
-              style={{
-                display: "flex",
-                gap: 8,
-                background: C.card,
-                border: `1px solid ${C.border}`,
-                borderRadius: 12,
-                padding: 6,
-              }}
-            >
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
-                placeholder="https://example.com"
-                style={{
-                  flex: 1,
-                  border: "none",
-                  outline: "none",
-                  padding: "12px 16px",
-                  fontSize: 15,
-                  borderRadius: 8,
-                  color: C.main,
-                  background: "transparent",
-                }}
-              />
-              <button
-                onClick={handleAnalyze}
-                disabled={!url.trim() || analyzing}
-                style={{
-                  padding: "12px 28px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: C.accent,
-                  color: "#fff",
-                  fontWeight: 700,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  opacity: !url.trim() || analyzing ? 0.5 : 1,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {analyzing ? "分析中..." : "分析開始"}
-              </button>
-            </div>
-            {error && (
-              <p
-                style={{
-                  marginTop: 16,
-                  fontSize: 13,
-                  color: "#C53030",
-                  background: "#FFF5F5",
-                  border: "1px solid #FED7D7",
-                  padding: "10px 16px",
-                  borderRadius: 8,
-                }}
-              >
-                {error}
-              </p>
-            )}
-            {remaining !== null && (
-              <p style={{ marginTop: 12, fontSize: 11, color: C.muted }}>
-                本日の残り利用回数: {remaining}回
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* ── STEP 2: Research ── */}
-        {step === 2 && siteData && (
-          <div style={{ maxWidth: 800, margin: "0 auto", padding: "40px 24px" }}>
-            <h2
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                color: C.main,
-                marginBottom: 24,
-              }}
-            >
-              サイト分析結果
-            </h2>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 200px",
-                gap: 24,
-              }}
-            >
-              {/* 左: 基本情報 */}
+      <div style={{ display: "flex", height: "100%" }}>
+        {/* ── LEFT PANEL ── */}
+        <div
+          ref={leftRef}
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            background: S.bg,
+          }}
+        >
+          <div style={{ padding: 24 }}>
+            {/* ── STEP 1: URL入力 ── */}
+            {step === 1 && (
               <div
                 style={{
-                  background: C.card,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 12,
-                  padding: 24,
+                  maxWidth: 560,
+                  margin: "60px auto 0",
+                  animation: "fadeIn 0.3s ease",
                 }}
               >
-                <h3
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 700,
-                    color: C.main,
-                    marginBottom: 4,
-                  }}
-                >
-                  {siteData.siteName}
-                </h3>
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: C.accent,
-                    fontWeight: 600,
-                    marginBottom: 16,
-                  }}
-                >
-                  {siteData.industry}
-                </p>
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: "#444",
-                    lineHeight: 1.7,
-                    marginBottom: 20,
-                  }}
-                >
-                  {siteData.description}
-                </p>
-
-                {/* 技術スタック */}
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: C.muted,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.15em",
-                    fontWeight: 700,
-                    marginBottom: 8,
-                  }}
-                >
-                  技術スタック
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 6,
-                    marginBottom: 20,
-                  }}
-                >
-                  {siteData.techStack.map((t, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        fontSize: 11,
-                        padding: "4px 10px",
-                        borderRadius: 999,
-                        background: "#F0F0F0",
-                        color: "#555",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-
-                {/* ページ構成 */}
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: C.muted,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.15em",
-                    fontWeight: 700,
-                    marginBottom: 8,
-                  }}
-                >
-                  ページ構成
-                </p>
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: "#444",
-                    lineHeight: 1.7,
-                    marginBottom: 20,
-                  }}
-                >
-                  {siteData.pageStructure}
-                </p>
-
-                {/* SEO */}
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: C.muted,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.15em",
-                    fontWeight: 700,
-                    marginBottom: 8,
-                  }}
-                >
-                  SEO状況
-                </p>
-                <p style={{ fontSize: 13, color: "#444", lineHeight: 1.7 }}>
-                  {siteData.seoStatus}
-                </p>
-              </div>
-
-              {/* 右: スコア + デザイントーン */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div
-                  style={{
-                    background: C.card,
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 12,
-                    padding: 20,
-                    textAlign: "center",
-                  }}
-                >
-                  <PageSpeedGauge score={siteData.speedEstimate} />
-                </div>
-                <div
-                  style={{
-                    background: C.card,
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 12,
-                    padding: 16,
-                  }}
-                >
+                <Card>
+                  <SectionTitle ja="リニューアル分析" en="site analysis" />
                   <p
                     style={{
-                      fontSize: 10,
-                      color: C.muted,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.15em",
-                      fontWeight: 700,
-                      marginBottom: 8,
+                      fontSize: 13,
+                      color: S.sub,
+                      marginTop: 8,
+                      marginBottom: 28,
                     }}
                   >
-                    デザイン傾向
+                    リニューアルしたいWebサイトのURLを入力してください
                   </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 4,
-                    }}
-                  >
-                    {siteData.designTone.map((t, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          fontSize: 11,
-                          padding: "3px 8px",
-                          borderRadius: 4,
-                          background: "#F0F0F0",
-                          color: "#555",
-                        }}
-                      >
-                        {t}
-                      </span>
-                    ))}
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input
+                      type="url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
+                      placeholder="https://example.com"
+                      style={{
+                        flex: 1,
+                        padding: "12px 16px",
+                        border: `1px solid ${S.border}`,
+                        borderRadius: 10,
+                        fontSize: 14,
+                        color: S.main,
+                        outline: "none",
+                        background: "#FAFAF8",
+                      }}
+                    />
+                    <PillButton
+                      onClick={handleAnalyze}
+                      disabled={!url.trim() || analyzing}
+                    >
+                      {analyzing ? "分析中..." : "分析開始"}
+                    </PillButton>
                   </div>
-                </div>
+                  {remaining !== null && (
+                    <p style={{ fontSize: 11, color: S.sub, marginTop: 12 }}>
+                      本日の残り利用回数: {remaining}回
+                    </p>
+                  )}
+                </Card>
               </div>
-            </div>
+            )}
 
-            <div style={{ textAlign: "center", marginTop: 32 }}>
-              <button
-                onClick={handleStartExperts}
+            {/* ── STEP 2: Research（STEP3でも継続表示） ── */}
+            {(step === 2 || step === 3) && siteData && (
+              <div
                 style={{
-                  padding: "14px 40px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: C.accent,
-                  color: "#fff",
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: "pointer",
+                  maxWidth: 720,
+                  margin: "0 auto",
+                  animation: "fadeIn 0.3s ease",
                 }}
               >
-                エキスパート分析を開始
-              </button>
-            </div>
-          </div>
-        )}
+                <Card>
+                  <SectionTitle ja="サイト分析結果" en="research" />
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 160px",
+                      gap: 24,
+                      marginTop: 24,
+                    }}
+                  >
+                    <div>
+                      <h3
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: S.main,
+                          margin: "0 0 4px",
+                        }}
+                      >
+                        {siteData.siteName}
+                      </h3>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: S.brand,
+                          fontWeight: 600,
+                          margin: "0 0 16px",
+                        }}
+                      >
+                        {siteData.industry}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 13,
+                          color: "#555",
+                          lineHeight: 1.7,
+                          marginBottom: 20,
+                        }}
+                      >
+                        {siteData.description}
+                      </p>
 
-        {/* ── STEP 3: 専門家分析 ── */}
-        {step === 3 && (
-          <div style={{ display: "flex", minHeight: "calc(100vh - 120px)" }}>
-            <ExpertSidebar
-              selected={selectedExpert}
-              onSelect={setSelectedExpert}
-              reports={expertReports}
-              loadingExperts={loadingExperts}
-            />
-            <div style={{ flex: 1, padding: 32, overflowY: "auto" }}>
-              {(() => {
-                const e = EXPERTS[selectedExpert];
-                const report = expertReports[selectedExpert];
+                      <Label>技術スタック</Label>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 6,
+                          marginBottom: 20,
+                        }}
+                      >
+                        {siteData.techStack.map((t, i) => (
+                          <span
+                            key={i}
+                            style={{
+                              fontSize: 11,
+                              padding: "3px 10px",
+                              borderRadius: 99,
+                              background: "#F0EDE6",
+                              color: "#555",
+                            }}
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
 
-                return (
-                  <>
-                    {/* ヘッダー */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 12,
-                        marginBottom: 24,
-                      }}
-                    >
-                      <ExpertAvatar id={selectedExpert} size={48} />
-                      <div>
-                        <h2
-                          style={{
-                            fontSize: 20,
-                            fontWeight: 700,
-                            color: C.main,
-                            margin: 0,
-                          }}
+                      <Label>ページ構成</Label>
+                      <p style={{ fontSize: 13, color: "#555", lineHeight: 1.7 }}>
+                        {siteData.pageStructure}
+                      </p>
+
+                      <div style={{ marginTop: 20 }}>
+                        <Label>SEO状況</Label>
+                        <p
+                          style={{ fontSize: 13, color: "#555", lineHeight: 1.7 }}
                         >
-                          {e.name}
-                        </h2>
-                        <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>
-                          {e.role}
+                          {siteData.seoStatus}
                         </p>
                       </div>
                     </div>
 
-                    {loadingExperts && !report ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 16,
+                      }}
+                    >
                       <div
                         style={{
+                          background: "#FAFAF8",
+                          borderRadius: 12,
+                          padding: 16,
                           textAlign: "center",
-                          padding: 60,
-                          color: C.muted,
+                        }}
+                      >
+                        <PageSpeedGauge score={siteData.speedEstimate} />
+                      </div>
+                      <div style={{ background: "#FAFAF8", borderRadius: 12, padding: 12 }}>
+                        <Label>デザイン傾向</Label>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 4,
+                          }}
+                        >
+                          {siteData.designTone.map((t, i) => (
+                            <span
+                              key={i}
+                              style={{
+                                fontSize: 10,
+                                padding: "2px 8px",
+                                borderRadius: 4,
+                                background: "#E8E4DC",
+                                color: "#555",
+                              }}
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+                {step === 2 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: 24,
+                    }}
+                  >
+                    <PillButton
+                      onClick={handleStartExperts}
+                      variant="primary"
+                      size="lg"
+                      style={{ padding: "14px 40px" }}
+                    >
+                      専門家分析を見る →
+                    </PillButton>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── STEP 3: 専門家分析（STEP2カードの下に追加表示） ── */}
+            {step === 3 && (
+              <div
+                ref={expertPanelRef}
+                style={{
+                  maxWidth: 720,
+                  margin: "24px auto 0",
+                  animation: "fadeIn 0.3s ease",
+                }}
+              >
+              <Card style={{ padding: 0, overflow: "hidden" }}>
+                <div style={{ display: "flex", minHeight: 500 }}>
+                  {/* Expert sidebar */}
+                  <div
+                    style={{
+                      width: 180,
+                      background: "#FAFAF8",
+                      borderRight: `1px solid ${S.border}`,
+                      padding: "16px 0",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: 10,
+                        color: S.sub,
+                        letterSpacing: "0.15em",
+                        padding: "4px 16px 8px",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      メンバー
+                    </p>
+                    {EXPERT_IDS.map((id) => {
+                      const e = EXPERTS[id];
+                      const active = id === selectedExpert;
+                      const loaded = !!expertReports[id];
+                      return (
+                        <button
+                          key={id}
+                          onClick={() => setSelectedExpert(id)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            width: "100%",
+                            padding: "10px 16px",
+                            border: "none",
+                            background: active ? S.card : "transparent",
+                            borderLeft: active
+                              ? `3px solid ${S.brand}`
+                              : "3px solid transparent",
+                            cursor: "pointer",
+                            textAlign: "left",
+                          }}
+                        >
+                          <ExpertAvatar id={id} size={26} />
+                          <div style={{ minWidth: 0 }}>
+                            <p
+                              style={{
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: S.main,
+                                margin: 0,
+                              }}
+                            >
+                              {e.name}
+                            </p>
+                            <p
+                              style={{
+                                fontSize: 10,
+                                color: S.sub,
+                                margin: 0,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {e.role}
+                            </p>
+                          </div>
+                          {loadingExperts && !loaded && (
+                            <span
+                              style={{
+                                width: 6,
+                                height: 6,
+                                borderRadius: "50%",
+                                background: S.brand,
+                                marginLeft: "auto",
+                                animation: "dotBounce 1.2s ease-in-out infinite",
+                              }}
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Report panel */}
+                  <div style={{ flex: 1, padding: 28, overflowY: "auto" }}>
+                    {(() => {
+                      const e = EXPERTS[selectedExpert];
+                      const report = expertReports[selectedExpert];
+                      return (
+                        <>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 10,
+                              marginBottom: 20,
+                            }}
+                          >
+                            <ExpertAvatar id={selectedExpert} size={40} />
+                            <div>
+                              <h3
+                                style={{
+                                  fontSize: 17,
+                                  fontWeight: 700,
+                                  color: S.main,
+                                  margin: 0,
+                                }}
+                              >
+                                {e.name}
+                              </h3>
+                              <p style={{ fontSize: 12, color: S.sub, margin: 0 }}>
+                                {e.role}
+                              </p>
+                            </div>
+                          </div>
+
+                          {loadingExperts && !report ? (
+                            <div
+                              style={{
+                                textAlign: "center",
+                                padding: 48,
+                                color: S.sub,
+                                fontSize: 13,
+                              }}
+                            >
+                              <LoadingDots />
+                              <p style={{ marginTop: 12 }}>分析中...</p>
+                            </div>
+                          ) : report ? (
+                            <>
+                              <div
+                                style={{
+                                  background: "#FAFAF8",
+                                  borderRadius: 12,
+                                  padding: 20,
+                                  marginBottom: 20,
+                                }}
+                              >
+                                <h4
+                                  style={{
+                                    fontSize: 14,
+                                    fontWeight: 700,
+                                    color: S.main,
+                                    marginBottom: 12,
+                                  }}
+                                >
+                                  現状の問題点
+                                </h4>
+                                <ol
+                                  style={{
+                                    margin: 0,
+                                    paddingLeft: 18,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 10,
+                                  }}
+                                >
+                                  {report.issues.map((issue, i) => (
+                                    <li
+                                      key={i}
+                                      style={{
+                                        fontSize: 13,
+                                        color: "#555",
+                                        lineHeight: 1.7,
+                                      }}
+                                    >
+                                      {issue}
+                                    </li>
+                                  ))}
+                                </ol>
+                              </div>
+
+                              <h4
+                                style={{
+                                  fontSize: 14,
+                                  fontWeight: 700,
+                                  color: S.main,
+                                  marginBottom: 10,
+                                }}
+                              >
+                                リニューアルへの提言
+                              </h4>
+                              <div
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns:
+                                    "repeat(auto-fit, minmax(200px, 1fr))",
+                                  gap: 10,
+                                }}
+                              >
+                                {report.recommendations.map((rec, i) => (
+                                  <div
+                                    key={i}
+                                    style={{
+                                      background: "#FAFAF8",
+                                      borderRadius: 12,
+                                      padding: 16,
+                                      borderTop: `3px solid ${e.textColor}`,
+                                    }}
+                                  >
+                                    <p
+                                      style={{
+                                        fontSize: 11,
+                                        fontWeight: 700,
+                                        color: e.textColor,
+                                        marginBottom: 4,
+                                      }}
+                                    >
+                                      提言 {i + 1}
+                                    </p>
+                                    <p
+                                      style={{
+                                        fontSize: 12,
+                                        color: "#555",
+                                        lineHeight: 1.7,
+                                        margin: 0,
+                                      }}
+                                    >
+                                      {rec}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div
+                                style={{
+                                  display: "flex",
+                                  gap: 8,
+                                  width: "100%",
+                                  marginTop: 24,
+                                }}
+                              >
+                                <PillButton
+                                  onClick={goToChat}
+                                  variant="primary"
+                                  size="lg"
+                                  style={{ flex: 1 }}
+                                >
+                                  このプロに相談する →
+                                </PillButton>
+                                <PillButton
+                                  onClick={goToPersona}
+                                  variant="secondary"
+                                  size="lg"
+                                  style={{ flex: 1 }}
+                                >
+                                  ペルソナ設定へ →
+                                </PillButton>
+                              </div>
+                            </>
+                          ) : (
+                            <div
+                              style={{
+                                textAlign: "center",
+                                padding: 48,
+                                color: "#C53030",
+                                background: "#FFF5F5",
+                                borderRadius: 12,
+                                fontSize: 13,
+                              }}
+                            >
+                              分析に失敗しました
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </Card>
+              </div>
+            )}
+
+            {/* ── STEP 4: ペルソナ設定 ── */}
+            {step === 4 && (
+              <div
+                style={{
+                  maxWidth: 960,
+                  margin: "0 auto",
+                  animation: "fadeIn 0.3s ease",
+                }}
+              >
+                <SectionTitle ja="ペルソナ設定" en="persona" />
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: S.sub,
+                    margin: "8px 0 20px",
+                  }}
+                >
+                  サイトの特徴から生成された3名のペルソナです。気になる人物を選んで会話し、リニューアルへの要望を引き出してください。
+                </p>
+
+                {loadingPersonas && (
+                  <Card>
+                    <div
+                      style={{
+                        textAlign: "center",
+                        padding: 40,
+                        color: S.sub,
+                        fontSize: 13,
+                      }}
+                    >
+                      <LoadingDots />
+                      <p style={{ marginTop: 12 }}>ペルソナを生成中...</p>
+                    </div>
+                  </Card>
+                )}
+
+                {!loadingPersonas && personas && (
+                  <>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(3, 1fr)",
+                        gap: 16,
+                      }}
+                    >
+                      {personas.map((p) => {
+                        const c = PERSONA_COLORS[p.id];
+                        const active = selectedPersona === p.id;
+                        return (
+                          <div
+                            key={p.id}
+                            style={{
+                              background: S.card,
+                              border: active
+                                ? `2px solid ${S.brand}`
+                                : `1px solid ${S.border}`,
+                              borderRadius: 12,
+                              padding: 20,
+                              display: "flex",
+                              flexDirection: "column",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: 60,
+                                height: 60,
+                                borderRadius: "50%",
+                                background: c.bg,
+                                color: c.text,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 24,
+                                fontWeight: 700,
+                                marginBottom: 12,
+                              }}
+                            >
+                              {p.name.charAt(0)}
+                            </div>
+                            <h3
+                              style={{
+                                fontSize: 16,
+                                fontWeight: 700,
+                                color: S.main,
+                                margin: "0 0 2px",
+                              }}
+                            >
+                              {p.name}
+                            </h3>
+                            <p
+                              style={{
+                                fontSize: 12,
+                                color: S.sub,
+                                margin: "0 0 2px",
+                              }}
+                            >
+                              {p.age}歳
+                            </p>
+                            <p
+                              style={{
+                                fontSize: 12,
+                                color: c.text,
+                                fontWeight: 600,
+                                margin: "0 0 12px",
+                              }}
+                            >
+                              {p.job}
+                            </p>
+                            <p
+                              style={{
+                                fontSize: 12,
+                                color: "#555",
+                                lineHeight: 1.7,
+                                margin: "0 0 12px",
+                              }}
+                            >
+                              {p.description}
+                            </p>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 4,
+                                marginBottom: 10,
+                              }}
+                            >
+                              {p.needs.map((n, i) => (
+                                <span
+                                  key={i}
+                                  style={{
+                                    fontSize: 10,
+                                    padding: "2px 8px",
+                                    borderRadius: 99,
+                                    background: c.bg,
+                                    color: c.text,
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  {n}
+                                </span>
+                              ))}
+                            </div>
+                            {p.concern && (
+                              <p
+                                style={{
+                                  fontSize: 11,
+                                  color: "#777",
+                                  lineHeight: 1.6,
+                                  margin: "0 0 16px",
+                                  fontStyle: "italic",
+                                }}
+                              >
+                                「{p.concern}」
+                              </p>
+                            )}
+                            <PillButton
+                              onClick={() => selectPersona(p)}
+                              variant={active ? "secondary" : "primary"}
+                              size="sm"
+                              fullWidth
+                              style={{ marginTop: "auto" }}
+                            >
+                              {active ? "会話中 ✓" : "このペルソナに相談する"}
+                            </PillButton>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 12,
+                        marginTop: 24,
+                      }}
+                    >
+                      <PillButton
+                        onClick={goToProposalFromPersona}
+                        variant="secondary"
+                        size="lg"
+                        style={{ padding: "14px 40px" }}
+                      >
+                        分析レポートを作成する →
+                      </PillButton>
+                      <PillButton
+                        onClick={() => setStep(3)}
+                        variant="outline"
+                        size="md"
+                      >
+                        ← 専門家分析に戻る
+                      </PillButton>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* ── STEP 5: 分析レポートプレビュー ── */}
+            {step === 5 && (
+              <div style={{ animation: "fadeIn 0.3s ease" }}>
+                <div
+                  style={{
+                    marginBottom: 16,
+                  }}
+                >
+                  <SectionTitle ja="分析レポートプレビュー" en="report preview" />
+                </div>
+
+                {/* Slide tabs */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 4,
+                    overflowX: "auto",
+                    marginBottom: 16,
+                    paddingBottom: 4,
+                  }}
+                >
+                  {[
+                    "表紙",
+                    "現状分析",
+                    ...EXPERT_IDS.map((id) => EXPERTS[id].name),
+                    "ペルソナ",
+                    "専門家との会話",
+                    "まとめ",
+                  ].map((label, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveSlide(i)}
+                      style={{
+                        padding: "5px 12px",
+                        borderRadius: 6,
+                        border: `1px solid ${i === activeSlide ? S.brand : S.border}`,
+                        background: i === activeSlide ? S.brand : S.card,
+                        color: i === activeSlide ? "#fff" : S.sub,
+                        fontSize: 11,
+                        fontWeight: i === activeSlide ? 700 : 400,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Slide preview */}
+                <Card
+                  style={{
+                    minHeight: 440,
+                    padding: 24,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent:
+                      activeSlide === 0 || activeSlide === 10
+                        ? "center"
+                        : "flex-start",
+                    alignItems:
+                      activeSlide === 0 || activeSlide === 10
+                        ? "center"
+                        : "stretch",
+                    background:
+                      activeSlide === 0 || activeSlide === 10
+                        ? S.accent
+                        : S.card,
+                    overflow: "hidden",
+                  }}
+                >
+                  {activeSlide === 0 && (
+                    <div style={{ textAlign: "center" }}>
+                      <p
+                        style={{
+                          fontSize: 32,
+                          fontWeight: 700,
+                          color: "#fff",
+                          marginBottom: 8,
+                        }}
+                      >
+                        {siteData?.siteName}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: S.brand,
+                          marginBottom: 20,
+                        }}
+                      >
+                        リニューアル分析レポート
+                      </p>
+                      <p style={{ fontSize: 13, color: "#BBB" }}>
+                        {siteData?.industry} |{" "}
+                        {new Date().toLocaleDateString("ja-JP")}
+                      </p>
+                    </div>
+                  )}
+
+                  {activeSlide === 1 && siteData && (
+                    <div>
+                      <h4
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: S.main,
+                          marginBottom: 16,
+                        }}
+                      >
+                        サイト現状分析
+                      </h4>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 170px",
+                          gap: 20,
                         }}
                       >
                         <div
                           style={{
-                            width: 24,
-                            height: 24,
-                            border: `3px solid ${C.border}`,
-                            borderTopColor: C.accent,
-                            borderRadius: "50%",
-                            animation: "spin 0.8s linear infinite",
-                            margin: "0 auto 12px",
-                          }}
-                        />
-                        分析中...
-                      </div>
-                    ) : report ? (
-                      <>
-                        {/* 問題点 */}
-                        <div
-                          style={{
-                            background: C.card,
-                            border: `1px solid ${C.border}`,
-                            borderRadius: 12,
-                            padding: 24,
-                            marginBottom: 20,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 12,
                           }}
                         >
-                          <h3
+                          <div>
+                            <p
+                              style={{
+                                fontSize: 16,
+                                fontWeight: 700,
+                                color: S.main,
+                                margin: "0 0 2px",
+                              }}
+                            >
+                              {siteData.siteName}
+                            </p>
+                            <p
+                              style={{
+                                fontSize: 11,
+                                color: S.brand,
+                                fontWeight: 600,
+                                margin: 0,
+                              }}
+                            >
+                              {siteData.industry}
+                            </p>
+                            <p
+                              style={{
+                                fontSize: 11,
+                                color: S.sub,
+                                margin: "2px 0 0",
+                                wordBreak: "break-all",
+                              }}
+                            >
+                              {url}
+                            </p>
+                          </div>
+
+                          <p
                             style={{
-                              fontSize: 15,
-                              fontWeight: 700,
-                              color: C.main,
-                              marginBottom: 16,
+                              fontSize: 12,
+                              color: "#555",
+                              lineHeight: 1.7,
+                              margin: 0,
                             }}
                           >
-                            現状の問題点
-                          </h3>
-                          <ol
+                            {siteData.description}
+                          </p>
+
+                          <div>
+                            <Label>技術スタック</Label>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 4,
+                              }}
+                            >
+                              {siteData.techStack.map((t, i) => (
+                                <span
+                                  key={i}
+                                  style={{
+                                    fontSize: 10,
+                                    padding: "2px 8px",
+                                    borderRadius: 99,
+                                    background: "#F0EDE6",
+                                    color: "#555",
+                                  }}
+                                >
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label>ページ構成</Label>
+                            <p
+                              style={{
+                                fontSize: 11,
+                                color: "#555",
+                                lineHeight: 1.7,
+                                margin: 0,
+                              }}
+                            >
+                              {siteData.pageStructure}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 12,
+                          }}
+                        >
+                          <div
                             style={{
-                              margin: 0,
-                              paddingLeft: 20,
+                              background: "#FAFAF8",
+                              borderRadius: 10,
+                              padding: 12,
+                              textAlign: "center",
+                            }}
+                          >
+                            <PageSpeedGauge
+                              score={siteData.speedEstimate}
+                            />
+                          </div>
+
+                          <div
+                            style={{
+                              background: "#FAFAF8",
+                              borderRadius: 10,
+                              padding: 10,
+                            }}
+                          >
+                            <Label>デザイン傾向</Label>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 4,
+                              }}
+                            >
+                              {siteData.designTone.map((t, i) => (
+                                <span
+                                  key={i}
+                                  style={{
+                                    fontSize: 10,
+                                    padding: "2px 6px",
+                                    borderRadius: 4,
+                                    background: "#E8E4DC",
+                                    color: "#555",
+                                  }}
+                                >
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              background: "#FAFAF8",
+                              borderRadius: 10,
+                              padding: 10,
+                            }}
+                          >
+                            <Label>SEO状況</Label>
+                            <p
+                              style={{
+                                fontSize: 10,
+                                color: "#555",
+                                lineHeight: 1.6,
+                                margin: 0,
+                              }}
+                            >
+                              {siteData.seoStatus}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeSlide >= 2 && activeSlide <= 7 && (() => {
+                    const eid = EXPERT_IDS[activeSlide - 2];
+                    const meta = EXPERTS[eid];
+                    const report = expertReports[eid];
+                    return (
+                      <div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            marginBottom: 20,
+                            paddingBottom: 12,
+                            borderBottom: `2px solid ${meta.textColor}`,
+                          }}
+                        >
+                          <ExpertAvatar id={eid} size={36} />
+                          <span
+                            style={{
+                              fontSize: 18,
+                              fontWeight: 700,
+                              color: meta.textColor,
+                            }}
+                          >
+                            {meta.name}
+                          </span>
+                          <span style={{ fontSize: 13, color: S.sub }}>
+                            {meta.role}
+                          </span>
+                        </div>
+                        {report ? (
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: 24,
+                            }}
+                          >
+                            <div>
+                              <h5
+                                style={{
+                                  fontSize: 14,
+                                  fontWeight: 700,
+                                  color: S.main,
+                                  marginBottom: 10,
+                                }}
+                              >
+                                問題点
+                              </h5>
+                              {report.issues.map((t, i) => (
+                                <p
+                                  key={i}
+                                  style={{
+                                    fontSize: 13,
+                                    color: "#555",
+                                    lineHeight: 1.7,
+                                    marginBottom: 8,
+                                  }}
+                                >
+                                  {i + 1}. {t}
+                                </p>
+                              ))}
+                            </div>
+                            <div>
+                              <h5
+                                style={{
+                                  fontSize: 14,
+                                  fontWeight: 700,
+                                  color: S.brand,
+                                  marginBottom: 10,
+                                }}
+                              >
+                                提言
+                              </h5>
+                              {report.recommendations.map((t, i) => (
+                                <p
+                                  key={i}
+                                  style={{
+                                    fontSize: 13,
+                                    color: "#555",
+                                    lineHeight: 1.7,
+                                    marginBottom: 8,
+                                  }}
+                                >
+                                  {i + 1}. {t}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <p style={{ color: S.sub, fontSize: 13 }}>
+                            分析結果なし
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {activeSlide === 8 && (
+                    <div>
+                      <h4
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: S.main,
+                          marginBottom: 20,
+                        }}
+                      >
+                        ターゲットペルソナ
+                      </h4>
+                      {personas && personas.length > 0 ? (
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: `repeat(${personas.length}, 1fr)`,
+                            gap: 16,
+                          }}
+                        >
+                          {personas.map((p) => {
+                            const c = PERSONA_COLORS[p.id];
+                            return (
+                              <div
+                                key={p.id}
+                                style={{
+                                  background: "#FAFAF8",
+                                  borderRadius: 10,
+                                  padding: 16,
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: 10,
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 10,
+                                  }}
+                                >
+                                  <Avatar
+                                    letter={p.name.charAt(0)}
+                                    bg={c.bg}
+                                    color={c.text}
+                                    size={40}
+                                  />
+                                  <div style={{ minWidth: 0 }}>
+                                    <p
+                                      style={{
+                                        fontSize: 13,
+                                        fontWeight: 700,
+                                        color: S.main,
+                                        margin: 0,
+                                      }}
+                                    >
+                                      {p.name}
+                                    </p>
+                                    <p
+                                      style={{
+                                        fontSize: 11,
+                                        color: c.text,
+                                        fontWeight: 600,
+                                        margin: 0,
+                                      }}
+                                    >
+                                      {p.age}歳・{p.job}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div>
+                                  <p
+                                    style={{
+                                      fontSize: 10,
+                                      fontWeight: 700,
+                                      color: S.sub,
+                                      letterSpacing: "0.1em",
+                                      margin: "0 0 3px",
+                                    }}
+                                  >
+                                    行動特性
+                                  </p>
+                                  <p
+                                    style={{
+                                      fontSize: 12,
+                                      color: "#555",
+                                      lineHeight: 1.6,
+                                      margin: 0,
+                                    }}
+                                  >
+                                    {p.description}
+                                  </p>
+                                </div>
+                                {p.needs && p.needs.length > 0 && (
+                                  <div>
+                                    <p
+                                      style={{
+                                        fontSize: 10,
+                                        fontWeight: 700,
+                                        color: S.sub,
+                                        letterSpacing: "0.1em",
+                                        margin: "0 0 3px",
+                                      }}
+                                    >
+                                      モチベーション
+                                    </p>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: 4,
+                                      }}
+                                    >
+                                      {p.needs.map((n, i) => (
+                                        <span
+                                          key={i}
+                                          style={{
+                                            fontSize: 10,
+                                            padding: "2px 8px",
+                                            borderRadius: 99,
+                                            background: c.bg,
+                                            color: c.text,
+                                            fontWeight: 600,
+                                          }}
+                                        >
+                                          {n}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                {p.concern && (
+                                  <div>
+                                    <p
+                                      style={{
+                                        fontSize: 10,
+                                        fontWeight: 700,
+                                        color: S.sub,
+                                        letterSpacing: "0.1em",
+                                        margin: "0 0 3px",
+                                      }}
+                                    >
+                                      ペインポイント
+                                    </p>
+                                    <p
+                                      style={{
+                                        fontSize: 12,
+                                        color: "#555",
+                                        lineHeight: 1.6,
+                                        margin: 0,
+                                        fontStyle: "italic",
+                                      }}
+                                    >
+                                      「{p.concern}」
+                                    </p>
+                                  </div>
+                                )}
+                                {/* 会話サマリー */}
+                                <div
+                                  style={{
+                                    borderTop: `1px dashed ${S.border}`,
+                                    paddingTop: 10,
+                                    marginTop: 2,
+                                  }}
+                                >
+                                  <p
+                                    style={{
+                                      fontSize: 10,
+                                      fontWeight: 700,
+                                      color: S.brand,
+                                      letterSpacing: "0.1em",
+                                      margin: "0 0 6px",
+                                    }}
+                                  >
+                                    会話から抽出した主なポイント
+                                  </p>
+                                  {loadingSummaries &&
+                                  (personaChatHistory[p.id] || []).length >
+                                    0 ? (
+                                    <div
+                                      style={{ fontSize: 11, color: S.sub }}
+                                    >
+                                      <LoadingDots /> 要約中...
+                                    </div>
+                                  ) : (personaSummaries[p.id]?.length ?? 0) >
+                                    0 ? (
+                                    <ol
+                                      style={{
+                                        margin: 0,
+                                        paddingLeft: 16,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: 4,
+                                      }}
+                                    >
+                                      {personaSummaries[p.id].map((s, i) => (
+                                        <li
+                                          key={i}
+                                          style={{
+                                            fontSize: 11,
+                                            color: "#444",
+                                            lineHeight: 1.6,
+                                          }}
+                                        >
+                                          {s}
+                                        </li>
+                                      ))}
+                                    </ol>
+                                  ) : (
+                                    <p
+                                      style={{
+                                        fontSize: 11,
+                                        color: S.sub,
+                                        margin: 0,
+                                      }}
+                                    >
+                                      会話未実施
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p style={{ fontSize: 13, color: S.sub }}>
+                          ペルソナ情報なし
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {activeSlide === 9 && (
+                    <div style={{ width: "100%" }}>
+                      <h4
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: S.main,
+                          marginBottom: 16,
+                        }}
+                      >
+                        専門家との会話
+                      </h4>
+                      {(() => {
+                        const expertsWithChat = EXPERT_IDS.filter(
+                          (id) =>
+                            (expertChatHistory[id] || []).length > 0
+                        );
+                        if (expertsWithChat.length === 0) {
+                          return (
+                            <p style={{ fontSize: 13, color: S.sub }}>
+                              専門家との会話が行われていません。STEP3の「このプロに相談する」から会話を開始できます。
+                            </p>
+                          );
+                        }
+                        return (
+                          <div
+                            style={{
                               display: "flex",
                               flexDirection: "column",
                               gap: 12,
                             }}
                           >
-                            {report.issues.map((issue, i) => (
-                              <li
-                                key={i}
-                                style={{
-                                  fontSize: 13,
-                                  color: "#444",
-                                  lineHeight: 1.7,
-                                }}
-                              >
-                                {issue}
-                              </li>
-                            ))}
-                          </ol>
-                        </div>
-
-                        {/* 提言 */}
-                        <h3
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 700,
-                            color: C.main,
-                            marginBottom: 12,
-                          }}
-                        >
-                          リニューアルへの提言
-                        </h3>
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns:
-                              "repeat(auto-fit, minmax(220px, 1fr))",
-                            gap: 12,
-                            marginBottom: 32,
-                          }}
-                        >
-                          {report.recommendations.map((rec, i) => (
-                            <div
-                              key={i}
-                              style={{
-                                background: C.card,
-                                border: `1px solid ${C.border}`,
-                                borderRadius: 12,
-                                padding: 20,
-                                borderTop: `3px solid ${e.textColor}`,
-                              }}
-                            >
-                              <p
-                                style={{
-                                  fontSize: 12,
-                                  fontWeight: 700,
-                                  color: e.textColor,
-                                  marginBottom: 4,
-                                }}
-                              >
-                                提言 {i + 1}
-                              </p>
-                              <p
-                                style={{
-                                  fontSize: 13,
-                                  color: "#444",
-                                  lineHeight: 1.7,
-                                  margin: 0,
-                                }}
-                              >
-                                {rec}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          padding: 60,
-                          color: "#C53030",
-                          background: "#FFF5F5",
-                          borderRadius: 12,
-                        }}
-                      >
-                        分析に失敗しました
-                      </div>
-                    )}
-
-                    {/* アクションボタン */}
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 12,
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      <button
-                        onClick={() => setStep(4)}
-                        style={{
-                          padding: "10px 24px",
-                          borderRadius: 8,
-                          border: `1px solid ${C.border}`,
-                          background: C.card,
-                          color: C.main,
-                          fontWeight: 600,
-                          fontSize: 13,
-                          cursor: "pointer",
-                        }}
-                      >
-                        このプロに相談する &rarr;
-                      </button>
-                      <button
-                        onClick={handleGenerateProposal}
-                        disabled={loadingExperts}
-                        style={{
-                          padding: "10px 24px",
-                          borderRadius: 8,
-                          border: "none",
-                          background: C.accent,
-                          color: "#fff",
-                          fontWeight: 700,
-                          fontSize: 13,
-                          cursor: "pointer",
-                          opacity: loadingExperts ? 0.5 : 1,
-                        }}
-                      >
-                        提案書を生成
-                      </button>
+                            {expertsWithChat.map((id) => {
+                              const e = EXPERTS[id];
+                              const summary =
+                                expertChatSummaries[id] || [];
+                              return (
+                                <div
+                                  key={id}
+                                  style={{
+                                    background: "#FAFAF8",
+                                    borderRadius: 10,
+                                    padding: 14,
+                                    borderLeft: `3px solid ${e.textColor}`,
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 10,
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    <ExpertAvatar id={id} size={28} />
+                                    <span
+                                      style={{
+                                        fontSize: 13,
+                                        fontWeight: 700,
+                                        color: e.textColor,
+                                      }}
+                                    >
+                                      {e.name}
+                                    </span>
+                                    <span
+                                      style={{
+                                        fontSize: 11,
+                                        color: S.sub,
+                                      }}
+                                    >
+                                      ｜{e.role}
+                                    </span>
+                                  </div>
+                                  <p
+                                    style={{
+                                      fontSize: 10,
+                                      fontWeight: 700,
+                                      color: S.brand,
+                                      letterSpacing: "0.1em",
+                                      margin: "0 0 6px",
+                                    }}
+                                  >
+                                    会話から抽出したポイント
+                                  </p>
+                                  {loadingSummaries && summary.length === 0 ? (
+                                    <div
+                                      style={{
+                                        fontSize: 11,
+                                        color: S.sub,
+                                      }}
+                                    >
+                                      <LoadingDots /> 要約中...
+                                    </div>
+                                  ) : summary.length > 0 ? (
+                                    <ol
+                                      style={{
+                                        margin: 0,
+                                        paddingLeft: 18,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: 4,
+                                      }}
+                                    >
+                                      {summary.map((s, i) => (
+                                        <li
+                                          key={i}
+                                          style={{
+                                            fontSize: 12,
+                                            color: "#444",
+                                            lineHeight: 1.7,
+                                          }}
+                                        >
+                                          {s}
+                                        </li>
+                                      ))}
+                                    </ol>
+                                  ) : (
+                                    <p
+                                      style={{
+                                        fontSize: 11,
+                                        color: S.sub,
+                                        margin: 0,
+                                      }}
+                                    >
+                                      要約情報なし
+                                    </p>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
                     </div>
-                  </>
-                );
-              })()}
-            </div>
-          </div>
-        )}
+                  )}
 
-        {/* ── STEP 4: チャット ── */}
-        {step === 4 && (
-          <div style={{ display: "flex", minHeight: "calc(100vh - 120px)" }}>
-            <ExpertSidebar
-              selected={selectedExpert}
-              onSelect={setSelectedExpert}
-              reports={expertReports}
-              loadingExperts={false}
-            />
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                height: "calc(100vh - 120px)",
-              }}
-            >
-              {/* チャットヘッダー */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "12px 24px",
-                  borderBottom: `1px solid ${C.border}`,
-                  background: C.card,
-                }}
-              >
-                <button
-                  onClick={() => setStep(3)}
-                  style={{
-                    padding: "6px 12px",
-                    borderRadius: 6,
-                    border: `1px solid ${C.border}`,
-                    background: "transparent",
-                    color: C.muted,
-                    fontSize: 12,
-                    cursor: "pointer",
-                  }}
-                >
-                  &larr; 戻る
-                </button>
-                <ExpertAvatar id={selectedExpert} size={32} />
-                <div>
-                  <p
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: C.main,
-                      margin: 0,
-                    }}
-                  >
-                    {EXPERTS[selectedExpert].name}
-                  </p>
-                  <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>
-                    {EXPERTS[selectedExpert].role}
-                  </p>
-                </div>
-              </div>
-
-              {/* メッセージ一覧 */}
-              <div
-                style={{
-                  flex: 1,
-                  overflowY: "auto",
-                  padding: 24,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 12,
-                }}
-              >
-                {(chatMessages[selectedExpert] || []).length === 0 && (
-                  <p
-                    style={{
-                      textAlign: "center",
-                      color: C.muted,
-                      fontSize: 13,
-                      padding: 40,
-                    }}
-                  >
-                    {EXPERTS[selectedExpert].name}
-                    に質問してみましょう
-                  </p>
-                )}
-                {(chatMessages[selectedExpert] || []).map((msg, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      display: "flex",
-                      justifyContent:
-                        msg.role === "user" ? "flex-end" : "flex-start",
-                      gap: 8,
-                    }}
-                  >
-                    {msg.role === "assistant" && (
-                      <ExpertAvatar id={selectedExpert} size={28} />
-                    )}
-                    <div
-                      style={{
-                        maxWidth: "70%",
-                        padding: "10px 16px",
-                        borderRadius: 12,
-                        fontSize: 13,
-                        lineHeight: 1.7,
-                        background:
-                          msg.role === "user" ? C.main : C.card,
-                        color: msg.role === "user" ? "#fff" : "#444",
-                        border:
-                          msg.role === "assistant"
-                            ? `1px solid ${C.border}`
-                            : "none",
-                      }}
-                    >
-                      {msg.content}
-                    </div>
-                  </div>
-                ))}
-                {chatLoading && (
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <ExpertAvatar id={selectedExpert} size={28} />
-                    <div
-                      style={{
-                        padding: "10px 16px",
-                        borderRadius: 12,
-                        background: C.card,
-                        border: `1px solid ${C.border}`,
-                        color: C.muted,
-                        fontSize: 13,
-                      }}
-                    >
-                      入力中...
-                    </div>
-                  </div>
-                )}
-                <div ref={chatEndRef} />
-              </div>
-
-              {/* 入力欄 */}
-              <div
-                style={{
-                  padding: "12px 24px",
-                  borderTop: `1px solid ${C.border}`,
-                  background: C.card,
-                  display: "flex",
-                  gap: 8,
-                }}
-              >
-                <input
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleChatSend()}
-                  placeholder="メッセージを入力..."
-                  style={{
-                    flex: 1,
-                    padding: "10px 16px",
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 8,
-                    fontSize: 13,
-                    outline: "none",
-                    color: C.main,
-                  }}
-                />
-                <button
-                  onClick={handleChatSend}
-                  disabled={!chatInput.trim() || chatLoading}
-                  style={{
-                    padding: "10px 20px",
-                    borderRadius: 8,
-                    border: "none",
-                    background: C.accent,
-                    color: "#fff",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    opacity: !chatInput.trim() || chatLoading ? 0.5 : 1,
-                  }}
-                >
-                  送信
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 5: 提案書プレビュー ── */}
-        {step === 5 && (
-          <div style={{ maxWidth: 960, margin: "0 auto", padding: "32px 24px" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: 24,
-              }}
-            >
-              <h2
-                style={{ fontSize: 22, fontWeight: 700, color: C.main, margin: 0 }}
-              >
-                提案書プレビュー
-              </h2>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  onClick={() => setStep(3)}
-                  style={{
-                    padding: "10px 20px",
-                    borderRadius: 8,
-                    border: `1px solid ${C.border}`,
-                    background: C.card,
-                    color: C.main,
-                    fontWeight: 600,
-                    fontSize: 13,
-                    cursor: "pointer",
-                  }}
-                >
-                  &larr; 分析に戻る
-                </button>
-                <button
-                  onClick={handleDownloadPptx}
-                  disabled={pptxGenerating}
-                  style={{
-                    padding: "10px 24px",
-                    borderRadius: 8,
-                    border: "none",
-                    background: C.accent,
-                    color: "#fff",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    opacity: pptxGenerating ? 0.5 : 1,
-                  }}
-                >
-                  {pptxGenerating
-                    ? "生成中..."
-                    : "PowerPointをダウンロード"}
-                </button>
-              </div>
-            </div>
-
-            {/* スライドタブ */}
-            <div
-              style={{
-                display: "flex",
-                gap: 4,
-                overflowX: "auto",
-                marginBottom: 20,
-                paddingBottom: 4,
-              }}
-            >
-              {[
-                "表紙",
-                "現状分析",
-                ...EXPERT_IDS.map((id) => EXPERTS[id].name),
-                "ペルソナ",
-                "提案構成",
-                "KPI設計",
-                "まとめ",
-              ].map((label, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveSlide(i)}
-                  style={{
-                    padding: "6px 14px",
-                    borderRadius: 6,
-                    border:
-                      i === activeSlide
-                        ? `1px solid ${C.accent}`
-                        : `1px solid ${C.border}`,
-                    background: i === activeSlide ? C.accent : C.card,
-                    color: i === activeSlide ? "#fff" : C.muted,
-                    fontSize: 11,
-                    fontWeight: i === activeSlide ? 700 : 400,
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    flexShrink: 0,
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* スライドプレビュー (16:9) */}
-            <div
-              style={{
-                aspectRatio: "16/9",
-                background: activeSlide === 0 || activeSlide === 11
-                  ? C.main
-                  : C.card,
-                border: `1px solid ${C.border}`,
-                borderRadius: 12,
-                overflow: "hidden",
-                padding: 40,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent:
-                  activeSlide === 0 || activeSlide === 11
-                    ? "center"
-                    : "flex-start",
-              }}
-            >
-              {/* Slide 0: 表紙 */}
-              {activeSlide === 0 && (
-                <div style={{ textAlign: activeSlide === 0 ? "left" : "center" }}>
-                  <p
-                    style={{
-                      fontSize: 32,
-                      fontWeight: 700,
-                      color: "#fff",
-                      marginBottom: 8,
-                    }}
-                  >
-                    {siteData?.siteName}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 18,
-                      fontWeight: 700,
-                      color: C.accent,
-                      marginBottom: 16,
-                    }}
-                  >
-                    リニューアル提案書
-                  </p>
-                  <p style={{ fontSize: 12, color: "#999" }}>
-                    {siteData?.industry} |{" "}
-                    {new Date().toLocaleDateString("ja-JP")}
-                  </p>
-                  <p style={{ fontSize: 10, color: "#666", marginTop: 24 }}>
-                    Powered by Renewal Advisor / ciraf
-                  </p>
-                </div>
-              )}
-
-              {/* Slide 1: 現状分析 */}
-              {activeSlide === 1 && siteData && (
-                <div>
-                  <h3
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 700,
-                      color: C.main,
-                      marginBottom: 20,
-                    }}
-                  >
-                    サイト現状分析
-                  </h3>
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: 20,
-                    }}
-                  >
-                    <div style={{ fontSize: 12, color: "#444", lineHeight: 2 }}>
-                      <p>
-                        <strong>URL:</strong> {url}
-                      </p>
-                      <p>
-                        <strong>業種:</strong> {siteData.industry}
-                      </p>
-                      <p>
-                        <strong>技術:</strong>{" "}
-                        {siteData.techStack.join(", ")}
-                      </p>
-                      <p>
-                        <strong>構成:</strong> {siteData.pageStructure}
-                      </p>
-                    </div>
-                    <div>
-                      <PageSpeedGauge score={siteData.speedEstimate} />
+                  {activeSlide === 10 && (
+                    <div style={{ textAlign: "center" }}>
                       <p
                         style={{
-                          fontSize: 12,
-                          color: "#444",
-                          marginTop: 12,
-                          lineHeight: 1.7,
+                          fontSize: 28,
+                          fontWeight: 700,
+                          color: "#fff",
+                          marginBottom: 12,
                         }}
                       >
-                        {siteData.seoStatus}
+                        ありがとうございました
+                      </p>
+                      <p style={{ fontSize: 13, color: "#BBB" }}>
+                        Powered by Renewal Advisor / ciraf
                       </p>
                     </div>
-                  </div>
+                  )}
+                </Card>
+
+                {/* Bottom actions */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 12,
+                    justifyContent: "center",
+                    marginTop: 24,
+                  }}
+                >
+                  <PillButton
+                    variant="outline"
+                    size="md"
+                    onClick={() => setStep(3)}
+                  >
+                    &larr; 分析に戻る
+                  </PillButton>
+                  <PillButton
+                    variant="secondary"
+                    size="md"
+                    onClick={handleDownloadPptx}
+                    disabled={pptxGenerating}
+                  >
+                    {pptxGenerating
+                      ? "生成中..."
+                      : "PowerPointをダウンロード"}
+                  </PillButton>
                 </div>
-              )}
-
-              {/* Slides 2-7: 専門家 */}
-              {activeSlide >= 2 && activeSlide <= 7 && (() => {
-                const eid = EXPERT_IDS[activeSlide - 2];
-                const meta = EXPERTS[eid];
-                const report = expertReports[eid];
-                return (
-                  <div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        marginBottom: 20,
-                        paddingBottom: 12,
-                        borderBottom: `2px solid ${meta.textColor}`,
-                      }}
-                    >
-                      <ExpertAvatar id={eid} size={36} />
-                      <div>
-                        <p
-                          style={{
-                            fontSize: 16,
-                            fontWeight: 700,
-                            color: meta.textColor,
-                            margin: 0,
-                          }}
-                        >
-                          {meta.name}
-                        </p>
-                        <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>
-                          {meta.role}
-                        </p>
-                      </div>
-                    </div>
-                    {report ? (
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1fr",
-                          gap: 24,
-                        }}
-                      >
-                        <div>
-                          <h4
-                            style={{
-                              fontSize: 13,
-                              fontWeight: 700,
-                              color: C.main,
-                              marginBottom: 8,
-                            }}
-                          >
-                            問題点
-                          </h4>
-                          {report.issues.map((t, i) => (
-                            <p
-                              key={i}
-                              style={{
-                                fontSize: 11,
-                                color: "#444",
-                                lineHeight: 1.7,
-                                marginBottom: 8,
-                              }}
-                            >
-                              {i + 1}. {t}
-                            </p>
-                          ))}
-                        </div>
-                        <div>
-                          <h4
-                            style={{
-                              fontSize: 13,
-                              fontWeight: 700,
-                              color: C.accent,
-                              marginBottom: 8,
-                            }}
-                          >
-                            提言
-                          </h4>
-                          {report.recommendations.map((t, i) => (
-                            <p
-                              key={i}
-                              style={{
-                                fontSize: 11,
-                                color: "#444",
-                                lineHeight: 1.7,
-                                marginBottom: 8,
-                              }}
-                            >
-                              {i + 1}. {t}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <p style={{ color: C.muted }}>分析結果なし</p>
-                    )}
-                  </div>
-                );
-              })()}
-
-              {/* Slide 8: ペルソナ */}
-              {activeSlide === 8 && (
-                <div>
-                  <h3
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 700,
-                      color: C.main,
-                      marginBottom: 16,
-                    }}
-                  >
-                    ターゲットペルソナ
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: "#444",
-                      lineHeight: 1.8,
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {proposalData?.persona || "生成中..."}
-                  </p>
-                </div>
-              )}
-
-              {/* Slide 9: 提案構成 */}
-              {activeSlide === 9 && (
-                <div>
-                  <h3
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 700,
-                      color: C.main,
-                      marginBottom: 16,
-                    }}
-                  >
-                    リニューアル提案構成
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: "#444",
-                      lineHeight: 1.8,
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {proposalData?.pageStructure || "生成中..."}
-                  </p>
-                </div>
-              )}
-
-              {/* Slide 10: KPI */}
-              {activeSlide === 10 && (
-                <div>
-                  <h3
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 700,
-                      color: C.main,
-                      marginBottom: 16,
-                    }}
-                  >
-                    KPI設計
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: "#444",
-                      lineHeight: 1.8,
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {proposalData?.kpi || "生成中..."}
-                  </p>
-                </div>
-              )}
-
-              {/* Slide 11: まとめ */}
-              {activeSlide === 11 && (
-                <div style={{ textAlign: "center" }}>
-                  <p
-                    style={{
-                      fontSize: 28,
-                      fontWeight: 700,
-                      color: "#fff",
-                      marginBottom: 12,
-                    }}
-                  >
-                    ありがとうございました
-                  </p>
-                  <p style={{ fontSize: 13, color: "#999" }}>
-                    本提案書をもとに、具体的なリニューアル計画を策定いたします。
-                  </p>
-                  <p style={{ fontSize: 10, color: "#666", marginTop: 24 }}>
-                    Powered by Renewal Advisor / ciraf
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {error && (
-              <p
-                style={{
-                  marginTop: 16,
-                  fontSize: 13,
-                  color: "#C53030",
-                  background: "#FFF5F5",
-                  border: "1px solid #FED7D7",
-                  padding: "10px 16px",
-                  borderRadius: 8,
-                }}
-              >
-                {error}
-              </p>
+              </div>
             )}
           </div>
-        )}
+        </div>
+
+        {/* ── RIGHT PANEL: Chat ── */}
+        <div
+          style={{
+            width: 420,
+            borderLeft: `1px solid ${S.border}`,
+            display: "flex",
+            flexDirection: "column",
+            background: S.bg,
+            flexShrink: 0,
+          }}
+        >
+          {/* Expert avatars row / Persona indicator */}
+          <div
+            style={{
+              padding: "10px 16px",
+              borderBottom: `1px solid ${S.border}`,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            {step === 4 && selectedPersona && personas ? (
+              (() => {
+                const p = personas.find((x) => x.id === selectedPersona);
+                if (!p) return null;
+                const c = PERSONA_COLORS[selectedPersona];
+                return (
+                  <>
+                    <span
+                      style={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: "50%",
+                        background: c.bg,
+                        color: c.text,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 12,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {p.name.charAt(0)}
+                    </span>
+                    <span style={{ fontSize: 11, color: S.main, marginLeft: 4 }}>
+                      現在 {p.name}（{p.age}歳・{p.job}）と会話中
+                    </span>
+                  </>
+                );
+              })()
+            ) : step === 3 && selectedChatExpert ? (
+              (() => {
+                const e = EXPERTS[selectedChatExpert];
+                return (
+                  <>
+                    <ExpertAvatar id={selectedChatExpert} size={26} />
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: S.main,
+                        marginLeft: 4,
+                      }}
+                    >
+                      現在 {e.name}（{e.role}）と会話中
+                    </span>
+                    <button
+                      onClick={() => setSelectedChatExpert(null)}
+                      style={{
+                        marginLeft: "auto",
+                        fontSize: 10,
+                        color: S.sub,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      終了
+                    </button>
+                  </>
+                );
+              })()
+            ) : (
+              <>
+                <AdvisorAvatar size={26} />
+                {involvedExperts.map((id) => (
+                  <ExpertAvatar key={id} id={id} size={26} />
+                ))}
+                <span style={{ fontSize: 10, color: S.sub, marginLeft: 8 }}>
+                  {involvedExperts.length > 0
+                    ? `${involvedExperts.length + 1}名が参加中`
+                    : "アドバイザー"}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Messages */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              padding: 16,
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+          >
+            {bubbles.map(renderBubble)}
+            {chatLoading && (
+              <div style={{ display: "flex", gap: 8 }}>
+                {step === 4 && selectedPersona && personas ? (
+                  (() => {
+                    const p = personas.find((x) => x.id === selectedPersona);
+                    const c = PERSONA_COLORS[selectedPersona];
+                    return p ? (
+                      <span
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: "50%",
+                          background: c.bg,
+                          color: c.text,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {p.name.charAt(0)}
+                      </span>
+                    ) : null;
+                  })()
+                ) : step === 3 && selectedChatExpert ? (
+                  <ExpertAvatar id={selectedChatExpert} size={28} />
+                ) : step === 4 ? (
+                  <ExpertAvatar id={selectedExpert} size={28} />
+                ) : (
+                  <AdvisorAvatar size={28} />
+                )}
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: 12,
+                    background: S.card,
+                    border: `1px solid ${S.border}`,
+                  }}
+                >
+                  <LoadingDots />
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Quick replies + Input */}
+          <div
+            style={{
+              padding: "10px 16px 14px",
+              borderTop: `1px solid ${S.border}`,
+            }}
+          >
+            {quickReplies.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 6,
+                  marginBottom: 10,
+                }}
+              >
+                {quickReplies.map((qr, i) => (
+                  <PillButton
+                    key={i}
+                    onClick={qr.action}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {qr.label}
+                  </PillButton>
+                ))}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && isInputActive && handleChatSend()}
+                placeholder={
+                  !isInputActive
+                    ? "チャットで質問できます"
+                    : step === 3 && selectedChatExpert
+                      ? `${EXPERTS[selectedChatExpert].name}さんに質問...`
+                      : selectedPersona && personas
+                        ? `${personas.find((p) => p.id === selectedPersona)?.name ?? "ペルソナ"}さんに質問...`
+                        : `${EXPERTS[selectedExpert].name}さんに質問...`
+                }
+                disabled={!isInputActive}
+                style={{
+                  flex: 1,
+                  padding: "10px 14px",
+                  border: `1px solid ${S.border}`,
+                  borderRadius: 10,
+                  fontSize: 13,
+                  color: S.main,
+                  outline: "none",
+                  background: isInputActive ? S.card : "#F5F3EE",
+                  opacity: isInputActive ? 1 : 0.6,
+                }}
+              />
+              {isInputActive && (
+                <PillButton
+                  onClick={handleChatSend}
+                  variant="primary"
+                  size="sm"
+                  disabled={!chatInput.trim() || chatLoading}
+                >
+                  送信
+                </PillButton>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </>
+  );
+}
+
+/* ── Tiny helper ─────────────────────────── */
+
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      style={{
+        fontSize: 10,
+        color: "#888",
+        letterSpacing: "0.12em",
+        fontWeight: 700,
+        textTransform: "uppercase",
+        marginBottom: 6,
+      }}
+    >
+      {children}
+    </p>
   );
 }

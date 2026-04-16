@@ -18,15 +18,10 @@ export default function FogmailLayout({
           font-weight: 700;
           font-display: swap;
         }
-        #hubspot-messages-iframe-container,
-        div[class*="hubspot"],
-        div[id*="hubspot"],
-        iframe[id*="hubspot"],
-        .hs-shadow-container {
+        /* cirafチャットウィジェットを非表示 */
+        [data-gtm-click="chat_toggle"],
+        [data-gtm-location="chat_widget"] {
           display: none !important;
-          visibility: hidden !important;
-          pointer-events: none !important;
-          opacity: 0 !important;
         }
       `}</style>
       <div
