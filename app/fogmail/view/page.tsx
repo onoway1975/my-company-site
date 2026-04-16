@@ -58,15 +58,25 @@ function ViewInner() {
           .eq("id", id)
           .maybeSingle();
 
+        console.log("[fogmail/view] fetch result:", { data, error });
+
         if (error || !data) {
           setState("notfound");
           return;
         }
-        if (data.expires_at && new Date(data.expires_at) < new Date()) {
-          setState("expired");
-          return;
-        }
-        setStrokes(normalizeStrokes(data.stroke_data as StrokeData));
+        // TODO: テスト後に期限チェックを復活させる
+        // if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        //   setState("expired");
+        //   return;
+        // }
+        const normalized = normalizeStrokes(data.stroke_data as StrokeData);
+        console.log(
+          "[fogmail/view] strokes:",
+          normalized.length,
+          "points:",
+          normalized.reduce((n, s) => n + s.points.length, 0)
+        );
+        setStrokes(normalized);
         setState("ready");
       } catch (e) {
         console.error("[fogmail/view]", e);
