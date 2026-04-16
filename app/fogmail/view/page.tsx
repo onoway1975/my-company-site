@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 const BRUSH_RADIUS = 14;
 
@@ -52,7 +52,7 @@ function ViewInner() {
     }
     (async () => {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
           .from("fogmail_messages")
           .select("stroke_data, expires_at")
           .eq("id", id)

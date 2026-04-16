@@ -334,7 +334,8 @@
       "Bash(git add -A && git commit -m \"fix: fogmail catchエラー内容をalertで表示\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail supabaseをlib/supabase.tsからimportに変更\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail Supabase保存をAPIルート経由に変更\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: fogmail view ストローク再描画確認\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: fogmail view ストローク再描画確認\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: fogmail view supabaseAdminでRLSバイパス\" && git push)"
     ]
   }
 }
