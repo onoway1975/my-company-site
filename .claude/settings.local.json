@@ -335,7 +335,9 @@
       "Bash(git add -A && git commit -m \"fix: fogmail supabaseをlib/supabase.tsからimportに変更\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail Supabase保存をAPIルート経由に変更\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail view ストローク再描画確認\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: fogmail view supabaseAdminでRLSバイパス\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: fogmail view supabaseAdminでRLSバイパス\" && git push)",
+      "Bash(npx next lint app/fogmail/page.tsx 2>&1 | head -20)",
+      "Bash(git add -A && git commit -m \"fix: fogmail PC表示を一時的に許可\" && git push)"
     ]
   }
 }
