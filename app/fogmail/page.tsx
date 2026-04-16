@@ -369,9 +369,8 @@ export default function FogmailPage() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          gap: "20px",
-          padding: "40px 24px",
+          justifyContent: "space-between",
+          padding: "60px 24px 80px",
           boxSizing: "border-box",
         }}
       >
@@ -380,51 +379,52 @@ export default function FogmailPage() {
             color: "white",
             fontSize: "13px",
             textAlign: "center",
-            textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+            textShadow: "0 1px 4px rgba(0,0,0,0.5)",
             margin: 0,
+            letterSpacing: "0.05em",
           }}
         >
           曇りガラスに指で送るメッセージ
         </p>
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/fogmail/logo.png"
-          alt="fog mail"
-          style={{ width: "80%", maxWidth: "280px", display: "block" }}
-        />
-
-        <p
+        <div
           style={{
-            color: "white",
-            fontSize: "13px",
-            textAlign: "center",
-            textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-            lineHeight: 1.8,
-            margin: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "16px",
           }}
         >
-          「はーっ」ボタンを押して<br />
-          曇ったガラスに指で<br />
-          メッセージを書いてみよう
-        </p>
-
-        <button
-          onClick={() => setPhase("draw")}
-          style={{
-            marginTop: "8px",
-            padding: "14px 48px",
-            background: "white",
-            color: "#1A4A6B",
-            fontWeight: "bold",
-            fontSize: "16px",
-            border: "none",
-            borderRadius: "28px",
-            cursor: "pointer",
-          }}
-        >
-          始める
-        </button>
+          <p
+            style={{
+              color: "white",
+              fontSize: "13px",
+              textAlign: "center",
+              textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+              lineHeight: 1.8,
+              margin: 0,
+            }}
+          >
+            「はーっ」ボタンを押して<br />
+            曇ったガラスに指で<br />
+            メッセージを書いてみよう
+          </p>
+          <button
+            onClick={() => setPhase("draw")}
+            style={{
+              padding: "14px 48px",
+              background: "white",
+              color: "#1A4A6B",
+              fontWeight: "bold",
+              fontSize: "16px",
+              border: "none",
+              borderRadius: "28px",
+              cursor: "pointer",
+            }}
+          >
+            始める
+          </button>
+        </div>
       </div>
     );
   }

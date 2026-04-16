@@ -322,7 +322,8 @@
       "Bash(git add app/fogmail/page.tsx && git commit -m \"$\\(cat <<'EOF'\nfix: fogmail ヘッダー・チャットボタン非表示\n\npage.tsx に useEffect を追加:\n- マウント時に <header> を display:none、アンマウント時に元に戻す\n- HubSpot 等のチャットウィジェットを MutationObserver で継続的に監視し非表示\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
       "Bash(git add app/fogmail/page.tsx && git commit -m \"$\\(cat <<'EOF'\nfix: fogmail トップ画面レイアウト完全修正\n\n指定された新構造で phase===\"top\" の JSX を置き換え\n- 100vh フルハイト + flex + gap:24px で均等配置\n- textShadow でテキスト可読性向上\n- ロゴ alt を \"fog mail\" に戻す\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail チャットボタン非表示をrenewalと同じ方法で実装\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: fogmail トップ画面JSX完全置き換え\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: fogmail トップ画面JSX完全置き換え\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: fogmail トップ画面 ロゴなし・背景画像のみ\" && git push)"
     ]
   }
 }
