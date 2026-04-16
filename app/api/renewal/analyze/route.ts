@@ -3,52 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-/* ── Upstash Redis REST ── */
-
-async function redisCommand(...args: string[]): Promise<number> {
-  const res = await fetch(process.env.UPSTASH_REDIS_REST_URL!, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN!}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(args),
-  });
-  const data = await res.json();
-  return data.result;
-}
-
-function getClientIP(req: NextRequest): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
-  );
-}
-
-function getRateLimitKey(ip: string): string {
-  const now = new Date();
-  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-  const yyyy = jst.getUTCFullYear();
-  const mm = String(jst.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(jst.getUTCDate()).padStart(2, "0");
-  return `renewal:${ip}:${yyyy}${mm}${dd}`;
-}
-
-async function checkAndIncrementLimit(
-  ip: string
-): Promise<{ ok: boolean; remaining: number }> {
-  const key = getRateLimitKey(ip);
-  const count = await redisCommand("INCR", key);
-  if (count === 1) {
-    await redisCommand("EXPIRE", key, "86400");
-  }
-  if (count > 20) {
-    return { ok: false, remaining: 0 };
-  }
-  return { ok: true, remaining: 20 - count };
-}
-
 /* ── helpers ── */
 
 function normalizeUrl(raw: string): string {
@@ -92,26 +46,6 @@ export async function POST(req: NextRequest) {
         { error: "有効なURLを入力してください" },
         { status: 400 }
       );
-    }
-
-    // レート制限
-    const ip = getClientIP(req);
-    let remaining = 20;
-    try {
-      const limit = await checkAndIncrementLimit(ip);
-      remaining = limit.remaining;
-      if (!limit.ok) {
-        return NextResponse.json(
-          {
-            error:
-              "本日の利用回数上限（20回）に達しました。明日またお試しください。",
-            remaining: 0,
-          },
-          { status: 429 }
-        );
-      }
-    } catch {
-      // Redis接続失敗時はスキップ
     }
 
     // HTMLを取得
@@ -178,7 +112,7 @@ speedEstimateは0〜100の数値で推定してください。`,
       );
     }
 
-    return NextResponse.json({ siteData, remaining });
+    return NextResponse.json({ siteData });
   } catch (error) {
     console.error("[renewal/analyze]", error);
     return NextResponse.json(
