@@ -79,6 +79,34 @@ export default function FogmailPage() {
     setIsPC(pc);
   }, []);
 
+  /* ── hide root header & external chat widgets ── */
+  useEffect(() => {
+    // ヘッダー非表示
+    const header = document.querySelector("header");
+    if (header) (header as HTMLElement).style.display = "none";
+
+    // チャットボタン非表示（MutationObserverで後から追加される要素も監視）
+    const hideChat = () => {
+      document
+        .querySelectorAll(
+          '#hubspot-messages-iframe-container, [class*="hubspot"], iframe[title*="chat"], iframe[title*="Chat"]'
+        )
+        .forEach((el) => {
+          (el as HTMLElement).style.setProperty("display", "none", "important");
+        });
+    };
+
+    hideChat();
+    const observer = new MutationObserver(hideChat);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      const header = document.querySelector("header");
+      if (header) (header as HTMLElement).style.display = "";
+    };
+  }, []);
+
   /* ── init canvas when entering draw phase ─ */
   useEffect(() => {
     if (isPC !== false) return;
