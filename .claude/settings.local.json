@@ -326,7 +326,9 @@
       "Bash(git add -A && git commit -m \"fix: fogmail トップ画面 ロゴなし・背景画像のみ\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail キャッチコピー位置調整\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail Supabase INSERT修正・shareUrl実装\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: fogmail はーっボタンのデザイン修正\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: fogmail はーっボタンのデザイン修正\" && git push)",
+      "Bash(git commit --allow-empty -m \"fix: fogmail force redeploy\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: fogmail supabase インライン初期化に変更\" && git push)"
     ]
   }
 }

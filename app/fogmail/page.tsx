@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 /* ── constants ─────────────────────────────── */
 const FOG_DURATION_SEC = 60;
@@ -276,6 +281,7 @@ export default function FogmailPage() {
 
   /* ── メールアイコン → Supabase保存 → modal ── */
   const handleSend = async () => {
+    console.log("[fogmail] SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
     try {
       const strokes = strokesRef.current;
       console.log("[fogmail] strokes count:", strokes.length);
