@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 /* ── constants ─────────────────────────────── */
 const FOG_DURATION_SEC = 600;
-const BRUSH_RADIUS = 14;
+const BRUSH_RADIUS = 12;
 const FADE_ALPHA = 0.002;
 
 type Phase = "top" | "draw" | "modal";
