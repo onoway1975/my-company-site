@@ -357,7 +357,8 @@
       "Bash(git add -A && git commit -m \"fix: renewal STEP5 戻るボタンのラベルをペルソナ設定に変更\" && git push)",
       "Bash(git add -A && git commit -m \"feat: renewal ヘッダーにURL入力に戻るボタン追加\" && git push)",
       "Bash(git add -A && git commit -m \"feat: renewal STEP1にciraf会社紹介・お問い合わせCTA追加\" && git push)",
-      "Bash(git add -A && git commit -m \"feat: renewal STEP5にciraf CTA追加・全ボタンにマイクロインタラクション\" && git push)"
+      "Bash(git add -A && git commit -m \"feat: renewal STEP5にciraf CTA追加・全ボタンにマイクロインタラクション\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: fogmail PC画面の文言修正\" && git push)"
     ]
   }
 }

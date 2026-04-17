@@ -34,7 +34,7 @@ function PCFallback() {
         スマホ専用コンテンツです
       </p>
       <p style={{ fontSize: 14, color: "#767676", marginBottom: 24, textAlign: "center", lineHeight: 1.8 }}>
-        QRコードまたはURLを<br />スマホで開いてください
+        URLをスマホで開いてください
       </p>
       {url && (
         <p
