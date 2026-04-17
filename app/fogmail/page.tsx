@@ -59,6 +59,7 @@ function PCFallback() {
 export default function FogmailPage() {
   const fogCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isPC, setIsPC] = useState<boolean | null>(null);
+  const [isInApp, setIsInApp] = useState(false);
   const [phase, setPhase] = useState<Phase>("top");
   const [shareUrl, setShareUrl] = useState<string>("https://ciraf.jp/fogmail/");
   const [isSending, setIsSending] = useState(false);
@@ -73,10 +74,12 @@ export default function FogmailPage() {
   const strokesRef = useRef<Stroke[]>([]);
   const currentStrokeRef = useRef<Stroke | null>(null);
 
-  /* ── detect PC ──────────────────────────── */
+  /* ── detect PC / in-app browser ─────────── */
   useEffect(() => {
     const pc = navigator.maxTouchPoints === 0 && window.innerWidth > 768;
     setIsPC(pc);
+    const ua = navigator.userAgent;
+    setIsInApp(/Line|FBAN|FBAV|Instagram|Twitter/i.test(ua));
   }, []);
 
   /* ── hide root header/footer + inject keyframes ── */
@@ -450,6 +453,45 @@ export default function FogmailPage() {
         backgroundRepeat: "no-repeat",
       }}
     >
+      {isInApp && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: "rgba(255,255,255,0.95)",
+            padding: "10px 16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          }}
+        >
+          <span style={{ fontSize: 12, color: "#1A4A6B", lineHeight: 1.5 }}>
+            うまく描けない場合は<br />Safariで開いてください
+          </span>
+          <a
+            href={typeof window !== "undefined" ? window.location.href : ""}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              padding: "8px 16px",
+              background: "#1A4A6B",
+              color: "white",
+              borderRadius: 20,
+              fontSize: 12,
+              textDecoration: "none",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Safariで開く
+          </a>
+        </div>
+      )}
+
       <canvas
         ref={fogCanvasRef}
         onTouchStart={onTouchStart}

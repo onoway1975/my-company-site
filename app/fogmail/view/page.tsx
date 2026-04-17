@@ -42,6 +42,12 @@ function ViewInner() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [state, setState] = useState<ViewState>("loading");
   const [strokes, setStrokes] = useState<Stroke[]>([]);
+  const [isInApp, setIsInApp] = useState(false);
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    setIsInApp(/Line|FBAN|FBAV|Instagram|Twitter/i.test(ua));
+  }, []);
 
   /* ── fetch message ─────────────────────── */
   useEffect(() => {
@@ -318,6 +324,45 @@ function ViewInner() {
         backgroundRepeat: "no-repeat",
       }}
     >
+      {isInApp && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: "rgba(255,255,255,0.95)",
+            padding: "10px 16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          }}
+        >
+          <span style={{ fontSize: 12, color: "#1A4A6B", lineHeight: 1.5 }}>
+            うまく描けない場合は<br />Safariで開いてください
+          </span>
+          <a
+            href={typeof window !== "undefined" ? window.location.href : ""}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              padding: "8px 16px",
+              background: "#1A4A6B",
+              color: "white",
+              borderRadius: 20,
+              fontSize: 12,
+              textDecoration: "none",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Safariで開く
+          </a>
+        </div>
+      )}
+
       <canvas
         ref={canvasRef}
         style={{
