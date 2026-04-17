@@ -351,7 +351,9 @@
       "Bash(git add -A && git commit -m \"fix: fogmail 霧調整・タイマー10分・ヘッダーフッター非表示\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail 始めるスピナー・霧ゆっくり・3回で全体霧\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail lineWidth -2\" && git push)",
-      "Bash(git add -A && git commit -m \"feat: fogmail SEO・OGP設定追加\" && git push)"
+      "Bash(git add -A && git commit -m \"feat: fogmail SEO・OGP設定追加\" && git push)",
+      "Bash(git add public/fogmail/ogp.jpg && git commit -m \"feat: fogmail OGP画像追加\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: renewal 右チャットの分析レポート生成ボタン削除、左カラムに統一\" && git push)"
     ]
   }
 }

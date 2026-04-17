@@ -836,7 +836,7 @@ export default function RenewalPage() {
       return [];
     }
     if (step === 3 && !loadingExperts && Object.keys(expertReports).length > 0) {
-      return [{ label: "分析レポートを生成", action: handleGenerateProposal }];
+      return [];
     }
     return [];
   }
