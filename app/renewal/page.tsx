@@ -1053,6 +1053,109 @@ export default function RenewalPage() {
                     </p>
                   )}
                 </Card>
+
+                {/* About + CTA */}
+                <div
+                  style={{
+                    marginTop: 48,
+                    background: "#FFFFFF",
+                    border: "1px solid #E0DBD0",
+                    borderRadius: 16,
+                    padding: 32,
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "#888",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      margin: "0 0 16px",
+                    }}
+                  >
+                    このツールについて
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      lineHeight: 1.8,
+                      color: "#1A1A1A",
+                      margin: 0,
+                    }}
+                  >
+                    Renewal Advisorはシラフ株式会社が開発したWebリニューアル支援ツールです。AIが6つの専門家視点でサイトを分析し、リニューアルの方向性を提案します。
+                  </p>
+                  <div
+                    style={{
+                      borderTop: "1px solid #E0DBD0",
+                      margin: "20px 0",
+                    }}
+                  />
+                  <p
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 500,
+                      color: "#1A1A1A",
+                      margin: "0 0 8px",
+                    }}
+                  >
+                    シラフ株式会社
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "#888",
+                      lineHeight: 1.7,
+                      margin: 0,
+                    }}
+                  >
+                    Web制作・映像・ブランディングを手がける制作会社。「作れる人が教える」AI活用支援も展開中。
+                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 12,
+                      marginTop: 20,
+                    }}
+                  >
+                    <a
+                      href="https://ciraf.jp"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: "10px 24px",
+                        border: "1.5px solid #1A1A1A",
+                        borderRadius: 99,
+                        background: "transparent",
+                        color: "#1A1A1A",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        textDecoration: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      ciraf.jpを見る
+                    </a>
+                    <a
+                      href="https://ciraf.jp/#contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: "10px 24px",
+                        borderRadius: 99,
+                        background: "#E8821A",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        textDecoration: "none",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      お問い合わせ
+                    </a>
+                  </div>
+                </div>
               </div>
             )}
 
