@@ -473,22 +473,29 @@ export default function FogmailPage() {
           <span style={{ fontSize: 12, color: "#1A4A6B", lineHeight: 1.5 }}>
             うまく描けない場合は<br />Safariで開いてください
           </span>
-          <a
-            href={typeof window !== "undefined" ? window.location.href : ""}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            onClick={() => {
+              const url = window.location.href;
+              const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+              if (isIOS) {
+                window.location.href = `x-safari-${url}`;
+              } else {
+                window.open(url, "_blank");
+              }
+            }}
             style={{
               padding: "8px 16px",
               background: "#1A4A6B",
               color: "white",
               borderRadius: 20,
               fontSize: 12,
-              textDecoration: "none",
+              border: "none",
+              cursor: "pointer",
               whiteSpace: "nowrap",
             }}
           >
             Safariで開く
-          </a>
+          </button>
         </div>
       )}
 

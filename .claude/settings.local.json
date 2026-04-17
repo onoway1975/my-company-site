@@ -359,7 +359,8 @@
       "Bash(git add -A && git commit -m \"feat: renewal STEP1にciraf会社紹介・お問い合わせCTA追加\" && git push)",
       "Bash(git add -A && git commit -m \"feat: renewal STEP5にciraf CTA追加・全ボタンにマイクロインタラクション\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail PC画面の文言修正\" && git push)",
-      "Bash(git add -A && git commit -m \"feat: fogmail アプリ内ブラウザ検知・Safari誘導バナー追加\" && git push)"
+      "Bash(git add -A && git commit -m \"feat: fogmail アプリ内ブラウザ検知・Safari誘導バナー追加\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: fogmail Safari強制遷移を修正\" && git push)"
     ]
   }
 }
