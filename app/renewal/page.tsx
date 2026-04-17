@@ -373,7 +373,7 @@ function LoadingDots() {
 /* ── Main Component ────────────────────────── */
 
 export default function RenewalPage() {
-  const { step, setStep } = useStep();
+  const { step, setStep, setOnReset } = useStep();
   const [url, setUrl] = useState("");
   const [siteData, setSiteData] = useState<SiteData | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -421,6 +421,42 @@ export default function RenewalPage() {
     Record<string, string[]>
   >({});
   const [loadingSummaries, setLoadingSummaries] = useState(false);
+
+  // Register resetAll for header button
+  useEffect(() => {
+    setOnReset(() => () => {
+      setUrl("");
+      setSiteData(null);
+      setAnalyzing(false);
+      setExpertReports({});
+      setLoadingExperts(false);
+      setRetryingExperts({});
+      setSelectedExpert("producer");
+      setSelectedChatExpert(null);
+      setChatInput("");
+      setChatLoading(false);
+      setActiveSlide(0);
+      setPptxGenerating(false);
+      setError(null);
+      setRemaining(null);
+      setBubbles([
+        {
+          sender: "advisor",
+          content:
+            "こんにちは！Renewal Advisorです。\nリニューアルしたいWebサイトのURLを入力してください。",
+        },
+      ]);
+      setInvolvedExperts([]);
+      setExpertChatHistory({});
+      setExpertChatSummaries({});
+      setPersonas(null);
+      setLoadingPersonas(false);
+      setSelectedPersona(null);
+      setPersonaChatHistory({});
+      setPersonaSummaries({});
+      setLoadingSummaries(false);
+    });
+  }, [setOnReset]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);

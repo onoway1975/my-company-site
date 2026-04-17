@@ -13,6 +13,8 @@ type StepNum = 1 | 2 | 3 | 4 | 5;
 type StepContextValue = {
   step: StepNum;
   setStep: Dispatch<SetStateAction<StepNum>>;
+  onReset: (() => void) | null;
+  setOnReset: Dispatch<SetStateAction<(() => void) | null>>;
 };
 
 const Ctx = createContext<StepContextValue | null>(null);
@@ -91,10 +93,57 @@ function StepBar({ step }: { step: StepNum }) {
   );
 }
 
+function ResetButton({ onReset, setStep }: { onReset: (() => void) | null; setStep: Dispatch<SetStateAction<StepNum>> }) {
+  return (
+    <button
+      onClick={() => {
+        if (onReset) onReset();
+        setStep(1);
+      }}
+      style={{
+        marginLeft: "auto",
+        padding: "6px 16px",
+        fontSize: 12,
+        fontWeight: 500,
+        border: "1.5px solid #1A1A1A",
+        borderRadius: 99,
+        background: "transparent",
+        color: "#1A1A1A",
+        cursor: "pointer",
+        whiteSpace: "nowrap",
+      }}
+    >
+      URL入力に戻る
+    </button>
+  );
+}
+
 export function StepProvider({ children }: { children: ReactNode }) {
   const [step, setStep] = useState<StepNum>(1);
+  const [onReset, setOnReset] = useState<(() => void) | null>(null);
   return (
-    <Ctx.Provider value={{ step, setStep }}>
+    <Ctx.Provider value={{ step, setStep, onReset, setOnReset }}>
+      <header
+        style={{
+          height: 48,
+          borderBottom: "1px solid #E0DBD0",
+          display: "flex",
+          alignItems: "center",
+          padding: "0 24px",
+          background: "#F2EFE8",
+          flexShrink: 0,
+        }}
+      >
+        <span
+          style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.05em" }}
+        >
+          Renewal Advisor
+        </span>
+        <span style={{ fontSize: 11, color: "#888", marginLeft: 8 }}>
+          by ciraf
+        </span>
+        <ResetButton onReset={onReset} setStep={setStep} />
+      </header>
       <StepBar step={step} />
       <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
         {children}

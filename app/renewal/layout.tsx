@@ -43,26 +43,6 @@ export default function RenewalLayout({
           fontFamily: "'LINE Seed JP', 'LINE Seed EN', sans-serif",
         }}
       >
-        <header
-          style={{
-            height: 48,
-            borderBottom: "1px solid #E0DBD0",
-            display: "flex",
-            alignItems: "center",
-            padding: "0 24px",
-            background: "#F2EFE8",
-            flexShrink: 0,
-          }}
-        >
-          <span
-            style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.05em" }}
-          >
-            Renewal Advisor
-          </span>
-          <span style={{ fontSize: 11, color: "#888", marginLeft: 8 }}>
-            by ciraf
-          </span>
-        </header>
         <StepProvider>{children}</StepProvider>
       </div>
     </>
