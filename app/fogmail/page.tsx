@@ -89,9 +89,7 @@ export default function FogmailPage() {
 
   /* ── init canvas when entering draw phase ─ */
   useEffect(() => {
-    // TODO: テスト後にPCブロックを復活させる
-    // if (isPC !== false) return;
-    if (isPC === null) return;
+    if (isPC !== false) return;
     if (phase === "top") return;
     const fogC = fogCanvasRef.current;
     if (!fogC) return;
@@ -266,7 +264,7 @@ export default function FogmailPage() {
       const y = Math.random() * H;
       const r = W * (0.3 + Math.random() * 0.2);
       const grd = ctx.createRadialGradient(x, y, 0, x, y, r);
-      grd.addColorStop(0, "rgba(148,168,196,0.28)");
+      grd.addColorStop(0, "rgba(148,168,196,0.56)");
       grd.addColorStop(1, "rgba(148,168,196,0)");
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, W, H);
@@ -303,8 +301,7 @@ export default function FogmailPage() {
 
   /* ── states ─────────────────────────────── */
   if (isPC === null) return null;
-  // TODO: テスト後にPCブロックを復活させる
-  // if (isPC) return <PCFallback />;
+  if (isPC) return <PCFallback />;
 
   const mailHref = `mailto:?subject=fog mailからのメッセージ&body=曇ったガラスにメッセージを書きました。%0A10分以内に開いてください。%0A%0A${encodeURIComponent(shareUrl)}`;
   const lineHref = `https://line.me/R/msg/text/?曇ったガラスにメッセージを書きました。%0A10分以内に開いてください。%0A${encodeURIComponent(shareUrl)}`;

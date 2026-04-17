@@ -344,7 +344,9 @@
       "Bash(git check-ignore /Users/onoway/my-company-site/.env.local && echo \"gitignored ✓\" || echo \"NOT gitignored - DO NOT COMMIT\")",
       "Bash(git add middleware.ts && git commit -m \"feat: /renewal にBasic認証を追加\" && git push)",
       "Bash(git add app/api/renewal/analyze/route.ts && git commit -m \"refactor: /api/renewal/analyze のレート制限を削除\" && git push)",
-      "Bash(git add app/api/renewal/expert/route.ts && git commit -m \"refactor: /api/renewal/expert 各専門家のsystemPromptを職種特化に再設計\" && git push)"
+      "Bash(git add app/api/renewal/expert/route.ts && git commit -m \"refactor: /api/renewal/expert 各専門家のsystemPromptを職種特化に再設計\" && git push)",
+      "Bash(git commit -m \"$\\(cat <<'EOF'\nfix: /api/renewal/expert JSONパース強化・stagger・リトライ実装\n\n- JSONパース失敗時に正規表現で {...} 部分を抽出するフォールバック追加\n- 6名の専門家を200ms間隔でstagger送信（同時接続負荷軽減）\n- siteDataをスリム化（pageStructureを100文字に切詰）\n- 失敗時500ms後に1回だけ自動リトライ、UIで「再分析中...」表示\nEOF\n\\)\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: fogmail PC表示・audio削除・霧の濃さ調整\" && git push)"
     ]
   }
 }
