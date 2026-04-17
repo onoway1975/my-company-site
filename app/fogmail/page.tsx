@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 /* ── constants ─────────────────────────────── */
 const FOG_DURATION_SEC = 600;
 const BRUSH_RADIUS = 14;
-const FADE_ALPHA = 0.05;
+const FADE_ALPHA = 0.002;
 
 type Phase = "top" | "draw" | "modal";
 type Point = { x: number; y: number };
@@ -62,6 +62,7 @@ export default function FogmailPage() {
   const [phase, setPhase] = useState<Phase>("top");
   const [shareUrl, setShareUrl] = useState<string>("https://ciraf.jp/fogmail/");
   const [isSending, setIsSending] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
   const lastPos = useRef<Point | null>(null);
   const dpr = useRef(1);
@@ -86,7 +87,7 @@ export default function FogmailPage() {
     if (footer) footer.style.setProperty("display", "none", "important");
 
     const style = document.createElement("style");
-    style.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
+    style.textContent = "@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}";
     document.head.appendChild(style);
 
     return () => {
@@ -273,7 +274,7 @@ export default function FogmailPage() {
       const y = Math.random() * H;
       const r = W * (0.3 + Math.random() * 0.2);
       const grd = ctx.createRadialGradient(x, y, 0, x, y, r);
-      grd.addColorStop(0, "rgba(148,168,196,0.76)");
+      grd.addColorStop(0, "rgba(148,168,196,0.92)");
       grd.addColorStop(1, "rgba(148,168,196,0)");
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, W, H);
@@ -390,7 +391,18 @@ export default function FogmailPage() {
             メッセージを書いてみよう
           </p>
           <button
-            onClick={() => setPhase("draw")}
+            onClick={async () => {
+              setIsStarting(true);
+              await new Promise((resolve) => {
+                const img = new Image();
+                img.onload = resolve;
+                img.onerror = resolve;
+                img.src = "/fogmail/bg.jpg";
+              });
+              setPhase("draw");
+              setIsStarting(false);
+            }}
+            disabled={isStarting}
             style={{
               padding: "14px 48px",
               background: "white",
@@ -400,9 +412,25 @@ export default function FogmailPage() {
               border: "none",
               borderRadius: "28px",
               cursor: "pointer",
+              minWidth: 140,
+              opacity: isStarting ? 0.8 : 1,
             }}
           >
-            始める
+            {isStarting ? (
+              <div
+                style={{
+                  width: 20,
+                  height: 20,
+                  border: "2px solid rgba(100,150,200,0.3)",
+                  borderTop: "2px solid #1A4A6B",
+                  borderRadius: "50%",
+                  animation: "spin 0.8s linear infinite",
+                  margin: "0 auto",
+                }}
+              />
+            ) : (
+              "始める"
+            )}
           </button>
         </div>
       </div>
@@ -417,6 +445,7 @@ export default function FogmailPage() {
         inset: 0,
         backgroundImage: "url('/fogmail/bg.jpg')",
         backgroundSize: "cover",
+        animation: "fadeIn 0.4s ease",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
