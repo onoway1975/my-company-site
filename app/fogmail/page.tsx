@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 /* ── constants ─────────────────────────────── */
-const FOG_DURATION_SEC = 60;
+const FOG_DURATION_SEC = 600;
 const BRUSH_RADIUS = 14;
 const FADE_ALPHA = 0.05;
 
@@ -78,18 +78,20 @@ export default function FogmailPage() {
     setIsPC(pc);
   }, []);
 
-  /* ── hide root header (chat widget is hidden via CSS in layout.tsx) ── */
+  /* ── hide root header/footer + inject keyframes ── */
   useEffect(() => {
     const header = document.querySelector("header");
-    if (header) (header as HTMLElement).style.display = "none";
+    const footer = document.querySelector("footer");
+    if (header) header.style.setProperty("display", "none", "important");
+    if (footer) footer.style.setProperty("display", "none", "important");
 
     const style = document.createElement("style");
     style.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
     document.head.appendChild(style);
 
     return () => {
-      const header = document.querySelector("header");
-      if (header) (header as HTMLElement).style.display = "";
+      if (header) header.style.removeProperty("display");
+      if (footer) footer.style.removeProperty("display");
       style.remove();
     };
   }, []);
@@ -271,7 +273,7 @@ export default function FogmailPage() {
       const y = Math.random() * H;
       const r = W * (0.3 + Math.random() * 0.2);
       const grd = ctx.createRadialGradient(x, y, 0, x, y, r);
-      grd.addColorStop(0, "rgba(148,168,196,0.56)");
+      grd.addColorStop(0, "rgba(148,168,196,0.76)");
       grd.addColorStop(1, "rgba(148,168,196,0)");
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, W, H);
