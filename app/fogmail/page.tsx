@@ -61,6 +61,7 @@ export default function FogmailPage() {
   const [isPC, setIsPC] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<Phase>("top");
   const [shareUrl, setShareUrl] = useState<string>("https://ciraf.jp/fogmail/");
+  const [isSending, setIsSending] = useState(false);
 
   const lastPos = useRef<Point | null>(null);
   const dpr = useRef(1);
@@ -81,9 +82,15 @@ export default function FogmailPage() {
   useEffect(() => {
     const header = document.querySelector("header");
     if (header) (header as HTMLElement).style.display = "none";
+
+    const style = document.createElement("style");
+    style.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
+    document.head.appendChild(style);
+
     return () => {
       const header = document.querySelector("header");
       if (header) (header as HTMLElement).style.display = "";
+      style.remove();
     };
   }, []);
 
@@ -276,6 +283,7 @@ export default function FogmailPage() {
   /* ── メールアイコン → API経由でSupabase保存 → modal ── */
   const handleSend = async () => {
     console.log("[fogmail] handleSend called");
+    setIsSending(true);
     try {
       const strokes = strokesRef.current;
       console.log("[fogmail] strokes count:", strokes.length);
@@ -296,6 +304,8 @@ export default function FogmailPage() {
       console.error("[fogmail] error:", err);
       setShareUrl("https://ciraf.jp/fogmail/");
       setPhase("modal");
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -451,27 +461,42 @@ export default function FogmailPage() {
       {/* ✉ メール → 保存 → modal */}
       <button
         onClick={handleSend}
+        disabled={isSending}
         aria-label="メッセージを送る"
         style={{
           ...iconBtnStyle,
           position: "absolute",
           bottom: 48,
           left: 24,
+          opacity: isSending ? 0.7 : 1,
         }}
       >
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect x="3" y="5" width="18" height="14" rx="2" />
-          <path d="M3 7l9 6 9-6" />
-        </svg>
+        {isSending ? (
+          <div
+            style={{
+              width: 20,
+              height: 20,
+              border: "2px solid rgba(26,106,90,0.3)",
+              borderTop: "2px solid #1A6B5A",
+              borderRadius: "50%",
+              animation: "spin 0.8s linear infinite",
+            }}
+          />
+        ) : (
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="M3 7l9 6 9-6" />
+          </svg>
+        )}
       </button>
 
       {/* はーっ */}
@@ -504,7 +529,7 @@ export default function FogmailPage() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(0,0,0,0.4)",
+            background: "rgba(0,0,0,0.3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -517,12 +542,14 @@ export default function FogmailPage() {
             style={{
               width: "100%",
               maxWidth: 360,
-              background: "#1A6B5A",
+              background: "rgba(255,255,255,0.85)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
               borderRadius: 24,
-              padding: "44px 28px 36px",
+              padding: "32px 24px",
               position: "relative",
-              color: "#fff",
-              boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
+              color: "#1A4A6B",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
             }}
           >
             <button
@@ -535,9 +562,9 @@ export default function FogmailPage() {
                 width: 36,
                 height: 36,
                 borderRadius: "50%",
-                background: "transparent",
+                background: "rgba(0,0,0,0.1)",
                 border: "none",
-                color: "rgba(255,255,255,0.9)",
+                color: "#1A4A6B",
                 fontSize: 22,
                 cursor: "pointer",
                 display: "flex",
@@ -556,6 +583,7 @@ export default function FogmailPage() {
                 fontWeight: 700,
                 letterSpacing: "0.18em",
                 textAlign: "center",
+                color: "#1A4A6B",
                 marginBottom: 28,
               }}
             >
@@ -569,14 +597,15 @@ export default function FogmailPage() {
                 width: "80%",
                 margin: "0 auto 14px",
                 padding: "14px 0",
-                borderRadius: 999,
-                background: "#fff",
-                color: "#1A6B5A",
+                borderRadius: 24,
+                background: "#1A4A6B",
+                color: "#fff",
                 fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.24em",
                 textAlign: "center",
                 textDecoration: "none",
+                border: "none",
               }}
             >
               MAIL
@@ -591,7 +620,7 @@ export default function FogmailPage() {
                 width: "80%",
                 margin: "0 auto",
                 padding: "14px 0",
-                borderRadius: 999,
+                borderRadius: 24,
                 background: "#06C755",
                 color: "#fff",
                 fontSize: 14,
@@ -599,6 +628,7 @@ export default function FogmailPage() {
                 letterSpacing: "0.24em",
                 textAlign: "center",
                 textDecoration: "none",
+                border: "none",
               }}
             >
               LINE
