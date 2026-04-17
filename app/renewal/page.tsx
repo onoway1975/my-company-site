@@ -2454,7 +2454,7 @@ export default function RenewalPage() {
                     size="md"
                     onClick={() => setStep(3)}
                   >
-                    &larr; 分析に戻る
+                    &larr; ペルソナ設定に戻る
                   </PillButton>
                   <PillButton
                     variant="secondary"
