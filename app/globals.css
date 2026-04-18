@@ -9,6 +9,7 @@
 @source "./yume100";
 @source "./fogmail";
 @source "./renewal";
+@source "./punimoji";
 
 @theme {
   --color-ink: #111111;
