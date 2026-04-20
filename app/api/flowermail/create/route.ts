@@ -209,7 +209,7 @@ export async function POST(req: NextRequest) {
     // Step 1: Claude API — ブーケ情報・メッセージ生成
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const claudeResponse = await anthropic.messages.create({
-      model: "claude-sonnet-4-5-20250514",
+      model: "claude-sonnet-4-5-20250929",
       max_tokens: 1024,
       messages: [
         {
