@@ -10,6 +10,7 @@
 @source "./fogmail";
 @source "./renewal";
 @source "./punimoji";
+@source "./flowermail";
 
 @theme {
   --color-ink: #111111;
