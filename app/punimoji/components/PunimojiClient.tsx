@@ -265,7 +265,7 @@ export default function PunimojiClient() {
               color: "#8B7A9A",
             }}
           >
-            10秒くらい待ってね
+            ぷっくりするまで1分くらい待ってね 🫧
           </p>
         </div>
       )}
