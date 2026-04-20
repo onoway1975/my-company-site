@@ -90,7 +90,7 @@ export default function FlowermailLayout({
         .fm-input {
           width: 100%;
           border: none;
-          border-bottom: 1px solid #E5E5E5;
+          border-bottom: 1px solid #0A0A0A;
           background: transparent;
           padding: 12px 0;
           font-family: 'Shippori Mincho', serif;
@@ -106,13 +106,13 @@ export default function FlowermailLayout({
           border-bottom-color: #0A0A0A;
         }
         .fm-input::placeholder {
-          color: #E5E5E5;
+          color: #6B6B6B;
           font-style: italic;
         }
         .fm-textarea {
           width: 100%;
           border: none;
-          border-bottom: 1px solid #E5E5E5;
+          border-bottom: 1px solid #0A0A0A;
           background: transparent;
           padding: 12px 0;
           font-family: 'Shippori Mincho', serif;
@@ -130,22 +130,21 @@ export default function FlowermailLayout({
           border-bottom-color: #0A0A0A;
         }
         .fm-textarea::placeholder {
-          color: #E5E5E5;
+          color: #6B6B6B;
           font-style: italic;
         }
 
         /* ── Button: border only + uppercase ── */
         .fm-btn {
           display: inline-block;
-          border: 1px solid #0A0A0A;
+          border: 1.5px solid #0A0A0A;
           background: transparent;
           color: #0A0A0A;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Shippori Mincho', serif;
           font-weight: 400;
-          font-size: 12px;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          padding: 16px 40px;
+          font-size: 14px;
+          letter-spacing: 0.1em;
+          padding: 18px 56px;
           cursor: pointer;
           transition: background 0.3s, color 0.3s;
           text-decoration: none;
@@ -166,15 +165,14 @@ export default function FlowermailLayout({
         }
         .fm-btn-ghost {
           display: inline-block;
-          border: 1px solid #E5E5E5;
+          border: 1.5px solid #E5E5E5;
           background: transparent;
           color: #6B6B6B;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Shippori Mincho', serif;
           font-weight: 400;
-          font-size: 12px;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          padding: 16px 40px;
+          font-size: 14px;
+          letter-spacing: 0.1em;
+          padding: 18px 56px;
           cursor: pointer;
           transition: border-color 0.3s, color 0.3s;
           text-decoration: none;

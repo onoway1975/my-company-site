@@ -466,11 +466,32 @@ export default function FlowermailPage() {
 
   /* ── Form ── */
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto", padding: "0 24px" }}>
-      {/* Hero */}
+    <div>
+      {/* KV Hero — full bleed */}
       <div
         style={{
-          paddingTop: 160,
+          height: "100vh",
+          width: "100%",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <img
+          src="/flowermail/kv.jpg"
+          alt="flower mail"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
+        />
+      </div>
+
+      {/* Title + Subcopy */}
+      <div
+        style={{
+          paddingTop: 120,
           paddingBottom: 120,
           textAlign: "center",
         }}
@@ -493,129 +514,132 @@ export default function FlowermailPage() {
         </p>
       </div>
 
-      {/* Section label */}
-      <p
-        className="fm-label"
-        style={{ marginBottom: 64 }}
-      >
-        Send a bouquet
-      </p>
-
-      {/* Form fields */}
-      <div style={{ marginBottom: 40 }}>
-        <div style={{ position: "relative", marginBottom: 48 }}>
-          <input
-            className="fm-input"
-            type="text"
-            placeholder="相手の名前"
-            value={recipientName}
-            onChange={(e) => setRecipientName(e.target.value.slice(0, 30))}
-          />
-          <span
-            style={{
-              position: "absolute",
-              right: 0,
-              bottom: 14,
-              fontSize: 11,
-              color: "#E5E5E5",
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 300,
-            }}
-          >
-            {recipientName.length}/30
-          </span>
-        </div>
-
-        <div style={{ position: "relative", marginBottom: 48 }}>
-          <textarea
-            className="fm-textarea"
-            placeholder="どんな人か、感謝していること、雰囲気"
-            rows={4}
-            value={description}
-            onChange={(e) => setDescription(e.target.value.slice(0, 200))}
-          />
-          <span
-            style={{
-              position: "absolute",
-              right: 0,
-              bottom: 14,
-              fontSize: 11,
-              color: "#E5E5E5",
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 300,
-            }}
-          >
-            {description.length}/200
-          </span>
-        </div>
-
-        <div style={{ position: "relative", marginBottom: 48 }}>
-          <input
-            className="fm-input"
-            type="text"
-            placeholder="あなたの名前（任意）"
-            value={senderName}
-            onChange={(e) => setSenderName(e.target.value.slice(0, 20))}
-          />
-          <span
-            style={{
-              position: "absolute",
-              right: 0,
-              bottom: 14,
-              fontSize: 11,
-              color: "#E5E5E5",
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 300,
-            }}
-          >
-            {senderName.length}/20
-          </span>
-        </div>
-      </div>
-
-      {/* Error */}
-      {error && (
+      {/* Form section */}
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "0 24px" }}>
+        {/* Section label */}
         <p
+          className="fm-label"
+          style={{ marginBottom: 64, color: "#0A0A0A" }}
+        >
+          Send a bouquet
+        </p>
+
+        {/* Form fields */}
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ position: "relative", marginBottom: 48 }}>
+            <input
+              className="fm-input"
+              type="text"
+              placeholder="相手の名前"
+              value={recipientName}
+              onChange={(e) => setRecipientName(e.target.value.slice(0, 30))}
+            />
+            <span
+              style={{
+                position: "absolute",
+                right: 0,
+                bottom: 14,
+                fontSize: 11,
+                color: "#6B6B6B",
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 300,
+              }}
+            >
+              {recipientName.length}/30
+            </span>
+          </div>
+
+          <div style={{ position: "relative", marginBottom: 48 }}>
+            <textarea
+              className="fm-textarea"
+              placeholder="どんな人か、感謝していること、雰囲気"
+              rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value.slice(0, 200))}
+            />
+            <span
+              style={{
+                position: "absolute",
+                right: 0,
+                bottom: 14,
+                fontSize: 11,
+                color: "#6B6B6B",
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 300,
+              }}
+            >
+              {description.length}/200
+            </span>
+          </div>
+
+          <div style={{ position: "relative", marginBottom: 48 }}>
+            <input
+              className="fm-input"
+              type="text"
+              placeholder="あなたの名前（任意）"
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value.slice(0, 20))}
+            />
+            <span
+              style={{
+                position: "absolute",
+                right: 0,
+                bottom: 14,
+                fontSize: 11,
+                color: "#6B6B6B",
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 300,
+              }}
+            >
+              {senderName.length}/20
+            </span>
+          </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <p
+            style={{
+              fontSize: 13,
+              color: "#0A0A0A",
+              textAlign: "center",
+              marginBottom: 24,
+              fontFamily: "'Shippori Mincho', serif",
+            }}
+          >
+            {error}
+          </p>
+        )}
+
+        {/* Submit */}
+        <div style={{ textAlign: "center", marginBottom: 160 }}>
+          <button
+            className="fm-btn"
+            onClick={handleSubmit}
+            disabled={!recipientName.trim() || !description.trim()}
+          >
+            ブーケを作る
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div
           style={{
-            fontSize: 13,
-            color: "#0A0A0A",
             textAlign: "center",
-            marginBottom: 24,
-            fontFamily: "'Shippori Mincho', serif",
+            paddingBottom: 64,
           }}
         >
-          {error}
-        </p>
-      )}
-
-      {/* Submit */}
-      <div style={{ textAlign: "center", marginBottom: 160 }}>
-        <button
-          className="fm-btn"
-          onClick={handleSubmit}
-          disabled={!recipientName.trim() || !description.trim()}
-        >
-          Tie the bouquet
-        </button>
-      </div>
-
-      {/* Footer */}
-      <div
-        style={{
-          textAlign: "center",
-          paddingBottom: 64,
-        }}
-      >
-        <p
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase" as const,
-            color: "#E5E5E5",
-          }}
-        >
-          ciraf inc.
-        </p>
+          <p
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase" as const,
+              color: "#6B6B6B",
+            }}
+          >
+            ciraf inc.
+          </p>
+        </div>
       </div>
     </div>
   );
