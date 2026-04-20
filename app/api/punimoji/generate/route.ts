@@ -143,8 +143,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Step B: birefnet で背景透過
+    let finalUrl = imageUrl;
+    try {
+      const bgResult = await fal.subscribe("fal-ai/birefnet", {
+        input: {
+          image_url: imageUrl,
+        },
+      });
+      const transparentUrl = (
+        bgResult as { data: { image: { url: string } } }
+      ).data.image?.url;
+      if (transparentUrl) {
+        finalUrl = transparentUrl;
+      } else {
+        console.warn("[punimoji] birefnet returned no image, using original");
+      }
+    } catch (bgErr) {
+      console.warn("[punimoji] birefnet failed, using original:", bgErr);
+    }
+
     return NextResponse.json({
-      imageUrl,
+      imageUrl: finalUrl,
       remainingToday: limit.remaining,
     });
   } catch (error) {

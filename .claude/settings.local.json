@@ -367,7 +367,8 @@
       "Bash(git add public/email/ public/logo.png && git commit -m \"add email images\" && git push)",
       "Bash(git add -A && git commit -m \"fix: punimoji タイトル画像サイズ調整・メーカーテキスト削除\" && git push)",
       "Bash(git add -A && git commit -m \"fix: punimoji タイトル画像とサブタイトルの余白詰め\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: punimoji 生成中オーバーレイの文言変更\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: punimoji 生成中オーバーレイの文言変更\" && git push)",
+      "Bash(git add -A && git commit -m \"feat: punimoji birefnetによる背景透過処理を追加\" && git push)"
     ]
   }
 }
