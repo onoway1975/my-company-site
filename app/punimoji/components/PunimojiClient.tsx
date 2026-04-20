@@ -128,7 +128,7 @@ export default function PunimojiClient() {
               width: "92%",
               maxWidth: 720,
               marginTop: 40,
-              marginBottom: 12,
+              marginBottom: -80,
             }}
           />
 
