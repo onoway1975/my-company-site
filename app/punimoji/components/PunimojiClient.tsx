@@ -124,11 +124,11 @@ export default function PunimojiClient() {
           <img
             src="/punimoji/title.png"
             alt="ぷに文字メーカー"
+            className="puni-title-img"
             style={{
               width: "92%",
               maxWidth: 720,
               marginTop: 40,
-              marginBottom: -80,
             }}
           />
 

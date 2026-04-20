@@ -157,6 +157,20 @@ export default function PunimojiLayout({
           font-size: 24px;
         }
 
+        .puni-title-img {
+          margin-bottom: -24px;
+        }
+        @media (min-width: 768px) {
+          .puni-title-img {
+            margin-bottom: -60px;
+          }
+        }
+        @media (min-width: 1024px) {
+          .puni-title-img {
+            margin-bottom: -80px;
+          }
+        }
+
         @keyframes puniFloat {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
