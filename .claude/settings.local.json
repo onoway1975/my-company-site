@@ -360,7 +360,12 @@
       "Bash(git add -A && git commit -m \"feat: renewal STEP5にciraf CTA追加・全ボタンにマイクロインタラクション\" && git push)",
       "Bash(git add -A && git commit -m \"fix: fogmail PC画面の文言修正\" && git push)",
       "Bash(git add -A && git commit -m \"feat: fogmail アプリ内ブラウザ検知・Safari誘導バナー追加\" && git push)",
-      "Bash(git add -A && git commit -m \"fix: fogmail Safari強制遷移を修正\" && git push)"
+      "Bash(git add -A && git commit -m \"fix: fogmail Safari強制遷移を修正\" && git push)",
+      "Bash(rm -rf /Users/onoway/my-company-site/.next/dev/types && npx tsc --noEmit 2>&1 | head -20)",
+      "Bash(git add app/globals.css lib/punimoji-prompt.ts app/api/punimoji/ app/punimoji/ && git status)",
+      "Bash(git add public/punimoji/ && git commit -m \"$\\(cat <<'EOF'\nfeat: ぷに文字メーカー /punimoji 新規追加\n\n- fal.ai nano-banana-2 で3Dバルーン文字画像を生成\n- 5スタイル（ぷに/ぷるぷる/キャンディ/メタリック/バブルガム）\n- Upstash Redisレート制限（1日50回/IP）\n- localStorage履歴（最大20件）\n- 結果画面で画像保存・別スタイル再生成\n- インスタストーリー用how-toガイドページ\n- OGP/Twitter Card設定\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git push)",
+      "Bash(git add public/email/ public/logo.png && git commit -m \"add email images\" && git push)",
+      "Bash(git add -A && git commit -m \"fix: punimoji タイトル画像サイズ調整・メーカーテキスト削除\" && git push)"
     ]
   }
 }

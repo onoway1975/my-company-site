@@ -119,33 +119,23 @@ export default function PunimojiClient() {
           padding: "40px 20px 80px",
         }}
       >
-        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 400, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", alignItems: "center" }}>
           {/* Title image */}
           <img
             src="/punimoji/title.png"
-            alt="ぷに文字"
+            alt="ぷに文字メーカー"
             style={{
-              width: "80%",
-              maxWidth: 320,
-              marginBottom: 4,
+              width: "92%",
+              maxWidth: 720,
+              marginTop: 40,
+              marginBottom: 12,
             }}
           />
 
-          <h1
-            style={{
-              fontSize: 40,
-              fontWeight: 700,
-              color: "#2D1B3D",
-              marginBottom: 8,
-              textAlign: "center",
-            }}
-          >
-            メーカー
-          </h1>
-
           <p
             style={{
-              fontSize: 14,
+              fontSize: 16,
+              fontWeight: 500,
               color: "#8B7A9A",
               marginBottom: 32,
               textAlign: "center",
