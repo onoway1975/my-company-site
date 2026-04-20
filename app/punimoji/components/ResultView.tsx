@@ -101,11 +101,24 @@ export default function ResultView({
           fontSize: 20,
           fontWeight: 700,
           color: "#2D1B3D",
-          marginBottom: 20,
+          marginBottom: 8,
           textAlign: "center",
         }}
       >
         「{word}」
+      </p>
+
+      {/* Style label */}
+      <p
+        style={{
+          fontSize: 14,
+          fontWeight: 500,
+          color: "#8B7A9A",
+          marginBottom: 20,
+          textAlign: "center",
+        }}
+      >
+        {STYLES.find((s) => s.id === style)?.emoji} {STYLES.find((s) => s.id === style)?.name} で作成
       </p>
 
       {/* Save button */}
