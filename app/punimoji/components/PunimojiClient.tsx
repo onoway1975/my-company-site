@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { type StyleId } from "@/lib/punimoji-prompt";
 import StyleSelector from "./StyleSelector";
 import WordInput from "./WordInput";
 import ResultView from "./ResultView";
 import History, { type HistoryItem } from "./History";
+
+const EXPECTED_DURATION = 60000; // 60秒
 
 const STORAGE_KEY = "punimoji_history";
 const MAX_HISTORY = 20;
@@ -28,6 +30,8 @@ export default function PunimojiClient() {
   const [word, setWord] = useState("");
   const [style, setStyle] = useState<StyleId>("puni");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -50,6 +54,21 @@ export default function PunimojiClient() {
 
       setIsGenerating(true);
       setError(null);
+      setProgress(0);
+
+      // プログレスバー開始
+      const startTime = Date.now();
+      progressRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        let p: number;
+        if (elapsed < EXPECTED_DURATION * 0.9) {
+          p = (elapsed / EXPECTED_DURATION) * 90;
+        } else {
+          const extra = elapsed - EXPECTED_DURATION * 0.9;
+          p = 90 + Math.min(9, extra / 3000);
+        }
+        setProgress(Math.min(99, p));
+      }, 100);
 
       try {
         const res = await fetch("/api/punimoji/generate", {
@@ -68,6 +87,10 @@ export default function PunimojiClient() {
         if (data.remainingToday !== undefined) {
           setRemaining(data.remainingToday);
         }
+
+        // 100%にしてから少し待って結果表示
+        setProgress(100);
+        await new Promise((r) => setTimeout(r, 300));
 
         // Show result
         setResultWord(w.trim());
@@ -89,7 +112,9 @@ export default function PunimojiClient() {
       } catch {
         setError("ぷに生成に失敗しました。もう一度お試しください");
       } finally {
+        if (progressRef.current) clearInterval(progressRef.current);
         setIsGenerating(false);
+        setProgress(0);
       }
     },
     [word, style, history]
@@ -259,6 +284,12 @@ export default function PunimojiClient() {
           >
             ぷっくり作成中...
           </p>
+          <div className="progress-container">
+            <div
+              className="progress-bar"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
           <p
             style={{
               fontSize: 13,

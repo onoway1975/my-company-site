@@ -171,6 +171,50 @@ export default function PunimojiLayout({
           }
         }
 
+        .progress-container {
+          width: 80%;
+          max-width: 300px;
+          height: 16px;
+          background: rgba(255, 216, 227, 0.5);
+          border-radius: 9999px;
+          overflow: hidden;
+          margin: 24px auto 0;
+          box-shadow:
+            inset 0 2px 4px rgba(255, 59, 142, 0.15),
+            inset 0 -1px 2px rgba(255, 255, 255, 0.5);
+        }
+        .progress-bar {
+          height: 100%;
+          background: linear-gradient(180deg, #FF7AB5 0%, #FF3B8E 100%);
+          border-radius: 9999px;
+          box-shadow:
+            inset 0 2px 4px rgba(255, 255, 255, 0.5),
+            inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+            0 0 12px rgba(255, 59, 142, 0.4);
+          transition: width 0.3s ease-out;
+          position: relative;
+          overflow: hidden;
+        }
+        .progress-bar::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.4),
+            transparent
+          );
+          animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
         @keyframes puniFloat {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }
