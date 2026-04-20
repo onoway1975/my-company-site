@@ -56,7 +56,7 @@ p{text-align:center;color:#8B7A9A;font-size:14px;margin:20px 0}
 </head>
 <body>
 <figure class="image-wrapper"><img src="${dataUrl}" alt="ぷに文字: ${word}"></figure>
-<p>画像を長押しして<br>「写真に追加」で保存できます 📱</p>
+<p>👆 <strong style="color:#FF3B8E">白い背景部分</strong>を長押し<br>→「写真に追加」で保存できます</p>
 <a class="btn" href="javascript:history.back()">← 結果に戻る</a>
 </body>
 </html>`;
