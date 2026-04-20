@@ -16,19 +16,62 @@ export default function ResultView({
   onClose: () => void;
   onRegenerate: (newStyle: StyleId) => void;
 }) {
-  const [showSaveHint, setShowSaveHint] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const otherStyles = STYLES.filter((s) => s.id !== style);
 
-  const handleSave = () => {
-    const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    if (isMobile) {
-      window.open(imageUrl, "_blank");
-      setShowSaveHint(true);
-    } else {
-      const a = document.createElement("a");
-      a.href = imageUrl;
-      a.download = `punimoji-${word}.png`;
-      a.click();
+  const handleSave = async () => {
+    if (!imageUrl) return;
+    setDownloading(true);
+    try {
+      // fetch → blob化（CORS対策: fal.mediaの外部URLを直接<a download>できないため）
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      // 透過PNGを維持するためCanvas変換は行わない
+      const pngBlob = new Blob([blob], { type: "image/png" });
+
+      const isTouchDevice = navigator.maxTouchPoints > 0;
+
+      if (isTouchDevice) {
+        // スマホ: BlobURL HTMLページに同タブ遷移 → 長押し保存 → 「← 結果に戻る」で戻る
+        const imgUrl = URL.createObjectURL(pngBlob);
+        const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ぷに文字 - ${word}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#FFF5F7;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:24px;gap:16px;font-family:sans-serif}
+img{max-width:100%;border-radius:16px;display:block;background:repeating-conic-gradient(#eee 0% 25%, transparent 0% 50%) 50%/16px 16px}
+p{color:#8B7A9A;font-size:14px;text-align:center;line-height:1.8}
+.btn{display:inline-block;margin-top:8px;padding:14px 32px;background:linear-gradient(135deg,#FF5AA0,#FF3B8E);border:none;border-radius:100px;color:white;font-size:15px;font-weight:bold;text-decoration:none;cursor:pointer}
+</style>
+</head>
+<body>
+<img src="${imgUrl}" alt="ぷに文字: ${word}">
+<p>画像を長押しして<br>「写真に追加」で保存できます 📱</p>
+<a class="btn" href="javascript:history.back()">← 結果に戻る</a>
+</body>
+</html>`;
+        const htmlBlob = new Blob([html], { type: "text/html;charset=utf-8" });
+        const blobUrl = URL.createObjectURL(htmlBlob);
+        window.location.href = blobUrl;
+      } else {
+        // PC: 自動ダウンロード
+        const url = URL.createObjectURL(pngBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `punimoji-${word}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+    } catch (e) {
+      console.error("Download error:", e);
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -125,23 +168,11 @@ export default function ResultView({
       <button
         className="btn-puni"
         onClick={handleSave}
-        style={{ width: "100%", maxWidth: 320, marginBottom: 12 }}
+        disabled={downloading}
+        style={{ width: "100%", maxWidth: 320, marginBottom: 12, opacity: downloading ? 0.6 : 1 }}
       >
-        📥 画像を保存
+        {downloading ? "⏳ 準備中…" : "📥 画像を保存"}
       </button>
-
-      {showSaveHint && (
-        <p
-          style={{
-            fontSize: 12,
-            color: "#8B7A9A",
-            textAlign: "center",
-            marginBottom: 12,
-          }}
-        >
-          画像を長押しして「写真に保存」してください
-        </p>
-      )}
 
       {/* How-to link */}
       <a
