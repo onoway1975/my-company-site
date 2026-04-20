@@ -200,6 +200,28 @@ export default function PunimojiClient() {
             つくる ✨
           </button>
 
+          {/* How-to link */}
+          <a
+            href="/punimoji/how-to/"
+            style={{
+              display: "block",
+              width: "100%",
+              maxWidth: 280,
+              padding: "14px 0",
+              borderRadius: 9999,
+              border: "2px solid #FFD9E3",
+              background: "white",
+              color: "#FF3B8E",
+              fontSize: 14,
+              fontWeight: 700,
+              textAlign: "center",
+              textDecoration: "none",
+              marginBottom: 24,
+            }}
+          >
+            📷 ストーリーで使う方法
+          </a>
+
           {/* Error */}
           {error && (
             <p
