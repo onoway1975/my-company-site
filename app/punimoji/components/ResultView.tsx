@@ -47,15 +47,15 @@ export default function ResultView({
 <title>ぷに文字 - ${word}</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body,html{-webkit-user-select:none;user-select:none}
-body{background-color:white;background-image:linear-gradient(45deg,#e0e0e0 25%,transparent 25%),linear-gradient(-45deg,#e0e0e0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e0e0e0 75%),linear-gradient(-45deg,transparent 75%,#e0e0e0 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,10px 0;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:24px;gap:16px;font-family:sans-serif}
-img{max-width:100%;border-radius:16px;display:block;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;pointer-events:auto}
-p{color:#8B7A9A;font-size:14px;text-align:center;line-height:1.8}
-.btn{display:inline-block;margin-top:8px;padding:14px 32px;background:linear-gradient(135deg,#FF5AA0,#FF3B8E);border:none;border-radius:100px;color:white;font-size:15px;font-weight:bold;text-decoration:none;cursor:pointer}
+body{background:#FFE4EF;min-height:100vh;font-family:sans-serif;-webkit-user-select:none;user-select:none;padding:20px}
+.image-wrapper{display:block;width:100%;max-width:500px;margin:20px auto;background:white;border-radius:24px;padding:20px;box-shadow:0 4px 16px rgba(255,59,142,0.1)}
+.image-wrapper img{display:block;width:100%;height:auto;-webkit-user-select:auto;user-select:auto;-webkit-touch-callout:default;pointer-events:auto}
+p{text-align:center;color:#8B7A9A;font-size:14px;margin:20px 0}
+.btn{display:block;margin:20px auto;background:#FF3B8E;color:white;border:none;border-radius:9999px;padding:16px 32px;font-size:16px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;width:fit-content}
 </style>
 </head>
 <body>
-<img src="${dataUrl}" alt="ぷに文字: ${word}">
+<figure class="image-wrapper"><img src="${dataUrl}" alt="ぷに文字: ${word}"></figure>
 <p>画像を長押しして<br>「写真に追加」で保存できます 📱</p>
 <a class="btn" href="javascript:history.back()">← 結果に戻る</a>
 </body>
