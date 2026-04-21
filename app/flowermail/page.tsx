@@ -66,6 +66,11 @@ export default function FlowermailPage() {
     };
   }, []);
 
+  // Scroll to top on phase change (SP only)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [phase]);
+
   const handleSubmit = useCallback(async () => {
     if (!recipientName.trim() || !description.trim()) return;
     setError(null);
@@ -129,7 +134,6 @@ export default function FlowermailPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // fallback
       const ta = document.createElement("textarea");
       ta.value = result.url;
       document.body.appendChild(ta);
@@ -170,352 +174,305 @@ export default function FlowermailPage() {
     setResult(null);
     setError(null);
     setCopied(false);
-    window.scrollTo(0, 0);
   };
 
-  /* ── Loading ── */
-  if (phase === "loading") {
+  /* ── Render content by phase ── */
+
+  const renderContent = () => {
     const displayName = recipientName.trim().replace(/さん$/, "");
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 40,
-          padding: "40px 24px",
-        }}
-      >
-        <div className="fm-progress-track">
-          <div
-            className="fm-progress-fill"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <p
-          style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontStyle: "italic",
-            fontWeight: 300,
-            fontSize: 16,
-            color: "#6B6B6B",
-            letterSpacing: "0.04em",
-          }}
-        >
-          {LOADING_STEPS[loadingStep].replace("{name}", displayName)}
-        </p>
-      </div>
-    );
-  }
 
-  /* ── Preview ── */
-  if (phase === "preview" && result) {
-    return (
-      <div style={{ padding: "80px 24px 120px", maxWidth: 640, margin: "0 auto" }}>
-        {/* Section label */}
-        <p
-          className="fm-label fm-fade-in"
-          style={{ textAlign: "center", marginBottom: 48 }}
-        >
-          A bouquet for {recipientName.trim()}
-        </p>
-
-        {/* Bouquet image */}
+    /* ── Loading ── */
+    if (phase === "loading") {
+      return (
         <div
-          className="fm-fade-in"
           style={{
-            marginBottom: 48,
-            animationDelay: "0.2s",
-            opacity: 0,
-            animationFillMode: "forwards",
+            minHeight: "60vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 40,
           }}
         >
-          <img
-            src={result.imageUrl}
-            alt={`Bouquet for ${recipientName}`}
-            style={{
-              width: "100%",
-              maxWidth: 480,
-              display: "block",
-              margin: "0 auto",
-            }}
-          />
-        </div>
-
-        {/* Theme */}
-        <p
-          className="fm-fade-in"
-          style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontStyle: "italic",
-            fontWeight: 300,
-            fontSize: 18,
-            color: "#6B6B6B",
-            textAlign: "center",
-            marginBottom: 80,
-            animationDelay: "0.4s",
-            opacity: 0,
-            animationFillMode: "forwards",
-          }}
-        >
-          {result.bouquetTheme}
-        </p>
-
-        {/* Divider */}
-        <div className="fm-divider" style={{ marginBottom: 80 }} />
-
-        {/* Message */}
-        <div
-          className="fm-fade-in"
-          style={{
-            marginBottom: 80,
-            padding: "0 16px",
-            animationDelay: "0.6s",
-            opacity: 0,
-            animationFillMode: "forwards",
-          }}
-        >
-          <p
-            className="fm-message"
-            style={{ fontSize: 18, color: "#0A0A0A" }}
-          >
-            {result.message}
-          </p>
-          {senderName.trim() && (
-            <p
-              style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontStyle: "italic",
-                fontWeight: 300,
-                fontSize: 14,
-                color: "#6B6B6B",
-                textAlign: "right",
-                marginTop: 32,
-              }}
-            >
-              from {senderName.trim()}
-            </p>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className="fm-divider" style={{ marginBottom: 80 }} />
-
-        {/* Flowers list */}
-        <div
-          className="fm-fade-in"
-          style={{
-            marginBottom: 120,
-            animationDelay: "0.8s",
-            opacity: 0,
-            animationFillMode: "forwards",
-          }}
-        >
-          <p
-            className="fm-label"
-            style={{ textAlign: "center", marginBottom: 40 }}
-          >
-            Flowers
-          </p>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 24,
-              alignItems: "center",
-            }}
-          >
-            {result.flowers.map((f, i) => (
-              <div key={i} style={{ textAlign: "center" }}>
-                <p
-                  style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontWeight: 400,
-                    fontSize: 16,
-                    color: "#0A0A0A",
-                    marginBottom: 4,
-                  }}
-                >
-                  {f.name_en}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "'Shippori Mincho', serif",
-                    fontSize: 12,
-                    color: "#6B6B6B",
-                  }}
-                >
-                  {f.name_ja}
-                  <span style={{ margin: "0 8px", color: "#E5E5E5" }}>
-                    /
-                  </span>
-                  {f.meaning}
-                </p>
-              </div>
-            ))}
+          <div className="fm-progress-track">
+            <div
+              className="fm-progress-fill"
+              style={{ width: `${progress}%` }}
+            />
           </div>
-        </div>
-
-        {/* Action */}
-        <div style={{ textAlign: "center" }}>
-          <button
-            className="fm-btn"
-            onClick={() => setPhase("share")}
-          >
-            Send this bouquet
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  /* ── Share ── */
-  if (phase === "share" && result) {
-    return (
-      <div style={{ padding: "80px 24px 120px", maxWidth: 480, margin: "0 auto" }}>
-        <p
-          className="fm-label fm-fade-in"
-          style={{ textAlign: "center", marginBottom: 80 }}
-        >
-          Send this bouquet
-        </p>
-
-        {/* URL display */}
-        <div
-          className="fm-fade-in"
-          style={{
-            textAlign: "center",
-            marginBottom: 64,
-            animationDelay: "0.2s",
-            opacity: 0,
-            animationFillMode: "forwards",
-          }}
-        >
           <p
             style={{
               fontFamily: "'Cormorant Garamond', serif",
+              fontStyle: "italic",
               fontWeight: 300,
-              fontSize: 14,
+              fontSize: 16,
               color: "#6B6B6B",
-              wordBreak: "break-all",
-              lineHeight: 1.8,
+              letterSpacing: "0.04em",
             }}
           >
-            {result.url}
+            {LOADING_STEPS[loadingStep].replace("{name}", displayName)}
           </p>
         </div>
+      );
+    }
 
-        {/* Buttons */}
-        <div
-          className="fm-fade-in"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            marginBottom: 80,
-            animationDelay: "0.4s",
-            opacity: 0,
-            animationFillMode: "forwards",
-          }}
-        >
-          <button className="fm-btn" onClick={handleCopyUrl}>
-            {copied ? "Copied" : "Copy URL"}
-          </button>
-          <button className="fm-btn" onClick={handleEmail}>
-            Email
-          </button>
-          <button className="fm-btn" onClick={handleLine}>
-            LINE
-          </button>
+    /* ── Preview ── */
+    if (phase === "preview" && result) {
+      return (
+        <div>
+          {/* Section label */}
+          <p
+            className="fm-label fm-fade-in"
+            style={{ textAlign: "center", marginBottom: 48 }}
+          >
+            A bouquet for {recipientName.trim()}
+          </p>
+
+          {/* Bouquet image */}
+          <div
+            className="fm-fade-in"
+            style={{
+              marginBottom: 48,
+              animationDelay: "0.2s",
+              opacity: 0,
+              animationFillMode: "forwards",
+            }}
+          >
+            <img
+              src={result.imageUrl}
+              alt={`Bouquet for ${recipientName}`}
+              style={{
+                width: "100%",
+                maxWidth: 480,
+                display: "block",
+                margin: "0 auto",
+              }}
+            />
+          </div>
+
+          {/* Theme */}
+          <p
+            className="fm-fade-in"
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontStyle: "italic",
+              fontWeight: 300,
+              fontSize: 18,
+              color: "#6B6B6B",
+              textAlign: "center",
+              marginBottom: 80,
+              animationDelay: "0.4s",
+              opacity: 0,
+              animationFillMode: "forwards",
+            }}
+          >
+            {result.bouquetTheme}
+          </p>
+
+          {/* Divider */}
+          <div className="fm-divider" style={{ marginBottom: 80 }} />
+
+          {/* Message */}
+          <div
+            className="fm-fade-in"
+            style={{
+              marginBottom: 80,
+              padding: "0 16px",
+              animationDelay: "0.6s",
+              opacity: 0,
+              animationFillMode: "forwards",
+            }}
+          >
+            <p
+              className="fm-message"
+              style={{ fontSize: 18, color: "#0A0A0A" }}
+            >
+              {result.message}
+            </p>
+            {senderName.trim() && (
+              <p
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontStyle: "italic",
+                  fontWeight: 300,
+                  fontSize: 14,
+                  color: "#6B6B6B",
+                  textAlign: "right",
+                  marginTop: 32,
+                }}
+              >
+                from {senderName.trim()}
+              </p>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="fm-divider" style={{ marginBottom: 80 }} />
+
+          {/* Flowers list */}
+          <div
+            className="fm-fade-in"
+            style={{
+              marginBottom: 120,
+              animationDelay: "0.8s",
+              opacity: 0,
+              animationFillMode: "forwards",
+            }}
+          >
+            <p
+              className="fm-label"
+              style={{ textAlign: "center", marginBottom: 40 }}
+            >
+              Flowers
+            </p>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 24,
+                alignItems: "center",
+              }}
+            >
+              {result.flowers.map((f, i) => (
+                <div key={i} style={{ textAlign: "center" }}>
+                  <p
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontWeight: 400,
+                      fontSize: 16,
+                      color: "#0A0A0A",
+                      marginBottom: 4,
+                    }}
+                  >
+                    {f.name_en}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "'Shippori Mincho', serif",
+                      fontSize: 12,
+                      color: "#6B6B6B",
+                    }}
+                  >
+                    {f.name_ja}
+                    <span style={{ margin: "0 8px", color: "#E5E5E5" }}>
+                      /
+                    </span>
+                    {f.meaning}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Action */}
+          <div style={{ textAlign: "center" }}>
+            <button
+              className="fm-btn"
+              onClick={() => setPhase("share")}
+            >
+              Send this bouquet
+            </button>
+          </div>
         </div>
+      );
+    }
 
-        {/* Expires */}
-        <p
-          className="fm-fade-in"
-          style={{
-            textAlign: "center",
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 300,
-            fontSize: 11,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase" as const,
-            color: "#E5E5E5",
-            marginBottom: 80,
-            animationDelay: "0.6s",
-            opacity: 0,
-            animationFillMode: "forwards",
-          }}
-        >
-          Expires in 7 days
-        </p>
+    /* ── Share ── */
+    if (phase === "share" && result) {
+      return (
+        <div>
+          <p
+            className="fm-label fm-fade-in"
+            style={{ textAlign: "center", marginBottom: 80 }}
+          >
+            Send this bouquet
+          </p>
 
-        {/* Divider */}
-        <div className="fm-divider" style={{ marginBottom: 80 }} />
+          {/* URL display */}
+          <div
+            className="fm-fade-in"
+            style={{
+              textAlign: "center",
+              marginBottom: 64,
+              animationDelay: "0.2s",
+              opacity: 0,
+              animationFillMode: "forwards",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 300,
+                fontSize: 14,
+                color: "#6B6B6B",
+                wordBreak: "break-all",
+                lineHeight: 1.8,
+              }}
+            >
+              {result.url}
+            </p>
+          </div>
 
-        {/* Start over */}
-        <div style={{ textAlign: "center" }}>
-          <button className="fm-btn-ghost" onClick={handleStartOver}>
-            Start over
-          </button>
+          {/* Buttons */}
+          <div
+            className="fm-fade-in"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              marginBottom: 80,
+              animationDelay: "0.4s",
+              opacity: 0,
+              animationFillMode: "forwards",
+            }}
+          >
+            <button className="fm-btn" onClick={handleCopyUrl}>
+              {copied ? "Copied" : "Copy URL"}
+            </button>
+            <button className="fm-btn" onClick={handleEmail}>
+              Email
+            </button>
+            <button className="fm-btn" onClick={handleLine}>
+              LINE
+            </button>
+          </div>
+
+          {/* Expires */}
+          <p
+            className="fm-fade-in"
+            style={{
+              textAlign: "center",
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 300,
+              fontSize: 11,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase" as const,
+              color: "#E5E5E5",
+              marginBottom: 80,
+              animationDelay: "0.6s",
+              opacity: 0,
+              animationFillMode: "forwards",
+            }}
+          >
+            Expires in 7 days
+          </p>
+
+          {/* Divider */}
+          <div className="fm-divider" style={{ marginBottom: 80 }} />
+
+          {/* Start over */}
+          <div style={{ textAlign: "center" }}>
+            <button className="fm-btn-ghost" onClick={handleStartOver}>
+              Start over
+            </button>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  /* ── Form ── */
-  return (
-    <div>
-      {/* KV Hero — full bleed */}
-      <div
-        style={{
-          height: "100vh",
-          width: "100%",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <img
-          src="/flowermail/kv.jpg"
-          alt="flower mail"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            display: "block",
-          }}
-        />
-      </div>
-
-      {/* Title + Subcopy */}
-      <div
-        style={{
-          paddingTop: 120,
-          paddingBottom: 120,
-          textAlign: "center",
-        }}
-      >
-        <h1
-          className="fm-heading"
-          style={{ fontSize: "clamp(42px, 10vw, 64px)", marginBottom: 24 }}
-        >
-          <em>flower</em> mail
-        </h1>
-        <p
-          className="fm-body-ja"
-          style={{
-            fontSize: 14,
-            color: "#6B6B6B",
-            lineHeight: 2,
-          }}
-        >
-          その人のための一枚のブーケを、届ける。
-        </p>
-      </div>
-
-      {/* Form section */}
-      <div style={{ maxWidth: 480, margin: "0 auto", padding: "0 24px" }}>
+    /* ── Form (default) ── */
+    return (
+      <div>
         {/* Section label */}
         <p
           className="fm-label"
@@ -612,7 +569,7 @@ export default function FlowermailPage() {
         )}
 
         {/* Submit */}
-        <div style={{ textAlign: "center", marginBottom: 160 }}>
+        <div style={{ textAlign: "center", marginBottom: 80 }}>
           <button
             className="fm-btn"
             onClick={handleSubmit}
@@ -623,12 +580,7 @@ export default function FlowermailPage() {
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            paddingBottom: 64,
-          }}
-        >
+        <div style={{ textAlign: "center" }}>
           <p
             style={{
               fontSize: 10,
@@ -639,6 +591,26 @@ export default function FlowermailPage() {
           >
             ciraf inc.
           </p>
+        </div>
+      </div>
+    );
+  };
+
+  /* ── Main render ── */
+  return (
+    <div className="fm-split">
+      {/* KV image — always visible */}
+      <div className="fm-kv">
+        <img
+          src="/flowermail/kv.jpg"
+          alt="flower mail"
+        />
+      </div>
+
+      {/* Content panel */}
+      <div className="fm-content">
+        <div className="fm-inner">
+          {renderContent()}
         </div>
       </div>
     </div>

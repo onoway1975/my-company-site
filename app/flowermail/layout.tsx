@@ -40,6 +40,10 @@ export default function FlowermailLayout({
         [data-gtm-location="chat_widget"] {
           display: none !important;
         }
+        /* Reset main padding from root layout header offset */
+        main {
+          padding-top: 0 !important;
+        }
 
         /* ── Google Fonts ── */
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500&family=Shippori+Mincho:wght@400;500&display=swap');
@@ -144,7 +148,7 @@ export default function FlowermailLayout({
           font-weight: 400;
           font-size: 14px;
           letter-spacing: 0.1em;
-          padding: 18px 56px;
+          padding: 20px 64px;
           cursor: pointer;
           transition: background 0.3s, color 0.3s;
           text-decoration: none;
@@ -221,6 +225,101 @@ export default function FlowermailLayout({
         }
         .fm-fade-in-slow {
           animation: fmFadeInSlow 1.2s ease forwards;
+        }
+
+        /* ── Spinner ── */
+        .fm-spinner {
+          width: 24px;
+          height: 24px;
+          border: 1px solid #E5E5E5;
+          border-top-color: #0A0A0A;
+          border-radius: 50%;
+          animation: fmSpin 0.8s linear infinite;
+        }
+        @keyframes fmSpin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* ── Bloom animation ── */
+        @keyframes fmBloomBg {
+          from { background-color: #F5F3EE; }
+          to   { background-color: #FFFFFF; }
+        }
+        @keyframes fmBloomImg {
+          from {
+            transform: scale(0.4);
+            opacity: 0.3;
+            filter: blur(30px);
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+            filter: blur(0px);
+          }
+        }
+        .fm-bloom-bg {
+          animation: fmBloomBg 1s ease forwards;
+        }
+        .fm-bloom-img {
+          animation: fmBloomImg 4s ease forwards;
+        }
+
+        /* ── Split layout ── */
+        .fm-split {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+        }
+        .fm-kv {
+          width: 100%;
+          height: 60vh;
+          position: relative;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+        .fm-kv img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .fm-content {
+          flex: 1;
+          padding: 64px 24px 120px;
+          display: flex;
+          flex-direction: column;
+        }
+
+        @media (min-width: 1024px) {
+          .fm-split {
+            flex-direction: row;
+          }
+          .fm-kv {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 50vw;
+            height: 100vh;
+            background: #FFFFFF;
+          }
+          .fm-kv img {
+            object-fit: contain;
+            object-position: left center;
+          }
+          .fm-content {
+            margin-left: 50vw;
+            width: 50vw;
+            min-height: 100vh;
+            padding: 120px 40px;
+            box-sizing: border-box;
+            align-items: center;
+            justify-content: flex-start;
+          }
+          .fm-inner {
+            width: 100%;
+            max-width: 440px;
+          }
         }
       `}</style>
       <div className="fm-root">
