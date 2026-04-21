@@ -443,20 +443,40 @@ export default function FlowermailReceivePage() {
             : "This bouquet has expired"}
         </p>
 
-        {/* Download */}
+        {/* Actions */}
         <div
           className="fm-fade-in"
           style={{
-            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 12,
             marginBottom: 80,
             animationDelay: "0.9s",
             opacity: 0,
             animationFillMode: "forwards",
           }}
         >
-          <button className="fm-btn" onClick={handleDownload}>
+          <button
+            className="fm-btn"
+            onClick={handleDownload}
+            style={{ width: "100%", maxWidth: 280 }}
+          >
             Download image
           </button>
+          <a
+            href="/flowermail/"
+            className="fm-btn"
+            style={{
+              width: "100%",
+              maxWidth: 280,
+              fontSize: 14,
+              letterSpacing: "0.1em",
+              textTransform: "none" as const,
+            }}
+          >
+            花束を贈る
+          </a>
         </div>
 
         {/* Footer */}
