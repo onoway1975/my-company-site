@@ -66,9 +66,11 @@ export default function FlowermailPage() {
     };
   }, []);
 
-  // Scroll to top on phase change (SP only)
+  // Scroll to top only when entering preview or share (not loading)
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (phase === "preview" || phase === "share") {
+      window.scrollTo({ top: 0 });
+    }
   }, [phase]);
 
   const handleSubmit = useCallback(async () => {
@@ -179,42 +181,7 @@ export default function FlowermailPage() {
   /* ── Render content by phase ── */
 
   const renderContent = () => {
-    const displayName = recipientName.trim().replace(/さん$/, "");
-
-    /* ── Loading ── */
-    if (phase === "loading") {
-      return (
-        <div
-          style={{
-            minHeight: "60vh",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 40,
-          }}
-        >
-          <div className="fm-progress-track">
-            <div
-              className="fm-progress-fill"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p
-            style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontStyle: "italic",
-              fontWeight: 300,
-              fontSize: 16,
-              color: "#6B6B6B",
-              letterSpacing: "0.04em",
-            }}
-          >
-            {LOADING_STEPS[loadingStep].replace("{name}", displayName)}
-          </p>
-        </div>
-      );
-    }
+    /* ── Loading is rendered as overlay in main render ── */
 
     /* ── Preview ── */
     if (phase === "preview" && result) {
@@ -382,10 +349,18 @@ export default function FlowermailPage() {
       return (
         <div>
           <p
-            className="fm-label fm-fade-in"
-            style={{ textAlign: "center", marginBottom: 80 }}
+            className="fm-fade-in"
+            style={{
+              textAlign: "center",
+              marginBottom: 80,
+              fontFamily: "'Shippori Mincho', serif",
+              fontSize: 12,
+              fontWeight: 400,
+              letterSpacing: "0.15em",
+              color: "#6B6B6B",
+            }}
           >
-            Send this bouquet
+            この花束を贈る
           </p>
 
           {/* URL display */}
@@ -470,7 +445,7 @@ export default function FlowermailPage() {
       );
     }
 
-    /* ── Form (default) ── */
+    /* ── Form (default, also shown during loading) ── */
     return (
       <div>
         {/* Section label */}
@@ -597,6 +572,8 @@ export default function FlowermailPage() {
   };
 
   /* ── Main render ── */
+  const displayName = recipientName.trim().replace(/さん$/, "");
+
   return (
     <div className="fm-split">
       {/* KV image — always visible */}
@@ -613,6 +590,42 @@ export default function FlowermailPage() {
           {renderContent()}
         </div>
       </div>
+
+      {/* Loading overlay — fixed, no scroll change */}
+      {phase === "loading" && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 50,
+            background: "rgba(255, 255, 255, 0.95)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 40,
+          }}
+        >
+          <div className="fm-progress-track">
+            <div
+              className="fm-progress-fill"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontStyle: "italic",
+              fontWeight: 300,
+              fontSize: 16,
+              color: "#6B6B6B",
+              letterSpacing: "0.04em",
+            }}
+          >
+            {LOADING_STEPS[loadingStep].replace("{name}", displayName)}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
