@@ -215,6 +215,36 @@ export default function PunimojiLayout({
           0% { left: -100%; }
           100% { left: 100%; }
         }
+        .howto-screenshot {
+          display: block;
+          max-width: 280px;
+          width: 100%;
+          height: auto;
+          margin: 0 auto;
+          border-radius: 24px;
+          box-shadow:
+            0 4px 16px rgba(255, 59, 142, 0.12),
+            0 12px 32px rgba(255, 59, 142, 0.06);
+          border: 3px solid white;
+        }
+
+        .step-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 48px;
+          height: 48px;
+          border-radius: 9999px;
+          background: linear-gradient(180deg, #FF5AA0 0%, #FF3B8E 100%);
+          color: white;
+          font-weight: 700;
+          font-size: 20px;
+          box-shadow:
+            inset 0 2px 4px rgba(255, 255, 255, 0.6),
+            inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+            0 4px 12px rgba(255, 59, 142, 0.3);
+        }
+
         @keyframes puniFloat {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-6px); }

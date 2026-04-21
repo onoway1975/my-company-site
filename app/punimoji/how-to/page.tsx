@@ -1,165 +1,138 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "インスタで使う方法 | ぷに文字メーカー",
+  title: "ストーリーで使う方法 | ぷに文字メーカー",
+  description:
+    "ぷに文字をInstagramストーリーに貼る方法を5ステップで解説",
 };
 
 const STEPS = [
   {
-    num: 1,
-    title: "画像をダウンロード",
-    desc: "ぷに文字メーカーで作った画像を保存します。スマホの場合は画像を長押しして「写真に保存」をタップ。",
+    image: "/punimoji/howto/step-01.jpg",
+    title: "画像を保存する",
+    desc: "ぷに文字メーカーで画像を作ったら「画像を保存」をタップして、カメラロールに保存してね。",
   },
   {
-    num: 2,
-    title: "インスタのストーリー作成画面を開く",
-    desc: "Instagramアプリを開いて、ストーリーの作成画面に進みます。",
+    image: "/punimoji/howto/step-02.jpg",
+    title: "ストーリーを開く",
+    desc: "Instagramアプリを開いて、ストーリー作成画面を表示。背景の写真を選ぶか、撮影してね。",
   },
   {
-    num: 3,
-    title: "画像ステッカーマーク（□+）をタップ",
-    desc: "上部メニューの画像ステッカーアイコンをタップします。",
+    image: "/punimoji/howto/step-03.jpg",
+    title: "ステッカーを追加",
+    desc: "画面上のメニューから「ステッカー」アイコン（□+）をタップ。",
   },
   {
-    num: 4,
-    title: "DLした画像を選ぶ",
-    desc: "カメラロールからダウンロードしたぷに文字画像を選択します。",
+    image: "/punimoji/howto/step-04.jpg",
+    title: "ぷに文字を選ぶ",
+    desc: "カメラロールから、さっき保存したぷに文字の画像を選ぶ。",
   },
   {
-    num: 5,
-    title: "サイズ・位置を調整して投稿",
-    desc: "ピンチイン・アウトでサイズを調整し、好きな位置に配置して投稿しましょう！",
+    image: "/punimoji/howto/step-05.jpg",
+    title: "配置して完成！",
+    desc: "サイズ・位置・角度を調整してストーリーに投稿しよう。ぷに文字ステッカーの完成！",
   },
 ];
 
 export default function HowToPage() {
   return (
-    <div
+    <main
       className="bg-sunburst"
-      style={{
-        minHeight: "100vh",
-        padding: "40px 20px 80px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
+      style={{ minHeight: "100vh" }}
     >
       <div
         style={{
           position: "relative",
           zIndex: 1,
-          width: "100%",
-          maxWidth: 440,
+          maxWidth: 640,
+          margin: "0 auto",
+          padding: "48px 24px 80px",
         }}
       >
-        <a
-          href="/punimoji/"
-          style={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: "#FF3B8E",
-            textDecoration: "none",
-            display: "inline-block",
-            marginBottom: 24,
-          }}
-        >
-          &larr; ぷに文字メーカーに戻る
-        </a>
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <a
+            href="/punimoji/"
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              color: "#FF3B8E",
+              textDecoration: "none",
+              display: "inline-block",
+              marginBottom: 16,
+            }}
+          >
+            &larr; トップに戻る
+          </a>
+          <h1
+            style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: "#2D1B3D",
+              marginBottom: 8,
+            }}
+          >
+            ストーリーで使う方法
+          </h1>
+          <p style={{ fontSize: 14, color: "#8B7A9A" }}>
+            ぷに文字をインスタストーリーに貼るやり方を紹介
+          </p>
+        </div>
 
-        <h1
+        {/* Steps */}
+        <div
           style={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: "#2D1B3D",
-            marginBottom: 8,
-            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 64,
           }}
         >
-          📷 インスタで使う方法
-        </h1>
-        <p
-          style={{
-            fontSize: 13,
-            color: "#8B7A9A",
-            textAlign: "center",
-            marginBottom: 36,
-          }}
-        >
-          ストーリーにぷに文字を貼り付ける5ステップ
-        </p>
+          {STEPS.map((step, i) => (
+            <div key={i} style={{ textAlign: "center" }}>
+              {/* Badge */}
+              <div className="step-badge" style={{ margin: "0 auto 16px" }}>
+                {i + 1}
+              </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          {STEPS.map((step) => (
-            <div key={step.num} className="card-puni" style={{ padding: 24 }}>
-              <div
+              {/* Title */}
+              <h2
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  marginBottom: 12,
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: "#2D1B3D",
+                  marginBottom: 24,
                 }}
               >
-                <span
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "50%",
-                    background:
-                      "linear-gradient(180deg, #FF5AA0 0%, #FF3B8E 100%)",
-                    color: "white",
-                    fontWeight: 700,
-                    fontSize: 15,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  {step.num}
-                </span>
-                <h2
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 700,
-                    color: "#2D1B3D",
-                    margin: 0,
-                  }}
-                >
-                  {step.title}
-                </h2>
+                {step.title}
+              </h2>
+
+              {/* Screenshot */}
+              <div style={{ marginBottom: 24 }}>
+                <img
+                  src={step.image}
+                  alt={`STEP ${i + 1}: ${step.title}`}
+                  className="howto-screenshot"
+                />
               </div>
+
+              {/* Description */}
               <p
                 style={{
-                  fontSize: 13,
-                  color: "#8B7A9A",
-                  lineHeight: 1.7,
-                  margin: "0 0 16px",
+                  fontSize: 15,
+                  color: "#2D1B3D",
+                  lineHeight: 1.8,
+                  maxWidth: 400,
+                  margin: "0 auto",
                 }}
               >
                 {step.desc}
               </p>
-              {/* Placeholder for screenshot */}
-              <div
-                style={{
-                  width: "100%",
-                  aspectRatio: "16/9",
-                  background: "#FFE4EF",
-                  borderRadius: 16,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#FFB8D0",
-                  fontSize: 13,
-                  fontWeight: 500,
-                }}
-              >
-                スクリーンショット
-              </div>
             </div>
           ))}
         </div>
 
-        <div style={{ textAlign: "center", marginTop: 40 }}>
+        {/* CTA */}
+        <div style={{ textAlign: "center", marginTop: 80 }}>
           <a
             href="/punimoji/"
             className="btn-puni"
@@ -170,10 +143,10 @@ export default function HowToPage() {
               fontSize: 16,
             }}
           >
-            ぷに文字を作る ✨
+            ぷに文字をつくる ✨
           </a>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
