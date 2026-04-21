@@ -14,13 +14,13 @@ const STEPS = [
   },
   {
     image: "/punimoji/howto/step-02.jpg",
-    title: "ストーリーを開く",
-    desc: "Instagramアプリを開いて、ストーリー作成画面を表示。背景の写真を選ぶか、撮影してね。",
+    title: "ストーリーズを開いてスタンプアイコンをタップ",
+    desc: "画面上のメニューから「スタンプ」アイコン（□+）をタップ。",
   },
   {
     image: "/punimoji/howto/step-03.jpg",
-    title: "ステッカーを追加",
-    desc: "画面上のメニューから「ステッカー」アイコン（□+）をタップ。",
+    title: "写真を追加",
+    desc: "画面上のメニューから「写真」をタップ。",
   },
   {
     image: "/punimoji/howto/step-04.jpg",
