@@ -49,7 +49,6 @@ export default function FlowermailPage() {
   // Loading state
   const [progress, setProgress] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
-  const [stepVisible, setStepVisible] = useState(true);
 
   // Result state
   const [result, setResult] = useState<BouquetResult | null>(null);
@@ -74,30 +73,17 @@ export default function FlowermailPage() {
     }
   }, [phase]);
 
-  // Loading text fade cycle
-  useEffect(() => {
-    if (phase !== "loading") return;
-    const cycle = setInterval(() => {
-      setStepVisible(false);
-      setTimeout(() => {
-        setLoadingStep((prev) => (prev + 1) % LOADING_STEPS.length);
-        setStepVisible(true);
-      }, 800);
-    }, 5000);
-    return () => clearInterval(cycle);
-  }, [phase]);
-
   const handleSubmit = useCallback(async () => {
     if (!recipientName.trim() || !description.trim()) return;
     setError(null);
     setPhase("loading");
     setProgress(0);
     setLoadingStep(0);
-    setStepVisible(true);
 
     // Progress simulation
     const startTime = Date.now();
     const expectedDuration = 35000;
+    const stepInterval = expectedDuration / 5;
 
     const progressTimer = setInterval(() => {
       const elapsed = Date.now() - startTime;
@@ -109,6 +95,7 @@ export default function FlowermailPage() {
         p = 90 + Math.min(9, extra / 3000);
       }
       setProgress(Math.min(99, p));
+      setLoadingStep(Math.min(4, Math.floor(elapsed / stepInterval)));
     }, 100);
 
     try {
@@ -637,9 +624,10 @@ export default function FlowermailPage() {
               fontWeight: 400,
               fontSize: 22,
               color: "#0A0A0A",
+              marginBottom: 40,
             }}
           >
-            あなたの花束を制作中
+            花束を作っています
           </p>
           <div className="fm-progress-track">
             <div
@@ -653,8 +641,6 @@ export default function FlowermailPage() {
               fontWeight: 400,
               fontSize: 14,
               color: "#6B6B6B",
-              opacity: stepVisible ? 1 : 0,
-              transition: "opacity 0.8s ease",
             }}
           >
             {LOADING_STEPS[loadingStep].replace("{name}", displayName)}
