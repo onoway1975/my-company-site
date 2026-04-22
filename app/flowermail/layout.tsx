@@ -294,8 +294,22 @@ export default function FlowermailLayout({
           opacity: 0.3;
           transition: opacity 0.6s ease;
         }
+        /* ── SP KV image (mobile form phase only) ── */
+        .fm-sp-kv {
+          width: 100%;
+          aspect-ratio: 3 / 4;
+          overflow: hidden;
+        }
+        .fm-sp-kv img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
         @media (min-width: 1024px) {
-          .fm-sp-header {
+          .fm-sp-header,
+          .fm-sp-kv {
             display: none;
           }
         }
