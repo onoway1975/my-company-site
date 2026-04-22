@@ -105,95 +105,117 @@ export default function FlowermailReceivePage() {
     );
   };
 
+  /* ── SP header class — dim during bloom ── */
+  const spHeaderClass =
+    "fm-sp-header" + (phase === "blooming" ? " fm-sp-header--dim" : "");
+
   /* ── Loading ── */
   if (phase === "loading") {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div className="fm-spinner" />
-      </div>
+      <>
+        <header className={spHeaderClass}>
+          <h1><em>flower</em> mail</h1>
+          <p>大切なあの人に1枚のブーケを、届ける。</p>
+        </header>
+        <div
+          style={{
+            minHeight: "80vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div className="fm-spinner" />
+        </div>
+      </>
     );
   }
 
   /* ── Expired ── */
   if (phase === "expired") {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 24,
-          padding: "40px 24px",
-        }}
-      >
-        <p
-          className="fm-heading"
+      <>
+        <header className={spHeaderClass}>
+          <h1><em>flower</em> mail</h1>
+          <p>大切なあの人に1枚のブーケを、届ける。</p>
+        </header>
+        <div
           style={{
-            fontSize: "clamp(24px, 6vw, 36px)",
-            textAlign: "center",
+            minHeight: "80vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 24,
+            padding: "40px 24px",
           }}
         >
-          <em>この花束は、静かに枯れました</em>
-        </p>
-        <p
-          className="fm-body-ja"
-          style={{ fontSize: 14, color: "#6B6B6B", textAlign: "center" }}
-        >
-          7日間が過ぎたため、花束は消えました
-        </p>
-        <div style={{ marginTop: 40 }}>
           <p
+            className="fm-heading"
             style={{
-              fontSize: 10,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase" as const,
-              color: "#6B6B6B",
+              fontSize: "clamp(24px, 6vw, 36px)",
+              textAlign: "center",
             }}
           >
-            ciraf inc.
+            <em>この花束は、静かに枯れました</em>
           </p>
+          <p
+            className="fm-body-ja"
+            style={{ fontSize: 14, color: "#6B6B6B", textAlign: "center" }}
+          >
+            7日間が過ぎたため、花束は消えました
+          </p>
+          <div style={{ marginTop: 40 }}>
+            <p
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase" as const,
+                color: "#6B6B6B",
+              }}
+            >
+              ciraf inc.
+            </p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   /* ── Error ── */
   if (phase === "error") {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 24,
-          padding: "40px 24px",
-        }}
-      >
-        <p
-          className="fm-body-ja"
-          style={{ fontSize: 16, textAlign: "center" }}
+      <>
+        <header className={spHeaderClass}>
+          <h1><em>flower</em> mail</h1>
+          <p>大切なあの人に1枚のブーケを、届ける。</p>
+        </header>
+        <div
+          style={{
+            minHeight: "80vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 24,
+            padding: "40px 24px",
+          }}
         >
-          {errorMessage || "花束が見つかりませんでした"}
-        </p>
-        <a
-          href="/flowermail/"
-          className="fm-btn"
-          style={{ marginTop: 24 }}
-        >
-          TOP へ戻る
-        </a>
-      </div>
+          <p
+            className="fm-body-ja"
+            style={{ fontSize: 16, textAlign: "center" }}
+          >
+            {errorMessage || "花束が見つかりませんでした"}
+          </p>
+          <a
+            href="/flowermail/"
+            className="fm-btn"
+            style={{ marginTop: 24 }}
+          >
+            TOP へ戻る
+          </a>
+        </div>
+      </>
     );
   }
 
@@ -201,71 +223,83 @@ export default function FlowermailReceivePage() {
   if (phase === "arrival" && data) {
     const sender = data.senderName || "誰か";
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 40,
-          padding: "40px 24px",
-          background: "#F5F3EE",
-        }}
-      >
-        <div className="fm-fade-in" style={{ textAlign: "center" }}>
-          <p
-            className="fm-body-ja"
-            style={{ fontSize: 14, color: "#6B6B6B", marginBottom: 16 }}
-          >
-            {sender}さんから
-          </p>
-          <p
-            className="fm-heading"
-            style={{ fontSize: "clamp(32px, 8vw, 48px)" }}
-          >
-            <em>花が届いています</em>
-          </p>
-        </div>
-        <button
-          className="fm-btn fm-fade-in"
+      <>
+        <header className={spHeaderClass}>
+          <h1><em>flower</em> mail</h1>
+          <p>大切なあの人に1枚のブーケを、届ける。</p>
+        </header>
+        <div
           style={{
-            animationDelay: "0.4s",
-            opacity: 0,
-            animationFillMode: "forwards",
+            minHeight: "80vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 40,
+            padding: "40px 24px",
+            background: "#F5F3EE",
           }}
-          onClick={handleOpen}
         >
-          受け取る
-        </button>
-      </div>
+          <div className="fm-fade-in" style={{ textAlign: "center" }}>
+            <p
+              className="fm-body-ja"
+              style={{ fontSize: 14, color: "#6B6B6B", marginBottom: 16 }}
+            >
+              {sender}さんから
+            </p>
+            <p
+              className="fm-heading"
+              style={{ fontSize: "clamp(32px, 8vw, 48px)" }}
+            >
+              <em>花が届いています</em>
+            </p>
+          </div>
+          <button
+            className="fm-btn fm-fade-in"
+            style={{
+              animationDelay: "0.4s",
+              opacity: 0,
+              animationFillMode: "forwards",
+            }}
+            onClick={handleOpen}
+          >
+            受け取る
+          </button>
+        </div>
+      </>
     );
   }
 
   /* ── Blooming ── */
   if (phase === "blooming" && data) {
     return (
-      <div
-        className="fm-bloom-bg"
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "40px 24px",
-        }}
-      >
-        <img
-          src={data.imageUrl}
-          alt={`Bouquet for ${data.recipientName}`}
-          className="fm-bloom-img"
+      <>
+        <header className={spHeaderClass}>
+          <h1><em>flower</em> mail</h1>
+          <p>大切なあの人に1枚のブーケを、届ける。</p>
+        </header>
+        <div
+          className="fm-bloom-bg"
           style={{
-            maxWidth: 560,
-            width: "90%",
-            display: "block",
+            minHeight: "80vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "40px 24px",
           }}
-        />
-      </div>
+        >
+          <img
+            src={data.imageUrl}
+            alt={`Bouquet for ${data.recipientName}`}
+            className="fm-bloom-img"
+            style={{
+              maxWidth: 560,
+              width: "90%",
+              display: "block",
+            }}
+          />
+        </div>
+      </>
     );
   }
 
@@ -275,14 +309,19 @@ export default function FlowermailReceivePage() {
     const remainingDays = getRemainingDays();
 
     return (
-      <div
-        style={{
-          padding: "80px 24px 120px",
-          maxWidth: 640,
-          margin: "0 auto",
-        }}
-      >
-        {/* Bouquet image */}
+      <>
+        <header className={spHeaderClass}>
+          <h1><em>flower</em> mail</h1>
+          <p>大切なあの人に1枚のブーケを、届ける。</p>
+        </header>
+        <div
+          style={{
+            padding: "80px 24px 120px",
+            maxWidth: 640,
+            margin: "0 auto",
+          }}
+        >
+          {/* Bouquet image */}
         <div
           className="fm-fade-in"
           style={{ marginBottom: 64, textAlign: "center" }}
@@ -492,7 +531,8 @@ export default function FlowermailReceivePage() {
             ciraf inc.
           </p>
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 

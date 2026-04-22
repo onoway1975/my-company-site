@@ -576,7 +576,13 @@ export default function FlowermailPage() {
 
   return (
     <div className="fm-split">
-      {/* KV image — always visible */}
+      {/* SP text header — mobile only */}
+      <header className="fm-sp-header">
+        <h1><em>flower</em> mail</h1>
+        <p>大切なあの人に1枚のブーケを、届ける。</p>
+      </header>
+
+      {/* KV image — PC only */}
       <div className="fm-kv">
         <img
           src="/flowermail/kv.jpg"

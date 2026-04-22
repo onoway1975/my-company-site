@@ -264,6 +264,42 @@ export default function FlowermailLayout({
           animation: fmBloomImg 4s ease forwards;
         }
 
+        /* ── SP text header (mobile only) ── */
+        .fm-sp-header {
+          display: block;
+          text-align: center;
+          padding: 48px 24px;
+          border-bottom: 1px solid #E5E5E5;
+        }
+        .fm-sp-header h1 {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 34px;
+          letter-spacing: 0.02em;
+          line-height: 1.1;
+          color: #0A0A0A;
+          margin-bottom: 12px;
+        }
+        .fm-sp-header h1 em {
+          font-style: italic;
+          font-weight: 300;
+        }
+        .fm-sp-header p {
+          font-family: 'Shippori Mincho', serif;
+          font-size: 13px;
+          font-weight: 400;
+          color: #6B6B6B;
+        }
+        .fm-sp-header.fm-sp-header--dim {
+          opacity: 0.3;
+          transition: opacity 0.6s ease;
+        }
+        @media (min-width: 1024px) {
+          .fm-sp-header {
+            display: none;
+          }
+        }
+
         /* ── Split layout ── */
         .fm-split {
           display: flex;
@@ -271,11 +307,7 @@ export default function FlowermailLayout({
           min-height: 100vh;
         }
         .fm-kv {
-          width: 100%;
-          height: 60vh;
-          position: relative;
-          overflow: hidden;
-          flex-shrink: 0;
+          display: none;
         }
         .fm-kv img {
           width: 100%;
@@ -296,6 +328,7 @@ export default function FlowermailLayout({
             flex-direction: row;
           }
           .fm-kv {
+            display: block;
             position: fixed;
             left: 0;
             top: 0;
