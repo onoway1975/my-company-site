@@ -336,8 +336,13 @@ export default function FlowermailPage() {
             <button
               className="fm-btn"
               onClick={() => setPhase("share")}
+              style={{
+                fontSize: 14,
+                letterSpacing: "0.1em",
+                textTransform: "none" as const,
+              }}
             >
-              Send this bouquet
+              この花束を贈る
             </button>
           </div>
         </div>
@@ -452,8 +457,16 @@ export default function FlowermailPage() {
 
           {/* Start over */}
           <div style={{ textAlign: "center" }}>
-            <button className="fm-btn-ghost" onClick={handleStartOver}>
-              Start over
+            <button
+              className="fm-btn-ghost"
+              onClick={handleStartOver}
+              style={{
+                fontSize: 14,
+                letterSpacing: "0.1em",
+                textTransform: "none" as const,
+              }}
+            >
+              新しく作る
             </button>
           </div>
         </div>
