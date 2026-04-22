@@ -263,7 +263,7 @@ export default function FlowermailReceivePage() {
             }}
             onClick={handleOpen}
           >
-            受け取る
+            花束を開く
           </button>
         </div>
       </>
@@ -321,10 +321,39 @@ export default function FlowermailReceivePage() {
             margin: "0 auto",
           }}
         >
+          {/* Section label */}
+        <div
+          className="fm-fade-in"
+          style={{ textAlign: "center", marginBottom: 48 }}
+        >
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 400,
+              fontSize: 12,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase" as const,
+              color: "#0A0A0A",
+              marginBottom: 8,
+            }}
+          >
+            A bouquet for {data.recipientName}
+          </p>
+          <p
+            style={{
+              fontFamily: "'Shippori Mincho', serif",
+              fontSize: 11,
+              color: "#6B6B6B",
+            }}
+          >
+            {data.recipientName}さんへ
+          </p>
+        </div>
+
           {/* Bouquet image */}
         <div
           className="fm-fade-in"
-          style={{ marginBottom: 64, textAlign: "center" }}
+          style={{ marginBottom: 64, textAlign: "center", animationDelay: "0.1s", opacity: 0, animationFillMode: "forwards" }}
         >
           <img
             src={data.imageUrl}
@@ -355,21 +384,6 @@ export default function FlowermailReceivePage() {
           }}
         >
           {data.bouquetTheme}
-        </p>
-
-        {/* Recipient name */}
-        <p
-          className="fm-fade-in fm-body-ja"
-          style={{
-            fontSize: 20,
-            textAlign: "center",
-            marginBottom: 48,
-            animationDelay: "0.3s",
-            opacity: 0,
-            animationFillMode: "forwards",
-          }}
-        >
-          {data.recipientName}さんへ
         </p>
 
         {/* Message */}
@@ -414,12 +428,30 @@ export default function FlowermailReceivePage() {
             animationFillMode: "forwards",
           }}
         >
-          <p
-            className="fm-label"
-            style={{ textAlign: "center", marginBottom: 40 }}
-          >
-            Flowers
-          </p>
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 400,
+                fontSize: 12,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase" as const,
+                color: "#0A0A0A",
+                marginBottom: 8,
+              }}
+            >
+              The flowers in this bouquet
+            </p>
+            <p
+              style={{
+                fontFamily: "'Shippori Mincho', serif",
+                fontSize: 11,
+                color: "#6B6B6B",
+              }}
+            >
+              この花束の花
+            </p>
+          </div>
           <div
             style={{
               display: "flex",
@@ -461,26 +493,43 @@ export default function FlowermailReceivePage() {
         <div className="fm-divider" style={{ marginBottom: 64 }} />
 
         {/* Remaining days */}
-        <p
+        <div
           className="fm-fade-in"
           style={{
             textAlign: "center",
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 300,
-            fontSize: 11,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase" as const,
-            color: "#6B6B6B",
             marginBottom: 48,
             animationDelay: "0.8s",
             opacity: 0,
             animationFillMode: "forwards",
           }}
         >
-          {remainingDays > 0
-            ? `Expires in ${remainingDays} days`
-            : "This bouquet has expired"}
-        </p>
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 400,
+              fontSize: 12,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase" as const,
+              color: "#0A0A0A",
+              marginBottom: 8,
+            }}
+          >
+            {remainingDays > 0
+              ? `Expires in ${remainingDays} days`
+              : "This bouquet has expired"}
+          </p>
+          <p
+            style={{
+              fontFamily: "'Shippori Mincho', serif",
+              fontSize: 11,
+              color: "#6B6B6B",
+            }}
+          >
+            {remainingDays > 0
+              ? `残り ${remainingDays}日`
+              : "この花束は期限切れです"}
+          </p>
+        </div>
 
         {/* Actions */}
         <div
@@ -499,9 +548,15 @@ export default function FlowermailReceivePage() {
           <button
             className="fm-btn"
             onClick={handleDownload}
-            style={{ width: "100%", maxWidth: 280 }}
+            style={{
+              width: "100%",
+              maxWidth: 280,
+              fontSize: 14,
+              letterSpacing: "0.1em",
+              textTransform: "none" as const,
+            }}
           >
-            Download image
+            画像を保存
           </button>
           <a
             href="/flowermail/"

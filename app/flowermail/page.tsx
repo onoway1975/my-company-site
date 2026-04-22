@@ -413,24 +413,39 @@ export default function FlowermailPage() {
           </div>
 
           {/* Expires */}
-          <p
+          <div
             className="fm-fade-in"
             style={{
               textAlign: "center",
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 300,
-              fontSize: 11,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase" as const,
-              color: "#E5E5E5",
               marginBottom: 80,
               animationDelay: "0.6s",
               opacity: 0,
               animationFillMode: "forwards",
             }}
           >
-            Expires in 7 days
-          </p>
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 400,
+                fontSize: 12,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase" as const,
+                color: "#0A0A0A",
+                marginBottom: 8,
+              }}
+            >
+              Expires in 7 days
+            </p>
+            <p
+              style={{
+                fontFamily: "'Shippori Mincho', serif",
+                fontSize: 11,
+                color: "#6B6B6B",
+              }}
+            >
+              7日後に花束は消えます
+            </p>
+          </div>
 
           {/* Divider */}
           <div className="fm-divider" style={{ marginBottom: 80 }} />
@@ -449,12 +464,30 @@ export default function FlowermailPage() {
     return (
       <div>
         {/* Section label */}
-        <p
-          className="fm-label"
-          style={{ marginBottom: 64, color: "#0A0A0A" }}
-        >
-          Send a bouquet
-        </p>
+        <div style={{ marginBottom: 64 }}>
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 400,
+              fontSize: 12,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase" as const,
+              color: "#0A0A0A",
+              marginBottom: 8,
+            }}
+          >
+            Send a bouquet
+          </p>
+          <p
+            style={{
+              fontFamily: "'Shippori Mincho', serif",
+              fontSize: 11,
+              color: "#6B6B6B",
+            }}
+          >
+            花束を贈る
+          </p>
+        </div>
 
         {/* Form fields */}
         <div style={{ marginBottom: 40 }}>
