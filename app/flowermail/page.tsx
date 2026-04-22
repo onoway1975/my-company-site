@@ -28,11 +28,11 @@ type Phase = "form" | "loading" | "preview" | "share";
 /* ── Loading texts ── */
 
 const LOADING_STEPS = [
-  "finding {name}'s colors",
-  "choosing the flowers",
-  "writing a letter",
-  "tying the bouquet",
-  "adding final touches",
+  "{name}さんの色を探しています",
+  "花を選んでいます",
+  "メッセージを綴っています",
+  "ブーケを束ねています",
+  "最後の仕上げをしています",
 ];
 
 /* ── Component ── */
@@ -618,6 +618,17 @@ export default function FlowermailPage() {
             gap: 40,
           }}
         >
+          <p
+            style={{
+              fontFamily: "'Shippori Mincho', serif",
+              fontWeight: 400,
+              fontSize: 22,
+              color: "#0A0A0A",
+              marginBottom: 40,
+            }}
+          >
+            花束を作っています
+          </p>
           <div className="fm-progress-track">
             <div
               className="fm-progress-fill"
@@ -626,12 +637,10 @@ export default function FlowermailPage() {
           </div>
           <p
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontStyle: "italic",
-              fontWeight: 300,
-              fontSize: 16,
+              fontFamily: "'Shippori Mincho', serif",
+              fontWeight: 400,
+              fontSize: 14,
               color: "#6B6B6B",
-              letterSpacing: "0.04em",
             }}
           >
             {LOADING_STEPS[loadingStep].replace("{name}", displayName)}
