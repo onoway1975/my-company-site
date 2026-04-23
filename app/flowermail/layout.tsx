@@ -296,15 +296,28 @@ export default function FlowermailLayout({
         }
         /* ── SP KV image (mobile form phase only) ── */
         .fm-sp-kv {
+          position: relative;
           width: 100%;
           aspect-ratio: 3 / 4;
           overflow: hidden;
         }
-        .fm-sp-kv img {
+        .fm-sp-kv > img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           display: block;
+        }
+        .fm-sp-kv .fm-kv-logo {
+          position: absolute;
+          inset: auto 0 15% 0;
+          display: flex;
+          justify-content: center;
+          pointer-events: none;
+        }
+        .fm-sp-kv .fm-kv-logo img {
+          width: 70%;
+          height: auto;
+          object-fit: unset;
         }
 
         @media (min-width: 1024px) {

@@ -625,7 +625,13 @@ export default function FlowermailPage() {
       {/* SP: KV image on form phase, text header otherwise — mobile only */}
       {phase === "form" ? (
         <div className="fm-sp-kv">
-          <img src="/flowermail/kv.jpg" alt="flower mail" />
+          <img src="/flowermail/kv.jpg" alt="" />
+          <div className="fm-kv-logo">
+            <img
+              src="/flowermail/logo.png"
+              alt="flower mail — 大切なあの人に1枚のブーケを。"
+            />
+          </div>
         </div>
       ) : (
         <header className="fm-sp-header">
