@@ -11,6 +11,7 @@
 @source "./renewal";
 @source "./punimoji";
 @source "./flowermail";
+@source "./snap";
 
 @theme {
   --color-ink: #111111;
