@@ -1,21 +1,60 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "flower mail | その人のための一枚のブーケを、届ける。",
+  title: "flower mail | あの人のための花束を、AIが束ねて贈る",
   description:
-    "大切な人の雰囲気をAIが読み取り、その人だけのブーケ画像を生成。固有URLでメール・LINEに送れる、7日間限定の花束ギフト。",
+    "大切な人の性格や感謝していることを伝えるだけで、AIがその人に似合う花束をコーディネート。メッセージを添えて、メールやLINEで贈れます。7日間で消える、一期一会の花束。",
+  keywords: [
+    "花束",
+    "AI",
+    "プレゼント",
+    "メッセージ",
+    "ギフト",
+    "サプライズ",
+    "flower mail",
+    "シラフ",
+  ],
+  authors: [{ name: "シラフ株式会社", url: "https://ciraf.jp" }],
+  creator: "シラフ株式会社",
+  publisher: "シラフ株式会社",
   openGraph: {
-    title: "flower mail",
-    description: "その人のための一枚のブーケを、届ける。",
-    url: "https://ciraf.jp/flowermail/",
-    siteName: "ciraf inc.",
+    title: "flower mail | あの人のための花束を、AIが束ねて贈る",
+    description:
+      "大切な人に、その人だけの花束を。AIが特徴を読み取り、世界にひとつの花束をコーディネート。7日間で消える、一期一会の贈り物。",
+    url: "https://ciraf.jp/flowermail",
+    siteName: "flower mail",
+    images: [
+      {
+        url: "https://ciraf.jp/flowermail/ogp.jpg",
+        width: 1200,
+        height: 630,
+        alt: "flower mail - あの人のための花束を、AIが束ねて贈る",
+      },
+    ],
     locale: "ja_JP",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "flower mail",
-    description: "その人のための一枚のブーケを、届ける。",
+    title: "flower mail | あの人のための花束を、AIが束ねて贈る",
+    description:
+      "大切な人に、その人だけの花束を。AIが特徴を読み取り、世界にひとつの花束をコーディネート。",
+    images: ["https://ciraf.jp/flowermail/ogp.jpg"],
+    creator: "@ciraf_inc",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large" as const,
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://ciraf.jp/flowermail",
   },
 };
 
