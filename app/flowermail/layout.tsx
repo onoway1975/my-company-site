@@ -349,10 +349,23 @@ export default function FlowermailLayout({
             width: 50vw;
             height: 100vh;
             background: #FFFFFF;
+            overflow: hidden;
           }
           .fm-kv img {
-            object-fit: contain;
-            object-position: left center;
+            object-fit: cover;
+            object-position: center center;
+          }
+          .fm-kv-logo {
+            position: absolute;
+            inset: auto 0 15% 0;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+          }
+          .fm-kv-logo img {
+            width: 70%;
+            height: auto;
+            object-fit: unset;
           }
           .fm-content {
             margin-left: 50vw;

@@ -638,8 +638,14 @@ export default function FlowermailPage() {
       <div className="fm-kv">
         <img
           src="/flowermail/kv.jpg"
-          alt="flower mail"
+          alt=""
         />
+        <div className="fm-kv-logo">
+          <img
+            src="/flowermail/logo.png"
+            alt="flower mail — 大切なあの人に1枚のブーケを。"
+          />
+        </div>
       </div>
 
       {/* Content panel */}
