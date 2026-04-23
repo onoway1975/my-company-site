@@ -315,7 +315,7 @@ export default function FlowermailLayout({
           pointer-events: none;
         }
         .fm-sp-kv .fm-kv-logo img {
-          width: 70%;
+          width: 85%;
           height: auto;
           object-fit: unset;
         }
@@ -376,7 +376,7 @@ export default function FlowermailLayout({
             pointer-events: none;
           }
           .fm-kv-logo img {
-            width: 70%;
+            width: 85%;
             height: auto;
             object-fit: unset;
           }
