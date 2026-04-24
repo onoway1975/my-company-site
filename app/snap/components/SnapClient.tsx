@@ -24,6 +24,9 @@ export default function SnapClient() {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Phase 3: 共有用 public URL
+  const [publicShareUrl, setPublicShareUrl] = useState<string | null>(null);
+
   // Hide global header/footer via DOM
   useEffect(() => {
     const header = document.querySelector("header");
@@ -61,6 +64,7 @@ export default function SnapClient() {
       setScreen("result");
       setIsGenerating(true);
       setGeneratedImageUrl(null);
+      setPublicShareUrl(null);
       setError(null);
 
       try {
@@ -80,6 +84,23 @@ export default function SnapClient() {
         }
 
         setGeneratedImageUrl(data.imageUrl);
+        setIsGenerating(false);
+
+        // バックグラウンドで Supabase に保存して共有用URLを取得
+        try {
+          const saveRes = await fetch("/api/snap/save/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageUrl: data.imageUrl }),
+          });
+          if (saveRes.ok) {
+            const { publicUrl } = await saveRes.json();
+            setPublicShareUrl(publicUrl);
+          }
+        } catch {
+          // 保存失敗しても画面表示は継続
+        }
+        return;
       } catch (err) {
         setError(err instanceof Error ? err.message : "不明なエラーが発生しました");
       } finally {
@@ -92,6 +113,7 @@ export default function SnapClient() {
   const handleReset = () => {
     setSelectedTemplate(null);
     setGeneratedImageUrl(null);
+    setPublicShareUrl(null);
     setError(null);
     setScreen("landing");
   };
@@ -100,6 +122,7 @@ export default function SnapClient() {
     if (screen === "upload") setScreen("landing");
     if (screen === "result") {
       setGeneratedImageUrl(null);
+      setPublicShareUrl(null);
       setError(null);
       setScreen("upload");
     }
@@ -124,6 +147,7 @@ export default function SnapClient() {
           initialTemplate={selectedTemplate}
           isGenerating={isGenerating}
           generatedImageUrl={generatedImageUrl}
+          publicShareUrl={publicShareUrl}
           error={error}
           onBack={handleBack}
           onReset={handleReset}

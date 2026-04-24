@@ -8,6 +8,7 @@ export default function Result({
   initialTemplate,
   isGenerating,
   generatedImageUrl,
+  publicShareUrl,
   error,
   onBack,
   onReset,
@@ -16,6 +17,7 @@ export default function Result({
   initialTemplate: string | null;
   isGenerating: boolean;
   generatedImageUrl: string | null;
+  publicShareUrl: string | null;
   error: string | null;
   onBack: () => void;
   onReset: () => void;
@@ -23,14 +25,47 @@ export default function Result({
   const [saved, setSaved] = useState(false);
 
   const selectedTpl = findTemplate(initialTemplate || "jp_03");
+  const shareReady = !!publicShareUrl;
 
   const handleSave = useCallback(() => {
-    if (generatedImageUrl) {
-      window.open(generatedImageUrl, "_blank");
+    const url = publicShareUrl || generatedImageUrl;
+    if (!url) return;
+
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.open(url, "_blank");
+    } else {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `snapstudio_${Date.now()}.jpg`;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
+
     setSaved(true);
     setTimeout(() => setSaved(false), 1600);
-  }, [generatedImageUrl]);
+  }, [generatedImageUrl, publicShareUrl]);
+
+  const handleLineShare = useCallback(() => {
+    if (!publicShareUrl) {
+      alert("画像の準備中です。もう少しお待ちください");
+      return;
+    }
+    const message = `SNAP STUDIO で撮影しました\n${publicShareUrl}\n\n#SNAPSTUDIO #ciraf`;
+    window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
+  }, [publicShareUrl]);
+
+  const handleMailShare = useCallback(() => {
+    if (!publicShareUrl) {
+      alert("画像の準備中です。もう少しお待ちください");
+      return;
+    }
+    const mailSubject = "SNAP STUDIOで撮影しました";
+    const body = `SNAP STUDIO で撮影した写真を送ります\n\n${publicShareUrl}\n\nciraf inc. https://ciraf.jp/snap/`;
+    window.location.href = `mailto:?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(body)}`;
+  }, [publicShareUrl]);
 
   const actions = [
     {
@@ -52,6 +87,7 @@ export default function Result({
         </svg>
       ),
       onClick: handleSave,
+      needsShare: false,
     },
     {
       key: "line",
@@ -73,7 +109,8 @@ export default function Result({
           />
         </svg>
       ),
-      onClick: () => {},
+      onClick: handleLineShare,
+      needsShare: true,
     },
     {
       key: "mail",
@@ -94,7 +131,8 @@ export default function Result({
           <path d="M2 6l8 5 8-5" />
         </svg>
       ),
-      onClick: () => {},
+      onClick: handleMailShare,
+      needsShare: true,
     },
   ];
 
@@ -220,6 +258,8 @@ export default function Result({
                   flexDirection: "column",
                   alignItems: "center",
                   gap: 8,
+                  opacity: btn.needsShare && !shareReady ? 0.45 : 1,
+                  transition: "opacity 0.3s",
                 }}
               >
                 <button className="snap-circle-btn" onClick={btn.onClick}>
