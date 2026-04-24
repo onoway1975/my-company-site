@@ -61,8 +61,24 @@ export default function SnapLayout({
         /* ── Google Fonts ── */
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500&family=Noto+Serif+JP:wght@400;500&display=swap');
 
+        /* ── Outer shell (PC beige background) ── */
+        .snap-shell {
+          min-height: 100vh;
+          background: #E8D9C4;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+        }
+        @media (min-width: 640px) {
+          .snap-shell {
+            align-items: center;
+            padding: 24px 0;
+          }
+        }
+
         /* ── Base ── */
         .snap-root {
+          width: 100%;
           min-height: 100vh;
           background: #F4A896;
           color: #2C1810;
@@ -70,6 +86,15 @@ export default function SnapLayout({
           font-weight: 400;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
+        }
+        @media (min-width: 640px) {
+          .snap-root {
+            max-width: 390px;
+            min-height: 844px;
+            border-radius: 40px;
+            box-shadow: 0 8px 40px rgba(44, 24, 16, 0.18), 0 0 0 1px rgba(44, 24, 16, 0.06);
+            overflow: hidden;
+          }
         }
 
         /* ── Serif / Sans helpers ── */
@@ -90,17 +115,10 @@ export default function SnapLayout({
           margin-bottom: 28px;
         }
 
-        /* ── Landing: silhouettes row ── */
+        /* ── Landing: logo mark ── */
         .snap-silhouettes {
           display: flex;
           justify-content: center;
-          align-items: flex-end;
-          gap: 12px;
-          margin-bottom: 12px;
-        }
-        .snap-silhouettes .snap-dot {
-          font-size: 8px;
-          opacity: 0.8;
           margin-bottom: 12px;
         }
 
@@ -202,23 +220,12 @@ export default function SnapLayout({
           font-weight: 500;
         }
 
-        /* ── Template grid ── */
+        /* ── Template grid (always 2 columns) ── */
         .snap-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 12px;
           margin-bottom: 20px;
-        }
-        @media (min-width: 640px) {
-          .snap-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-          }
-        }
-        @media (min-width: 1024px) {
-          .snap-grid {
-            grid-template-columns: repeat(4, 1fr);
-          }
         }
 
         /* ── Template card ── */
@@ -603,8 +610,10 @@ export default function SnapLayout({
           animation: snapFadeIn 0.4s ease;
         }
       `}</style>
-      <div className="snap-root">
-        {children}
+      <div className="snap-shell">
+        <div className="snap-root">
+          {children}
+        </div>
       </div>
     </div>
   );
