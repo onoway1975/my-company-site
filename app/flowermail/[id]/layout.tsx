@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({
   params,
@@ -6,6 +7,11 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+
+  // 拡張子付きリクエストは静的ファイル → 動的ルートで処理しない
+  if (id.includes(".")) {
+    notFound();
+  }
 
   return {
     title: "花束が届いています | flower mail",
