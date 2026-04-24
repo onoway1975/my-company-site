@@ -8,6 +8,43 @@ import {
   type Subject,
 } from "../data/templates";
 
+/** Canvas リサイズ: max 1024px, JPEG 0.85 quality → File */
+function resizeImage(file: File, maxPx = 1024): Promise<File> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width <= maxPx && height <= maxPx) {
+          resolve(file);
+          return;
+        }
+        const ratio = Math.min(maxPx / width, maxPx / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            resolve(
+              new File([blob!], file.name.replace(/\.\w+$/, ".jpg"), {
+                type: "image/jpeg",
+              })
+            );
+          },
+          "image/jpeg",
+          0.85
+        );
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function Upload({
   subject,
   templateId,
@@ -17,36 +54,33 @@ export default function Upload({
   subject: Subject;
   templateId: string | null;
   onBack: () => void;
-  onUpload: () => void;
+  onUpload: (file: File) => void;
 }) {
   const [uploaded, setUploaded] = useState(false);
   const [fileName, setFileName] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const currentFile = useRef<File | null>(null);
 
   const tpl = findTemplate(templateId || "jp_03") || findTemplate("jp_03");
   const tplEn = TEMPLATE_EN[tpl?.id || ""] || "—";
 
-  const handleFile = useCallback(
-    (file: File) => {
-      if (!file.type.startsWith("image/")) return;
-      setFileName(file.name);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewUrl(e.target?.result as string);
-        setUploaded(true);
-      };
-      reader.readAsDataURL(file);
-    },
-    []
-  );
+  const handleFile = useCallback((file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    currentFile.current = file;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewUrl(e.target?.result as string);
+      setUploaded(true);
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const f = e.target.files?.[0];
-      if (f) {
-        handleFile(f);
-      }
+      if (f) handleFile(f);
     },
     [handleFile]
   );
@@ -59,8 +93,15 @@ export default function Upload({
     setUploaded(false);
     setFileName("");
     setPreviewUrl(null);
+    currentFile.current = null;
     if (fileRef.current) fileRef.current.value = "";
   }, []);
+
+  const handleContinue = useCallback(async () => {
+    if (!currentFile.current) return;
+    const resized = await resizeImage(currentFile.current);
+    onUpload(resized);
+  }, [onUpload]);
 
   return (
     <div
@@ -161,7 +202,7 @@ export default function Upload({
       <button
         className={`snap-cta ${uploaded ? "enabled" : "disabled"}`}
         disabled={!uploaded}
-        onClick={onUpload}
+        onClick={handleContinue}
       >
         CONTINUE
       </button>

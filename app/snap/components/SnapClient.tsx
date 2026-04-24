@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Subject } from "../data/templates";
 import Landing from "./Landing";
 import Upload from "./Upload";
@@ -18,6 +18,11 @@ export default function SnapClient() {
     }
   });
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+
+  // Phase 2: 画像生成 state
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Hide global header/footer via DOM
   useEffect(() => {
@@ -49,18 +54,55 @@ export default function SnapClient() {
     setScreen("upload");
   };
 
-  const handleUpload = () => {
-    setScreen("result");
-  };
+  const handleGenerate = useCallback(
+    async (file: File) => {
+      if (!selectedTemplate) return;
+
+      setScreen("result");
+      setIsGenerating(true);
+      setGeneratedImageUrl(null);
+      setError(null);
+
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("templateId", selectedTemplate);
+
+        const res = await fetch("/api/snap/generate/", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "生成に失敗しました");
+        }
+
+        setGeneratedImageUrl(data.imageUrl);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "不明なエラーが発生しました");
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [selectedTemplate]
+  );
 
   const handleReset = () => {
     setSelectedTemplate(null);
+    setGeneratedImageUrl(null);
+    setError(null);
     setScreen("landing");
   };
 
   const handleBack = () => {
     if (screen === "upload") setScreen("landing");
-    if (screen === "result") setScreen("upload");
+    if (screen === "result") {
+      setGeneratedImageUrl(null);
+      setError(null);
+      setScreen("upload");
+    }
   };
 
   switch (screen) {
@@ -72,7 +114,7 @@ export default function SnapClient() {
           subject={subject}
           templateId={selectedTemplate}
           onBack={handleBack}
-          onUpload={handleUpload}
+          onUpload={handleGenerate}
         />
       );
     case "result":
@@ -80,6 +122,9 @@ export default function SnapClient() {
         <Result
           subject={subject}
           initialTemplate={selectedTemplate}
+          isGenerating={isGenerating}
+          generatedImageUrl={generatedImageUrl}
+          error={error}
           onBack={handleBack}
           onReset={handleReset}
         />

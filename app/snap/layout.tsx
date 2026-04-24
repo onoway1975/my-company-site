@@ -601,6 +601,52 @@ export default function SnapLayout({
           justify-content: center;
         }
 
+        /* ── Loading state ── */
+        .snap-loading {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          inset: 0;
+        }
+        .snap-loading-title {
+          font-family: 'Cormorant Garamond', 'Noto Serif JP', serif;
+          font-size: 22px;
+          font-style: italic;
+          letter-spacing: 0.06em;
+          color: #2C1810;
+        }
+        .snap-loading-sub {
+          font-family: 'Cormorant Garamond', 'Noto Serif JP', serif;
+          font-size: 12px;
+          letter-spacing: 0.16em;
+          color: #A88B78;
+          margin-top: 8px;
+        }
+        .snap-loading-dots {
+          display: flex;
+          gap: 6px;
+          margin-top: 20px;
+        }
+        .snap-loading-dots span {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #2C1810;
+          opacity: 0.4;
+          animation: snapDotPulse 1.2s ease-in-out infinite;
+        }
+        .snap-loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .snap-loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes snapDotPulse {
+          0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+          40% { opacity: 1; transform: scale(1.1); }
+        }
+
         /* ── Animations ── */
         @keyframes snapFadeIn {
           from { opacity: 0; }

@@ -1,28 +1,36 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { TEMPLATES, findTemplate, type Subject } from "../data/templates";
+import { findTemplate, type Subject } from "../data/templates";
 
 export default function Result({
   subject,
   initialTemplate,
+  isGenerating,
+  generatedImageUrl,
+  error,
   onBack,
   onReset,
 }: {
   subject: Subject;
   initialTemplate: string | null;
+  isGenerating: boolean;
+  generatedImageUrl: string | null;
+  error: string | null;
   onBack: () => void;
   onReset: () => void;
 }) {
   const [saved, setSaved] = useState(false);
 
   const selectedTpl = findTemplate(initialTemplate || "jp_03");
-  const previewImg = selectedTpl?.img || "";
 
   const handleSave = useCallback(() => {
+    if (generatedImageUrl) {
+      window.open(generatedImageUrl, "_blank");
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 1600);
-  }, []);
+  }, [generatedImageUrl]);
 
   const actions = [
     {
@@ -120,64 +128,118 @@ export default function Result({
       <div style={{ padding: "0 20px", marginBottom: 22 }}>
         <div className="snap-preview-card">
           <div className="snap-preview-inner">
-            {previewImg && (
-              <img
-                key={previewImg}
-                src={previewImg}
-                alt="preview"
-                className="snap-fade-in"
-              />
-            )}
-            {/* Caption overlay */}
-            <div className="snap-caption">
-              <div>
-                <div className="snap-caption-label">— preview —</div>
-                <div className="snap-caption-title">
-                  {selectedTpl?.title || "未選択"}
+            {/* Loading */}
+            {isGenerating && (
+              <div className="snap-loading">
+                <div className="snap-loading-title">撮影中...</div>
+                <div className="snap-loading-sub">お待ちください</div>
+                <div className="snap-loading-dots">
+                  <span /><span /><span />
                 </div>
               </div>
-              <div className="snap-caption-no">
-                no. {selectedTpl?.id.replace("_", " / ") || "—"}
+            )}
+
+            {/* Error */}
+            {!isGenerating && error && (
+              <div className="snap-loading">
+                <div className="snap-loading-title">エラー</div>
+                <div className="snap-loading-sub">{error}</div>
+                <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+                  <button className="snap-retry-link" onClick={onBack}>
+                    もう一度 ›
+                  </button>
+                  <button className="snap-retry-link" onClick={onReset}>
+                    他のスタジオを試す ›
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Generated image */}
+            {!isGenerating && !error && generatedImageUrl && (
+              <>
+                <img
+                  key={generatedImageUrl}
+                  src={generatedImageUrl}
+                  alt="generated"
+                  className="snap-fade-in"
+                />
+                {/* Caption overlay */}
+                <div className="snap-caption">
+                  <div>
+                    <div className="snap-caption-label">— snap studio —</div>
+                    <div className="snap-caption-title">
+                      {selectedTpl?.title || "未選択"}
+                    </div>
+                  </div>
+                  <div className="snap-caption-no">
+                    no. {selectedTpl?.id.replace("_", " / ") || "—"}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Fallback: no generation yet, no error */}
+            {!isGenerating && !error && !generatedImageUrl && selectedTpl?.img && (
+              <>
+                <img
+                  src={selectedTpl.img}
+                  alt="preview"
+                  className="snap-fade-in"
+                />
+                <div className="snap-caption">
+                  <div>
+                    <div className="snap-caption-label">— preview —</div>
+                    <div className="snap-caption-title">
+                      {selectedTpl?.title || "未選択"}
+                    </div>
+                  </div>
+                  <div className="snap-caption-no">
+                    no. {selectedTpl?.id.replace("_", " / ") || "—"}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Save & Share */}
-      <div style={{ padding: "0 20px", marginTop: "auto", paddingBottom: 28 }}>
-        <div className="snap-section-label" style={{ marginBottom: 22 }}>
-          — save & share —
-        </div>
+      {/* Save & Share — only show when generated */}
+      {!isGenerating && !error && generatedImageUrl && (
+        <div style={{ padding: "0 20px", marginTop: "auto", paddingBottom: 28 }}>
+          <div className="snap-section-label" style={{ marginBottom: 22 }}>
+            — save & share —
+          </div>
 
-        <div className="snap-actions-row">
-          {actions.map((btn) => (
-            <div
-              key={btn.key}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <button className="snap-circle-btn" onClick={btn.onClick}>
-                {btn.icon}
-              </button>
-              <div className="snap-circle-label">
-                {btn.key === "save" && saved ? "SAVED" : btn.label}
+          <div className="snap-actions-row">
+            {actions.map((btn) => (
+              <div
+                key={btn.key}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <button className="snap-circle-btn" onClick={btn.onClick}>
+                  {btn.icon}
+                </button>
+                <div className="snap-circle-label">
+                  {btn.key === "save" && saved ? "SAVED" : btn.label}
+                </div>
+                <div className="snap-circle-sub">{btn.en}</div>
               </div>
-              <div className="snap-circle-sub">{btn.en}</div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          <div className="snap-result-divider" />
+
+          <button className="snap-retry-link" onClick={onReset}>
+            他のスタジオで撮ってみる ›
+          </button>
         </div>
-
-        <div className="snap-result-divider" />
-
-        <button className="snap-retry-link" onClick={onReset}>
-          他のスタジオで撮ってみる ›
-        </button>
-      </div>
+      )}
     </div>
   );
 }
