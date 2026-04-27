@@ -14,6 +14,20 @@ const pains = [
 
 const works = [
   {
+    title: 'flower mail',
+    url: '/flowermail/',
+    noteUrl: 'https://note.com/ciraf_inc/n/nc95f915d899b',
+    desc: '相手のイメージを入力→AIがその人だけのブーケ画像を生成',
+    image: '/ai/works-flowermail.webp',
+  },
+  {
+    title: 'fog mail',
+    url: '/fogmail/',
+    noteUrl: 'https://note.com/ciraf_inc/n/na664840104e2',
+    desc: '結露した窓に指でメッセージを書いてURLで送る、10分で消えるデジタル手紙',
+    image: '/ai/works-fogmail.webp',
+  },
+  {
     title: '天職占い',
     url: 'https://ciraf.jp/tenshoku/',
     noteUrl: 'https://note.com/ciraf_inc/n/na664840104e2',
