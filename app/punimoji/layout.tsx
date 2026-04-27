@@ -1,20 +1,37 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ぷに文字メーカー | 好きな言葉をぷっくり3D文字に",
+  title: "ぷに文字メーカー｜AIでぷっくり3D文字を無料作成｜インスタストーリー素材",
   description:
-    "Gemini 3.1 Flash Image（Nano Banana 2）搭載。ひらがな・カタカナ・漢字OK。インスタストーリー素材として使えるぷっくり3D文字を無料で生成。",
+    "好きな言葉を入力するだけで、ぷっくりかわいい3D文字画像をAIが自動生成。ひらがな・カタカナ・漢字・英数字OK。インスタストーリーやリール、誕生日・推し活デコ素材に。完全無料・登録不要。",
+  keywords: [
+    "ぷに文字",
+    "3D文字",
+    "文字メーカー",
+    "インスタ ストーリー 素材",
+    "文字 画像 作成",
+    "かわいい文字",
+    "推し活 デコ",
+    "誕生日 文字",
+    "AI 文字生成",
+    "無料 文字メーカー",
+  ],
   openGraph: {
-    title: "ぷに文字メーカー",
-    description: "好きな言葉をぷっくり3D文字に",
+    title: "ぷに文字メーカー｜ぷっくり3D文字を無料で作ろう",
+    description:
+      "好きな言葉を入力→AIがぷっくりかわいい3D文字を自動生成。インスタストーリー・推し活・誕生日デコに。完全無料。",
     images: ["/punimoji/ogp.png"],
     url: "https://ciraf.jp/punimoji/",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ぷに文字メーカー",
-    description: "好きな言葉をぷっくり3D文字に",
+    title: "ぷに文字メーカー｜ぷっくり3D文字を無料で作ろう",
+    description:
+      "好きな言葉を入力→AIがぷっくりかわいい3D文字を自動生成。インスタストーリー・推し活・誕生日デコに。完全無料。",
     images: ["/punimoji/ogp.png"],
+  },
+  alternates: {
+    canonical: "https://ciraf.jp/punimoji/",
   },
 };
 

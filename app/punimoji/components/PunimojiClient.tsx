@@ -148,7 +148,7 @@ export default function PunimojiClient() {
           {/* Title image */}
           <img
             src="/punimoji/title.png"
-            alt="ぷに文字メーカー"
+            alt="ぷに文字メーカー｜好きな言葉をぷっくりかわいい3D文字に変換するAIツール"
             className="puni-title-img"
             style={{
               width: "92%",
@@ -265,6 +265,58 @@ export default function PunimojiClient() {
 
           {/* History */}
           <History items={history} onSelect={handleHistorySelect} />
+
+          {/* FAQ / About section for SEO */}
+          <section style={{ width: "100%", marginTop: 48 }}>
+            <div className="card-puni" style={{ textAlign: "left" }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#2D1B3D", marginBottom: 20, textAlign: "center" }}>
+                ぷに文字メーカーとは？
+              </h2>
+              <p style={{ fontSize: 14, lineHeight: 1.8, color: "#6B5A7A", marginBottom: 24 }}>
+                ぷに文字メーカーは、好きな言葉を入力するだけでAIがぷっくりかわいい3D文字画像を自動生成する無料ツールです。ひらがな・カタカナ・漢字・英数字に対応。生成した画像はインスタストーリーやリール、誕生日のお祝い、推し活のデコ素材としてそのまま使えます。
+              </p>
+
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: "#2D1B3D", marginBottom: 12 }}>
+                よくある質問
+              </h3>
+              <dl style={{ fontSize: 14, lineHeight: 1.8, color: "#6B5A7A" }}>
+                <dt style={{ fontWeight: 700, color: "#2D1B3D", marginBottom: 4 }}>
+                  Q. 利用料金はかかりますか？
+                </dt>
+                <dd style={{ marginBottom: 16, marginLeft: 0 }}>
+                  完全無料でご利用いただけます。会員登録も不要です。
+                </dd>
+
+                <dt style={{ fontWeight: 700, color: "#2D1B3D", marginBottom: 4 }}>
+                  Q. どんな文字が入力できますか？
+                </dt>
+                <dd style={{ marginBottom: 16, marginLeft: 0 }}>
+                  ひらがな・カタカナ・漢字・英数字・絵文字に対応しています。最大10文字まで入力できます。
+                </dd>
+
+                <dt style={{ fontWeight: 700, color: "#2D1B3D", marginBottom: 4 }}>
+                  Q. 生成した画像はどこで使えますか？
+                </dt>
+                <dd style={{ marginBottom: 16, marginLeft: 0 }}>
+                  Instagramストーリーやリール、LINEアイコン、誕生日カード、推し活デコなど、自由にお使いいただけます。商用利用はご遠慮ください。
+                </dd>
+
+                <dt style={{ fontWeight: 700, color: "#2D1B3D", marginBottom: 4 }}>
+                  Q. 1日に何回使えますか？
+                </dt>
+                <dd style={{ marginBottom: 16, marginLeft: 0 }}>
+                  1日あたりの回数制限があります。制限はリセットされますので、翌日またお楽しみください。
+                </dd>
+
+                <dt style={{ fontWeight: 700, color: "#2D1B3D", marginBottom: 4 }}>
+                  Q. スタイルは何種類ありますか？
+                </dt>
+                <dd style={{ marginBottom: 0, marginLeft: 0 }}>
+                  「ぷに」「ネオン」「メタル」「くれよん」の4種類から選べます。それぞれ雰囲気の異なるぷっくり3D文字が生成されます。
+                </dd>
+              </dl>
+            </div>
+          </section>
         </div>
       </div>
 
