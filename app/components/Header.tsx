@@ -10,6 +10,7 @@ const navItems = [
   { label: "About", labelJa: "シラフについて", href: "/about", gtmClick: "nav_link", gtmLabel: "about" },
   { label: "Works", labelJa: "実績", href: "/works", gtmClick: "nav_link", gtmLabel: "works" },
   { label: "AI活用", labelJa: "AI活用支援", href: "/ai", gtmClick: "nav_link", gtmLabel: "ai" },
+  { label: "Labs", labelJa: "Labs", href: "/labs", gtmClick: "nav_link", gtmLabel: "labs" },
   { label: "Contact", labelJa: "お問い合わせ", href: "/contact", gtmClick: "cta_contact", gtmLabel: "" },
 ];
 

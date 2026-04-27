@@ -40,6 +40,7 @@ const navItems = [
   { label: "About", href: "/about", gtmLabel: "about" },
   { label: "Works", href: "/works", gtmLabel: "works" },
   { label: "AI活用", href: "/ai", gtmLabel: "ai" },
+  { label: "Labs", href: "/labs", gtmLabel: "labs" },
   { label: "Contact", href: "/contact", gtmLabel: "contact" },
 ];
 
