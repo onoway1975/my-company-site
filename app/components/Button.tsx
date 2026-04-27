@@ -12,7 +12,7 @@ type Props = {
 };
 
 const base =
-  "inline-flex items-center gap-2 rounded-full border border-ink bg-ink text-white " +
+  "inline-flex items-center justify-center gap-2 rounded-full border border-ink bg-ink text-white " +
   "text-[0.8rem] tracking-[0.1em] py-3 px-7 " +
   "hover:bg-white hover:text-ink " +
   "transition-all duration-[250ms] ease group";
