@@ -196,8 +196,9 @@ export default function Upload({
         )}
       </div>
 
+      {/* TODO: 将来有効化。今はリリース版でフォーム非表示 */}
       {/* DOGUE overlay inputs — studio_01 only */}
-      {templateId === "studio_01" && (
+      {false && templateId === "studio_01" && (
         <div
           style={{
             marginBottom: 16,
