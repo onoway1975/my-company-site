@@ -33,6 +33,10 @@ export const CATEGORIES: Category[] = [
 
 export const TEMPLATES: Record<CategoryId, Template[]> = {
   recommended: [
+    // ★ 新規追加(検証用)
+    { id: "studio_purple", title: "パープルムード", cat: "スタジオ", img: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&q=70&auto=format" },
+    { id: "studio_tropical", title: "トロピカルディスコ", cat: "スタジオ", img: "https://images.unsplash.com/photo-1542359649-31e03cd4d909?w=400&q=70&auto=format" },
+    // 既存
     { id: "studio_03", title: "春の撮影", cat: "スタジオ", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=70&auto=format" },
     { id: "jp_03", title: "桜満開", cat: "記念日", img: "https://images.unsplash.com/photo-1522383225653-ed111181a951?w=400&q=70&auto=format" },
     { id: "studio_04", title: "フラワーアーチ", cat: "スタジオ", img: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&q=70&auto=format" },
@@ -79,6 +83,8 @@ export const TEMPLATE_EN: Record<string, string> = {
   studio_04: "Flower Arch",
   studio_05: "Cinematic Portrait",
   studio_06: "Lemon Garden",
+  studio_purple: "Purple Mood",
+  studio_tropical: "Tropical Disco",
   jp_01: "Shichi-Go-San",
   jp_03: "Cherry Blossom",
   jp_06: "Summer Yukata",

@@ -19,6 +19,12 @@ export const TEMPLATE_PROMPTS: Record<string, string> = {
     "Change the background to a Japanese summer festival scene at twilight: red paper lanterns glowing warmly, wooden festival stalls blurred in background, fireworks in the night sky, warm summer evening atmosphere. Photographic style, cinematic warm tones.",
   jp_08:
     "Change the background to a traditional Japanese new year scene: a shrine gate in soft morning light, stacked kagamimochi decorations, pine and bamboo arrangements (kadomatsu), subtle snow on rooftops, warm lanterns. Photographic style, serene traditional atmosphere.",
+
+  // ===== 新規追加(検証用) =====
+  studio_purple:
+    "Change the background to a vibrant purple solid color backdrop (deep violet, rich saturation, slight gradient from top to bottom for depth). Place a single minimalist white ceramic coffee cup with saucer beside the subject on a clean white surface. The lighting is bright editorial studio lighting with soft shadows. Shot on Hasselblad medium format with 80mm lens, f/4, sharp focus, magazine cover aesthetic, Korean pet studio style. Conceptual portrait, color blocking composition, modern fashion photography, Vogue-quality production.",
+  studio_tropical:
+    "Change the background to a turquoise blue painted wall with a large silver disco ball hanging from above. Surround the subject with abundant fresh palm leaves on both sides, golden sun-ray pattern radiating behind, two pink plastic flamingo decorations, and a yellow shaggy rug beneath. Bright vibrant tropical lighting, joyful summer atmosphere. Shot on medium format with 50mm lens, f/2.8, editorial color photography, Wes Anderson meets Miami beach club aesthetic, saturated colors but balanced composition.",
 };
 
 export const PRESERVE_INSTRUCTION =
