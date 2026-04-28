@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let buffer: ArrayBuffer;
+    let buffer: Buffer;
 
     if (imageBase64) {
       // data:image/jpeg;base64,XXXX → base64 部分を抽出
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       if (!imageResponse.ok) {
         throw new Error("画像の取得に失敗しました");
       }
-      buffer = await imageResponse.arrayBuffer();
+      buffer = Buffer.from(await imageResponse.arrayBuffer());
     }
 
     // UUID でファイル名を生成
