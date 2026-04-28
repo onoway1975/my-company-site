@@ -134,7 +134,22 @@ export default function Upload({
 
       {/* Upload card */}
       <div className="snap-upload-card">
-        <div className="snap-upload-frame">
+        <div
+          className="snap-upload-frame"
+          {...(!uploaded && {
+            role: "button",
+            tabIndex: 0,
+            "aria-label": "写真を選択",
+            onClick: handleChoose,
+            onKeyDown: (e: React.KeyboardEvent) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleChoose();
+              }
+            },
+            style: { cursor: "pointer" },
+          })}
+        >
           {uploaded && previewUrl ? (
             <img src={previewUrl} alt="" />
           ) : uploaded ? (
@@ -175,7 +190,7 @@ export default function Upload({
 
         {!uploaded ? (
           <button className="snap-choose-btn" onClick={handleChoose}>
-            CHOOSE A PHOTO
+            写真を選ぶ
           </button>
         ) : (
           <div className="snap-file-row">
@@ -204,7 +219,7 @@ export default function Upload({
         disabled={!uploaded}
         onClick={handleContinue}
       >
-        CONTINUE
+        撮影する
       </button>
     </div>
   );
