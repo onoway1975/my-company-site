@@ -25,22 +25,22 @@ export const CATEGORIES: Category[] = [
 
 export const TEMPLATES: Record<CategoryId, Template[]> = {
   recommended: [
-    { id: "studio_purple", title: "パープルムード", cat: "スタジオ", img: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=400&h=500&fit=crop&q=80" },
-    { id: "studio_tropical", title: "トロピカルディスコ", cat: "スタジオ", img: "https://images.unsplash.com/photo-1602500347523-50a826006d59?w=400&h=500&fit=crop&q=80" },
-    { id: "studio_neon", title: "ネオンガーデン", cat: "スタジオ", img: "https://images.unsplash.com/photo-1499914485622-a88fac536970?w=400&h=500&fit=crop&q=80" },
-    { id: "studio_artwall", title: "アートウォール", cat: "スタジオ", img: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&h=500&fit=crop&q=80" },
+    { id: "studio_purple", title: "パープルムード", cat: "スタジオ", img: "https://source.unsplash.com/cuEpo721ACY/400x500" },
+    { id: "studio_tropical", title: "トロピカルディスコ", cat: "スタジオ", img: "https://source.unsplash.com/diJjXZ9FkPU/400x500" },
+    { id: "studio_neon", title: "ネオンガーデン", cat: "スタジオ", img: "https://source.unsplash.com/bmMdi59CojQ/400x500" },
+    { id: "studio_artwall", title: "アートウォール", cat: "スタジオ", img: "https://source.unsplash.com/kPUmXLLtRvY/400x500" },
   ],
   studio: [
-    { id: "studio_pinksalon", title: "ピンクサロン", cat: "スタジオ", img: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=500&fit=crop&q=80" },
-    { id: "studio_minimal", title: "ロンドン", cat: "スタジオ", img: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=400&h=500&fit=crop&q=80" },
-    { id: "studio_powderblue", title: "パウダーブルー", cat: "スタジオ", img: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400&h=500&fit=crop&q=80" },
-    { id: "studio_midcentury", title: "ミッドセンチュリー", cat: "スタジオ", img: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=400&h=500&fit=crop&q=80" },
+    { id: "studio_pinksalon", title: "ピンクサロン", cat: "スタジオ", img: "https://source.unsplash.com/E-H4_DaE0K0/400x500" },
+    { id: "studio_minimal", title: "ロンドン", cat: "スタジオ", img: "https://source.unsplash.com/8F785OuG9cI/400x500" },
+    { id: "studio_powderblue", title: "パウダーブルー", cat: "スタジオ", img: "https://source.unsplash.com/3Om4DHcaAc0/400x500" },
+    { id: "studio_midcentury", title: "ミッドセンチュリー", cat: "スタジオ", img: "https://source.unsplash.com/CYtyRoMqBHg/400x500" },
   ],
   jp: [
-    { id: "event_xmasmodern", title: "モダンクリスマス", cat: "記念日", img: "https://images.unsplash.com/photo-1543589923-bbc7b8eb4c10?w=400&h=500&fit=crop&q=80" },
-    { id: "event_xmasclassic", title: "クラシッククリスマス", cat: "記念日", img: "https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&h=500&fit=crop&q=80" },
-    { id: "event_valentine", title: "バレンタイン", cat: "記念日", img: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=400&h=500&fit=crop&q=80" },
-    { id: "event_birthday", title: "バースデー", cat: "記念日", img: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=500&fit=crop&q=80" },
+    { id: "event_xmasmodern", title: "モダンクリスマス", cat: "記念日", img: "https://source.unsplash.com/JZwQSpvUdgc/400x500" },
+    { id: "event_xmasclassic", title: "クラシッククリスマス", cat: "記念日", img: "https://source.unsplash.com/gf8LEsXe2i4/400x500" },
+    { id: "event_valentine", title: "バレンタイン", cat: "記念日", img: "https://source.unsplash.com/90xmBr9S-Hc/400x500" },
+    { id: "event_birthday", title: "バースデー", cat: "記念日", img: "https://source.unsplash.com/uRduydIdpLk/400x500" },
   ],
 };
 
