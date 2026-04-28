@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "SNAP STUDIO | AIフォトスタジオ",
+  title: "SNAP STUDIO — うちの子を、スタジオデビュー",
   description:
-    "ペットやこどもの写真をアップするだけで、AIがプロのスタジオ写真に仕上げます。30種類以上のテンプレートから選んで、世界にひとつの1枚を。",
+    "愛犬・愛猫・お子さんの普段の写真を、スタジオ撮影のような特別な一枚に変換するAIアプリ。海外風のおしゃれな12スタジオから選んでアップロードするだけ。",
   keywords: [
     "AI写真",
     "フォトスタジオ",
@@ -16,19 +16,28 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "シラフ株式会社", url: "https://ciraf.jp" }],
   openGraph: {
-    title: "SNAP STUDIO | AIフォトスタジオ",
+    title: "SNAP STUDIO — うちの子を、スタジオデビュー",
     description:
-      "ペットやこどもの写真を、プロのスタジオ写真風に。30種類以上のテンプレートから選べるAIフォトスタジオ。",
+      "愛犬・愛猫・お子さんの普段の写真を、スタジオ撮影のような特別な一枚に変換するAIアプリ。",
     url: "https://ciraf.jp/snap/",
     siteName: "SNAP STUDIO",
+    images: [
+      {
+        url: "https://ciraf.jp/snap/ogp.jpg",
+        width: 1280,
+        height: 670,
+        alt: "SNAP STUDIO",
+      },
+    ],
     locale: "ja_JP",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SNAP STUDIO | AIフォトスタジオ",
+    title: "SNAP STUDIO — うちの子を、スタジオデビュー",
     description:
-      "ペットやこどもの写真を、プロのスタジオ写真風に。",
+      "愛犬・愛猫・お子さんの普段の写真を、スタジオ撮影のような特別な一枚に変換するAIアプリ。",
+    images: ["https://ciraf.jp/snap/ogp.jpg"],
   },
   alternates: { canonical: "https://ciraf.jp/snap/" },
 };
