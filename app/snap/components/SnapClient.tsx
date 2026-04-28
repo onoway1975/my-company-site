@@ -19,10 +19,6 @@ export default function SnapClient() {
   });
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
-  // DOGUE overlay state (studio_01 only)
-  const [overlayName, setOverlayName] = useState("");
-  const [overlayTagline, setOverlayTagline] = useState("");
-
   // Phase 2: 画像生成 state
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
@@ -119,8 +115,6 @@ export default function SnapClient() {
     setGeneratedImageUrl(null);
     setPublicShareUrl(null);
     setError(null);
-    setOverlayName("");
-    setOverlayTagline("");
     setScreen("landing");
   };
 
@@ -144,10 +138,6 @@ export default function SnapClient() {
           templateId={selectedTemplate}
           onBack={handleBack}
           onUpload={handleGenerate}
-          overlayName={overlayName}
-          onOverlayNameChange={setOverlayName}
-          overlayTagline={overlayTagline}
-          onOverlayTaglineChange={setOverlayTagline}
         />
       );
     case "result":
@@ -161,8 +151,6 @@ export default function SnapClient() {
           error={error}
           onBack={handleBack}
           onReset={handleReset}
-          overlayName={overlayName}
-          overlayTagline={overlayTagline}
         />
       );
   }
