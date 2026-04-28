@@ -6,21 +6,29 @@ export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   try {
-    const { imageUrl } = await req.json();
+    const { imageUrl, imageBase64 } = await req.json();
 
-    if (!imageUrl) {
+    if (!imageUrl && !imageBase64) {
       return NextResponse.json(
-        { error: "imageUrl が必要です" },
+        { error: "imageUrl or imageBase64 が必要です" },
         { status: 400 }
       );
     }
 
-    // FAL.ai の画像URLから画像データを取得
-    const imageResponse = await fetch(imageUrl);
-    if (!imageResponse.ok) {
-      throw new Error("画像の取得に失敗しました");
+    let buffer: ArrayBuffer;
+
+    if (imageBase64) {
+      // data:image/jpeg;base64,XXXX → base64 部分を抽出
+      const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+      buffer = Buffer.from(base64Data, "base64");
+    } else {
+      // FAL.ai の画像URLから画像データを取得
+      const imageResponse = await fetch(imageUrl);
+      if (!imageResponse.ok) {
+        throw new Error("画像の取得に失敗しました");
+      }
+      buffer = await imageResponse.arrayBuffer();
     }
-    const buffer = await imageResponse.arrayBuffer();
 
     // UUID でファイル名を生成
     const uuid = crypto.randomUUID();

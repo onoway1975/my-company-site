@@ -50,11 +50,19 @@ export default function Upload({
   templateId,
   onBack,
   onUpload,
+  overlayName,
+  onOverlayNameChange,
+  overlayTagline,
+  onOverlayTaglineChange,
 }: {
   subject: Subject;
   templateId: string | null;
   onBack: () => void;
   onUpload: (file: File) => void;
+  overlayName: string;
+  onOverlayNameChange: (v: string) => void;
+  overlayTagline: string;
+  onOverlayTaglineChange: (v: string) => void;
 }) {
   const [uploaded, setUploaded] = useState(false);
   const [fileName, setFileName] = useState("");
@@ -187,6 +195,60 @@ export default function Upload({
           </div>
         )}
       </div>
+
+      {/* DOGUE overlay inputs — studio_01 only */}
+      {templateId === "studio_01" && (
+        <div
+          style={{
+            marginBottom: 16,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          <div className="snap-tips-label">— magazine cover —</div>
+          <input
+            type="text"
+            value={overlayName}
+            onChange={(e) => onOverlayNameChange(e.target.value)}
+            maxLength={12}
+            placeholder="名前を入力（任意）"
+            style={{
+              width: "100%",
+              padding: "12px 16px",
+              border: "1px solid #D8C4A8",
+              borderRadius: 8,
+              fontSize: 14,
+              color: "#2C1810",
+              background: "#F5EDE0",
+              outline: "none",
+              fontFamily: "'Cormorant Garamond', 'Noto Serif JP', serif",
+              letterSpacing: "0.05em",
+              boxSizing: "border-box",
+            }}
+          />
+          <input
+            type="text"
+            value={overlayTagline}
+            onChange={(e) => onOverlayTaglineChange(e.target.value)}
+            maxLength={30}
+            placeholder="キャッチコピー（任意）"
+            style={{
+              width: "100%",
+              padding: "12px 16px",
+              border: "1px solid #D8C4A8",
+              borderRadius: 8,
+              fontSize: 14,
+              color: "#2C1810",
+              background: "#F5EDE0",
+              outline: "none",
+              fontFamily: "'Cormorant Garamond', 'Noto Serif JP', serif",
+              letterSpacing: "0.05em",
+              boxSizing: "border-box",
+            }}
+          />
+        </div>
+      )}
 
       {/* Tips */}
       <div className="snap-tips">

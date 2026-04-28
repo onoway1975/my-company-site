@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { findTemplate, type Subject } from "../data/templates";
+import { DogueOverlay } from "./DogueOverlay";
 
 export default function Result({
   subject,
@@ -12,6 +13,8 @@ export default function Result({
   error,
   onBack,
   onReset,
+  overlayName,
+  overlayTagline,
 }: {
   subject: Subject;
   initialTemplate: string | null;
@@ -21,14 +24,106 @@ export default function Result({
   error: string | null;
   onBack: () => void;
   onReset: () => void;
+  overlayName: string;
+  overlayTagline: string;
 }) {
   const [saved, setSaved] = useState(false);
+  const [overlayShareUrl, setOverlayShareUrl] = useState<string | null>(null);
 
   const selectedTpl = findTemplate(initialTemplate || "jp_03");
-  const shareReady = !!publicShareUrl;
+  const hasDogueOverlay =
+    initialTemplate === "studio_01" && !!(overlayName || overlayTagline);
 
-  const handleSave = useCallback(() => {
-    const url = publicShareUrl || generatedImageUrl;
+  // The effective share URL: overlay version if available, else publicShareUrl
+  const effectiveShareUrl = hasDogueOverlay
+    ? overlayShareUrl || publicShareUrl
+    : publicShareUrl;
+  const shareReady = !!effectiveShareUrl;
+
+  // Track whether we already uploaded the overlay for this generated image
+  const overlayUploadedRef = useRef<string | null>(null);
+
+  // Auto-upload overlay-composited image to Supabase when generation completes
+  useEffect(() => {
+    if (
+      !hasDogueOverlay ||
+      !generatedImageUrl ||
+      isGenerating ||
+      error ||
+      overlayUploadedRef.current === generatedImageUrl
+    ) {
+      return;
+    }
+
+    // Mark immediately to prevent re-runs
+    overlayUploadedRef.current = generatedImageUrl;
+
+    // Wait for DOM to render the overlay, then capture
+    const timer = setTimeout(async () => {
+      try {
+        const { toJpeg } = await import("html-to-image");
+        const el = document.getElementById("dogue-overlay-target");
+        if (!el) return;
+
+        const dataUrl = await toJpeg(el as HTMLElement, {
+          quality: 0.95,
+          pixelRatio: 2,
+        });
+
+        const res = await fetch("/api/snap/save/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: dataUrl }),
+        });
+
+        if (res.ok) {
+          const { publicUrl } = await res.json();
+          setOverlayShareUrl(publicUrl);
+        }
+      } catch {
+        // Overlay upload failed — fall back to regular publicShareUrl
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [hasDogueOverlay, generatedImageUrl, isGenerating, error]);
+
+  const handleSave = useCallback(async () => {
+    if (hasDogueOverlay) {
+      try {
+        const { toJpeg } = await import("html-to-image");
+        const el = document.getElementById("dogue-overlay-target");
+        if (el) {
+          const dataUrl = await toJpeg(el as HTMLElement, {
+            quality: 0.95,
+            pixelRatio: 2,
+          });
+
+          const isMobile = /iPhone|iPad|iPod|Android/i.test(
+            navigator.userAgent
+          );
+          if (isMobile) {
+            window.open(dataUrl, "_blank");
+          } else {
+            const a = document.createElement("a");
+            a.href = dataUrl;
+            a.download = `snapstudio_dogue_${Date.now()}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+
+          setSaved(true);
+          setTimeout(() => setSaved(false), 1600);
+          return;
+        }
+      } catch {
+        // fall through to default save
+      }
+    }
+
+    // Default save
+    const url = effectiveShareUrl || publicShareUrl || generatedImageUrl;
     if (!url) return;
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -46,26 +141,33 @@ export default function Result({
 
     setSaved(true);
     setTimeout(() => setSaved(false), 1600);
-  }, [generatedImageUrl, publicShareUrl]);
+  }, [
+    hasDogueOverlay,
+    effectiveShareUrl,
+    publicShareUrl,
+    generatedImageUrl,
+  ]);
 
   const handleLineShare = useCallback(() => {
-    if (!publicShareUrl) {
+    const url = effectiveShareUrl;
+    if (!url) {
       alert("画像の準備中です。もう少しお待ちください");
       return;
     }
-    const message = `SNAP STUDIO で撮影しました\n${publicShareUrl}\n\n#SNAPSTUDIO #ciraf`;
+    const message = `SNAP STUDIO で撮影しました\n${url}\n\n#SNAPSTUDIO #ciraf`;
     window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
-  }, [publicShareUrl]);
+  }, [effectiveShareUrl]);
 
   const handleMailShare = useCallback(() => {
-    if (!publicShareUrl) {
+    const url = effectiveShareUrl;
+    if (!url) {
       alert("画像の準備中です。もう少しお待ちください");
       return;
     }
     const mailSubject = "SNAP STUDIOで撮影しました";
-    const body = `SNAP STUDIO で撮影した写真を送ります\n\n${publicShareUrl}\n\nciraf inc. https://ciraf.jp/snap/`;
+    const body = `SNAP STUDIO で撮影した写真を送ります\n\n${url}\n\nciraf inc. https://ciraf.jp/snap/`;
     window.location.href = `mailto:?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(body)}`;
-  }, [publicShareUrl]);
+  }, [effectiveShareUrl]);
 
   const actions = [
     {
@@ -193,27 +295,37 @@ export default function Result({
               </div>
             )}
 
-            {/* Generated image */}
+            {/* Generated image — DOGUE overlay or standard */}
             {!isGenerating && !error && generatedImageUrl && (
               <>
-                <img
-                  key={generatedImageUrl}
-                  src={generatedImageUrl}
-                  alt="generated"
-                  className="snap-fade-in"
-                />
-                {/* Caption overlay */}
-                <div className="snap-caption">
-                  <div>
-                    <div className="snap-caption-label">— snap studio —</div>
-                    <div className="snap-caption-title">
-                      {selectedTpl?.title || "未選択"}
+                {hasDogueOverlay ? (
+                  <DogueOverlay
+                    imageUrl={generatedImageUrl}
+                    name={overlayName}
+                    tagline={overlayTagline}
+                  />
+                ) : (
+                  <>
+                    <img
+                      key={generatedImageUrl}
+                      src={generatedImageUrl}
+                      alt="generated"
+                      className="snap-fade-in"
+                    />
+                    {/* Caption overlay */}
+                    <div className="snap-caption">
+                      <div>
+                        <div className="snap-caption-label">— snap studio —</div>
+                        <div className="snap-caption-title">
+                          {selectedTpl?.title || "未選択"}
+                        </div>
+                      </div>
+                      <div className="snap-caption-no">
+                        no. {selectedTpl?.id.replace("_", " / ") || "—"}
+                      </div>
                     </div>
-                  </div>
-                  <div className="snap-caption-no">
-                    no. {selectedTpl?.id.replace("_", " / ") || "—"}
-                  </div>
-                </div>
+                  </>
+                )}
               </>
             )}
 
