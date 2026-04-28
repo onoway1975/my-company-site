@@ -32,7 +32,7 @@ export const TEMPLATES: Record<CategoryId, Template[]> = {
   ],
   studio: [
     { id: "studio_pinksalon", title: "ピンクサロン", cat: "スタジオ", img: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=500&fit=crop&q=80" },
-    { id: "studio_minimal", title: "ピュアホワイト", cat: "スタジオ", img: "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=400&h=500&fit=crop&q=80" },
+    { id: "studio_minimal", title: "ロンドン", cat: "スタジオ", img: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=400&h=500&fit=crop&q=80" },
     { id: "studio_powderblue", title: "パウダーブルー", cat: "スタジオ", img: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400&h=500&fit=crop&q=80" },
     { id: "studio_midcentury", title: "ミッドセンチュリー", cat: "スタジオ", img: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=400&h=500&fit=crop&q=80" },
   ],
@@ -50,7 +50,7 @@ export const TEMPLATE_EN: Record<string, string> = {
   studio_neon: "Neon Garden",
   studio_artwall: "Art Wall",
   studio_pinksalon: "Pink Salon",
-  studio_minimal: "Pure White",
+  studio_minimal: "London",
   studio_powderblue: "Powder Blue",
   studio_midcentury: "Mid-Century",
   event_xmasmodern: "Modern Christmas",
