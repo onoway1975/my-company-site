@@ -148,7 +148,7 @@ export default function PunimojiClient() {
           {/* Title image */}
           <img
             src="/punimoji/title.png"
-            alt="ぷに文字メーカー｜好きな言葉をぷっくりかわいい3D文字に変換するAIツール"
+            alt="ぷっくり文字メーカー｜ぷに文字を作れる無料3D文字ツール"
             className="puni-title-img"
             style={{
               width: "92%",
@@ -156,6 +156,22 @@ export default function PunimojiClient() {
               marginTop: 40,
             }}
           />
+
+          <h1
+            style={{
+              position: "absolute",
+              width: 1,
+              height: 1,
+              padding: 0,
+              margin: -1,
+              overflow: "hidden",
+              clip: "rect(0,0,0,0)",
+              whiteSpace: "nowrap",
+              borderWidth: 0,
+            }}
+          >
+            ぷっくり文字メーカー｜ぷに文字をAIで作る無料3D文字ツール
+          </h1>
 
           <p
             style={{
@@ -270,7 +286,7 @@ export default function PunimojiClient() {
           <section style={{ width: "100%", marginTop: 48 }}>
             <div className="card-puni" style={{ textAlign: "left" }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#2D1B3D", marginBottom: 20, textAlign: "center" }}>
-                ぷに文字メーカーとは？
+                ぷっくり文字メーカーとは？ — 無料で使える3D文字ツール
               </h2>
               <p style={{ fontSize: 14, lineHeight: 1.8, color: "#6B5A7A", marginBottom: 24 }}>
                 ぷっくり文字メーカーは、好きな言葉を入力するだけで、ぷっくりとした3Dバルーン文字（ぷに文字・ぷくぷく文字）をAIで生成できる完全無料の3D文字メーカーです。ひらがな・カタカナ・漢字・英数字対応で、フォント感覚で使える手軽さが特徴。インスタストーリー・うちわ文字・ネームボード・推し活グッズの素材として、背景透過PNGで保存できます。

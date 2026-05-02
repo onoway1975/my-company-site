@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ぷに文字メーカー｜AIでぷっくり3D文字を無料作成｜インスタストーリー素材",
+  title: "ぷっくり文字メーカー｜ぷに文字をAIで作る無料3D文字ツール",
   description:
     "好きな言葉をぷっくり3D文字に変換できる無料の3D文字メーカー。ひらがな・カタカナ・漢字・英数字対応。インスタストーリー・うちわ文字・ネームボードの素材として背景透過PNGで保存できます。",
   keywords:
     "ぷっくり文字, ぷに文字, ぷっくり文字メーカー, ぷくぷく文字, バルーン文字, 3D文字, 3D文字メーカー, インスタ ストーリー, うちわ文字, ネームボード, 推し活, 文字加工, 文字 透過 PNG",
   openGraph: {
-    title: "ぷに文字メーカー｜ぷっくり3D文字を無料で作ろう",
+    title: "ぷっくり文字メーカー｜ぷに文字をAIで作る無料3D文字ツール",
     description:
       "好きな言葉を入力→AIがぷっくりかわいい3D文字を自動生成。インスタストーリー・推し活・誕生日デコに。完全無料。",
     images: ["/punimoji/ogp.png"],
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ぷに文字メーカー｜ぷっくり3D文字を無料で作ろう",
+    title: "ぷっくり文字メーカー｜ぷに文字をAIで作る無料3D文字ツール",
     description:
       "好きな言葉を入力→AIがぷっくりかわいい3D文字を自動生成。インスタストーリー・推し活・誕生日デコに。完全無料。",
     images: ["/punimoji/ogp.png"],
