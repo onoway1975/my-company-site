@@ -273,8 +273,20 @@ export default function PunimojiClient() {
                 ぷに文字メーカーとは？
               </h2>
               <p style={{ fontSize: 14, lineHeight: 1.8, color: "#6B5A7A", marginBottom: 24 }}>
-                ぷに文字メーカーは、好きな言葉を入力するだけでAIがぷっくりかわいい3D文字画像を自動生成する無料ツールです。ひらがな・カタカナ・漢字・英数字に対応。生成した画像はインスタストーリーやリール、誕生日のお祝い、推し活のデコ素材としてそのまま使えます。
+                ぷっくり文字メーカーは、好きな言葉を入力するだけで、ぷっくりとした3Dバルーン文字（ぷに文字・ぷくぷく文字）をAIで生成できる完全無料の3D文字メーカーです。ひらがな・カタカナ・漢字・英数字対応で、フォント感覚で使える手軽さが特徴。インスタストーリー・うちわ文字・ネームボード・推し活グッズの素材として、背景透過PNGで保存できます。
               </p>
+
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: "#2D1B3D", marginBottom: 12 }}>
+                こんな時に使えます
+              </h3>
+              <ul style={{ fontSize: 14, lineHeight: 2, color: "#6B5A7A", marginBottom: 24, paddingLeft: 0, listStyle: "none" }}>
+                <li>🎤 推し活のうちわ文字・ネームボード</li>
+                <li>📷 Instagramストーリーの装飾素材</li>
+                <li>💬 LINEのトーク背景や送信用画像</li>
+                <li>🎮 Discordのアイコンや絵文字</li>
+                <li>📝 ブログ記事のアイキャッチ</li>
+                <li>🎁 オリジナルグッズの素材</li>
+              </ul>
 
               <h3 style={{ fontSize: 15, fontWeight: 700, color: "#2D1B3D", marginBottom: 12 }}>
                 よくある質問
@@ -311,8 +323,32 @@ export default function PunimojiClient() {
                 <dt style={{ fontWeight: 700, color: "#2D1B3D", marginBottom: 4 }}>
                   Q. スタイルは何種類ありますか？
                 </dt>
-                <dd style={{ marginBottom: 0, marginLeft: 0 }}>
+                <dd style={{ marginBottom: 16, marginLeft: 0 }}>
                   「ぷに」「ネオン」「メタル」「くれよん」の4種類から選べます。それぞれ雰囲気の異なるぷっくり3D文字が生成されます。
+                </dd>
+
+                <dt style={{ fontWeight: 700, color: "#2D1B3D", marginBottom: 4 }}>
+                  Q. うちわ文字やネームボードに使えますか？
+                </dt>
+                <dd style={{ marginBottom: 16, marginLeft: 0 }}>
+                  はい、推し活のうちわ文字やネームボードの素材として最適です。背景透過PNGで保存できるので、お好みの台紙に組み合わせて使えます。
+                </dd>
+
+                <dt style={{ fontWeight: 700, color: "#2D1B3D", marginBottom: 4 }}>
+                  Q. ひらがな以外も使えますか？
+                </dt>
+                <dd style={{ marginBottom: 16, marginLeft: 0 }}>
+                  ひらがな・カタカナ・漢字・英数字すべてに対応しています。日本語の3D文字を作りたい方に最適です。
+                </dd>
+
+                <dt style={{ fontWeight: 700, color: "#2D1B3D", marginBottom: 4 }}>
+                  Q. インスタストーリーで使う方法は？
+                </dt>
+                <dd style={{ marginBottom: 0, marginLeft: 0 }}>
+                  生成した画像をスマホに保存して、Instagramのストーリー作成画面の「スタンプ」→「写真」から選択するだけ。
+                  <a href="/punimoji/how-to/" style={{ color: "#FF3B8E", fontWeight: 500, marginLeft: 4 }}>
+                    詳しい使い方ガイドはこちら
+                  </a>
                 </dd>
               </dl>
             </div>
