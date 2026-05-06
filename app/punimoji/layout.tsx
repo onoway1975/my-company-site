@@ -98,6 +98,34 @@ export default function PunimojiLayout({
           transform: none;
         }
 
+        .btn-x-share {
+          background: #000000;
+          color: #FFFFFF;
+          border: none;
+          border-radius: 9999px;
+          padding: 14px 32px;
+          font-weight: 700;
+          font-size: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: transform 0.15s, box-shadow 0.15s;
+          width: 100%;
+          max-width: 320px;
+          margin: 0 auto 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          font-family: 'LINE Seed JP', sans-serif;
+        }
+        .btn-x-share:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        .btn-x-share:active {
+          transform: translateY(1px);
+        }
+
         .input-puni {
           background: white;
           border: 3px solid #FFD9E3;

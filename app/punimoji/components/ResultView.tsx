@@ -19,6 +19,12 @@ export default function ResultView({
   const [downloading, setDownloading] = useState(false);
   const otherStyles = STYLES.filter((s) => s.id !== style);
 
+  const handleXShare = () => {
+    const text = `「${word}」をぷっくり文字で作ったよ🩷\n\n#ぷっくり文字メーカー\nhttps://ciraf.jp/punimoji/`;
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  };
+
   const handleSave = async () => {
     if (!imageUrl) return;
     setDownloading(true);
@@ -178,6 +184,24 @@ p{text-align:center;color:#8B7A9A;font-size:14px;margin:20px 0}
         style={{ width: "100%", maxWidth: 320, marginBottom: 12, opacity: downloading ? 0.6 : 1 }}
       >
         {downloading ? "⏳ 準備中…" : "📥 画像を保存"}
+      </button>
+
+      {/* X share button */}
+      <button
+        className="btn-x-share"
+        onClick={handleXShare}
+        aria-label={`「${word}」をXでシェアする`}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          width="18"
+          height="18"
+        >
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+        𝕏 でシェア
       </button>
 
       {/* How-to link */}
