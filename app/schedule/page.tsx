@@ -242,7 +242,6 @@ function calcSchedule(
       self: "",
       other: "",
       days: bufferDays,
-      color: "#888780",
       startDate: bufferStart,
       endDate: bufferEnd,
     });
@@ -257,7 +256,6 @@ function calcSchedule(
       self: "納品",
       other: "",
       days: 1,
-      color: "#1F3864",
       startDate: deliveryStart,
       endDate: deliveryStart,
     });
