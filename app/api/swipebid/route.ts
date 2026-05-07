@@ -47,6 +47,22 @@ function str(v: unknown): string {
   return String(v)
 }
 
+// HTMLタグとスクリプトを除去してプレーンテキストにする
+function sanitizeDescription(text: string): string {
+  return text
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/var\s+\w+[\s\S]*?;/g, '')
+    .replace(/if\s*\([\s\S]*?\)\s*\{[\s\S]*?\}/g, '')
+    .replace(/function\s*\([\s\S]*?\)\s*\{[\s\S]*?\}/g, '')
+    .replace(/window\.\w+[\s\S]*?;/g, '')
+    .replace(/document\.\w+[\s\S]*?;/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 300)
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const keywords = searchParams.get('keywords') || 'ホームページ Web 動画 デザイン'
@@ -96,7 +112,7 @@ export async function GET(req: NextRequest) {
     if (items[0]) console.log('[swipebid] first item keys:', Object.keys(items[0]))
 
     const bidItems = items.map((item, i) => {
-      const title    = str(item.ProjectDescription ?? item.Title ?? '')
+      const title    = sanitizeDescription(str(item.ProjectDescription ?? item.Title ?? ''))
       const deadline = str(item.EndDate ?? item.DeadlineDate ?? '')
         .replace(/\//g, '-')
 
