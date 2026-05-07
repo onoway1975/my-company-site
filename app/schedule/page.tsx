@@ -365,14 +365,20 @@ async function generateExcel(
       cursor.setDate(cursor.getDate() + 1);
     }
 
+    // If neither self nor other is set, treat as self-side task
+    const hasSelf = !!phase.self;
+    const hasOther = !!phase.other;
+    const fallbackToSelf = !hasSelf && !hasOther;
+
     businessDays.forEach((d, i) => {
       const key = dateToInput(d);
       let selfText = "";
       let otherText = "";
 
-      if (phase.self) {
+      if (hasSelf || fallbackToSelf) {
+        const label = hasSelf ? phase.self : phase.name;
         if (businessDays.length === 1) {
-          selfText = phase.self;
+          selfText = label;
         } else if (i === 0) {
           selfText = phase.name;
         } else if (i === businessDays.length - 1) {
@@ -381,7 +387,7 @@ async function generateExcel(
           selfText = "↓";
         }
       }
-      if (phase.other) {
+      if (hasOther) {
         if (businessDays.length === 1) {
           otherText = phase.other;
         } else if (i === 0) {
