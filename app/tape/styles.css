@@ -644,6 +644,7 @@
 /* ====== Mobile compact ====== */
 @media (max-width: 540px) {
   .tape-main .hero {
+    min-height: auto;
     padding: 12px 14px 18px;
   }
 
