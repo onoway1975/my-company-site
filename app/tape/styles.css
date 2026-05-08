@@ -99,25 +99,6 @@
   padding: 30px 0 20px;
 }
 
-.logo-wrap::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 86%;
-  max-width: 380px;
-  height: 200%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 0.35) 0%,
-    rgba(255, 255, 255, 0.18) 35%,
-    rgba(255, 255, 255, 0) 70%
-  );
-  pointer-events: none;
-  z-index: -1;
-}
-
 .logo-img {
   position: relative;
   z-index: 1;
@@ -675,12 +656,6 @@
   .logo-wrap {
     margin: 0;
     padding: 8px 0 0;
-  }
-
-  .logo-wrap::before {
-    width: 78%;
-    max-width: 320px;
-    height: 170%;
   }
 
   .logo-img {
