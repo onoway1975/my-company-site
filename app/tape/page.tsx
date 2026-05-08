@@ -551,10 +551,11 @@ function Knob({
   );
 }
 
-function makeSatCurve(amount: number): Float32Array {
+function makeSatCurve(amount: number): Float32Array<ArrayBuffer> {
   const k = (amount / 100) * 80;
   const samples = 4096;
-  const curve = new Float32Array(samples);
+  const buffer = new ArrayBuffer(samples * Float32Array.BYTES_PER_ELEMENT);
+  const curve = new Float32Array(buffer);
   const deg = Math.PI / 180;
   for (let i = 0; i < samples; i++) {
     const x = (i * 2) / samples - 1;
