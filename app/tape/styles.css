@@ -106,6 +106,7 @@
   height: auto !important;
   display: inline-block;
   filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+  opacity: 0.8;
 }
 
 /* ====== Vertical magazine markers ====== */
