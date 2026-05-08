@@ -660,6 +660,71 @@
   color: rgba(237, 228, 211, 0.35);
 }
 
+/* ====== Mobile compact ====== */
+@media (max-width: 540px) {
+  .tape-main .hero {
+    padding: 14px 16px 20px;
+  }
+
+  .top-meta {
+    margin-bottom: 8px;
+    font-size: 10px;
+  }
+
+  .logo-wrap {
+    margin: 4px 0 0;
+    padding: 14px 0 8px;
+  }
+
+  .logo-img {
+    width: min(58%, 240px) !important;
+  }
+
+  .cassette-stage {
+    padding: 8px 0 4px;
+  }
+
+  .cassette-wrap {
+    width: min(86%, 380px);
+  }
+
+  .vmarker {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+  }
+
+  .vmarker.left { top: 36%; left: 4px; }
+  .vmarker.right { top: 34%; right: 4px; }
+
+  .track-info {
+    margin-top: 14px;
+    padding: 12px 14px;
+  }
+
+  .track-name {
+    font-size: 16px;
+  }
+
+  .search-row {
+    margin-top: 10px;
+  }
+
+  .search-input {
+    padding: 11px 14px;
+    font-size: 13px;
+  }
+
+  .search-btn {
+    padding: 0 18px;
+    font-size: 12px;
+  }
+
+  .knobs-section {
+    margin-top: 20px;
+    padding: 22px 16px 28px;
+  }
+}
+
 /* ====== Reduced motion ====== */
 @media (prefers-reduced-motion: reduce) {
   .progress-fill,
