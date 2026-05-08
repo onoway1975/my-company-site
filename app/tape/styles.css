@@ -671,10 +671,10 @@
     font-size: 10px;
   }
 
-  /* ロゴ：適度に小さく */
+  /* ロゴ：下padding を最小に */
   .logo-wrap {
-    margin: 4px 0 0;
-    padding: 12px 0 8px;
+    margin: 0;
+    padding: 8px 0 0;
   }
 
   .logo-wrap::before {
@@ -687,9 +687,9 @@
     width: min(56%, 230px) !important;
   }
 
-  /* カセット：少し小さく、ロゴと重ならないように */
+  /* カセット：ロゴ直下にぴったり、上のpaddingゼロ */
   .cassette-stage {
-    padding: 8px 0 8px;
+    padding: 0 0 4px;
   }
 
   .cassette-wrap {
@@ -706,9 +706,9 @@
   .vmarker.left { top: 38%; left: 4px; }
   .vmarker.right { top: 36%; right: 4px; }
 
-  /* 検索バー：カセットの少し下 */
+  /* 検索バー */
   .search-row {
-    margin-top: 14px;
+    margin-top: 10px;
   }
 
   .search-input {
@@ -723,7 +723,7 @@
 
   /* トラック情報 */
   .track-info {
-    margin-top: 14px;
+    margin-top: 12px;
     padding: 12px 14px;
   }
 
