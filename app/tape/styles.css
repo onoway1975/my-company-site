@@ -663,50 +663,54 @@
 /* ====== Mobile compact ====== */
 @media (max-width: 540px) {
   .tape-main .hero {
-    padding: 14px 16px 20px;
+    padding: 10px 14px 16px;
   }
 
   .top-meta {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-size: 10px;
   }
 
+  /* ロゴ：小さめ＋上下マージン圧縮 */
   .logo-wrap {
-    margin: 4px 0 0;
-    padding: 14px 0 8px;
+    margin: 0;
+    padding: 6px 0 0;
+  }
+
+  .logo-wrap::before {
+    width: 70%;
+    max-width: 280px;
+    height: 140%;
   }
 
   .logo-img {
-    width: min(58%, 240px) !important;
+    width: min(50%, 200px) !important;
   }
 
+  /* カセット：小さめ＋ロゴとの距離を詰める */
   .cassette-stage {
-    padding: 8px 0 4px;
+    flex: 0 0 auto;
+    padding: 0;
+    margin-top: -8px;
   }
 
   .cassette-wrap {
-    width: min(86%, 380px);
+    width: min(82%, 340px);
   }
 
+  /* サイドマーカー：薄くして邪魔しない */
   .vmarker {
     font-size: 9px;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.22em;
+    opacity: 0.35;
   }
 
-  .vmarker.left { top: 36%; left: 4px; }
-  .vmarker.right { top: 34%; right: 4px; }
+  .vmarker.left { top: 38%; left: 4px; }
+  .vmarker.right { top: 36%; right: 4px; }
 
-  .track-info {
-    margin-top: 14px;
-    padding: 12px 14px;
-  }
-
-  .track-name {
-    font-size: 16px;
-  }
-
+  /* 検索バー：カセット直下にくっつける */
   .search-row {
-    margin-top: 10px;
+    margin-top: 12px;
   }
 
   .search-input {
@@ -719,9 +723,25 @@
     font-size: 12px;
   }
 
+  /* トラック情報も小さく */
+  .track-info {
+    margin-top: 12px;
+    padding: 12px 14px;
+  }
+
+  .track-name {
+    font-size: 16px;
+  }
+
+  /* ノブセクション */
   .knobs-section {
-    margin-top: 20px;
-    padding: 22px 16px 28px;
+    margin-top: 16px;
+    padding: 20px 14px 24px;
+  }
+
+  /* スクリブルもスマホでは控えめに */
+  .scribbles {
+    opacity: 0.3;
   }
 }
 
