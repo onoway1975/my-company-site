@@ -17,6 +17,14 @@ type Track = {
   trackViewUrl: string;
 };
 
+type LocalTrack = {
+  isLocal: true;
+  fileName: string;
+  objectUrl: string;
+};
+
+type ActiveSource = Track | LocalTrack | null;
+
 type EffectParams = {
   hiss: number;
   hicut: number;
@@ -58,7 +66,7 @@ export default function TapePage() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Track[]>([]);
   const [searching, setSearching] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
+  const [selectedTrack, setSelectedTrack] = useState<ActiveSource>(null);
   const [showResults, setShowResults] = useState(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -68,6 +76,9 @@ export default function TapePage() {
   const [params, setParams] = useState<EffectParams>(PRESETS.Cassette);
   const [activePreset, setActivePreset] = useState<string>('Cassette');
   const [bypass, setBypass] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<'itunes' | 'local'>('itunes');
+  const [localFile, setLocalFile] = useState<LocalTrack | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ctxRef = useRef<AudioContext | null>(null);
@@ -186,9 +197,14 @@ export default function TapePage() {
     if (!selectedTrack) return;
 
     const audio = new Audio();
-    audio.crossOrigin = 'anonymous';
-    audio.src = `/api/itunes-audio?url=${encodeURIComponent(selectedTrack.previewUrl)}`;
-    audio.loop = true;
+    if (isLocalTrack(selectedTrack)) {
+      audio.src = selectedTrack.objectUrl;
+      audio.loop = false;
+    } else {
+      audio.crossOrigin = 'anonymous';
+      audio.src = `/api/itunes-audio?url=${encodeURIComponent(selectedTrack.previewUrl)}`;
+      audio.loop = true;
+    }
     audio.preload = 'auto';
     audioRef.current = audio;
 
@@ -247,6 +263,14 @@ export default function TapePage() {
     }
   }, [bypass, params.hiss]);
 
+  useEffect(() => {
+    return () => {
+      if (localFile?.objectUrl) {
+        URL.revokeObjectURL(localFile.objectUrl);
+      }
+    };
+  }, [localFile]);
+
   const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -270,6 +294,24 @@ export default function TapePage() {
     setSelectedTrack(null);
     setIsPlaying(false);
     setCurrentTime(0);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (localFile?.objectUrl) {
+      URL.revokeObjectURL(localFile.objectUrl);
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    const track: LocalTrack = {
+      isLocal: true,
+      fileName: file.name,
+      objectUrl,
+    };
+    setLocalFile(track);
+    setSelectedTrack(track);
   };
 
   const updateParam = (key: keyof EffectParams, value: number) => {
@@ -327,7 +369,7 @@ export default function TapePage() {
               className="cassette-img"
               priority
             />
-            {selectedTrack && (
+            {selectedTrack && !isLocalTrack(selectedTrack) && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={selectedTrack.artworkUrl}
@@ -356,8 +398,14 @@ export default function TapePage() {
                 <span><span className="live-dot">●</span> {isPlaying ? 'Now Playing' : 'Paused'}</span>
                 <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
               </div>
-              <div className="track-name">{selectedTrack.trackName}</div>
-              <div className="track-artist">{selectedTrack.artistName} · {selectedTrack.collectionName}</div>
+              <div className="track-name">
+                {isLocalTrack(selectedTrack) ? selectedTrack.fileName : selectedTrack.trackName}
+              </div>
+              <div className="track-artist">
+                {isLocalTrack(selectedTrack)
+                  ? 'Local file'
+                  : `${selectedTrack.artistName} · ${selectedTrack.collectionName}`}
+              </div>
               <div className="time-row">
                 <div className="progress">
                   <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
@@ -373,47 +421,83 @@ export default function TapePage() {
           </>
         ) : (
           <>
-            <form className="search-row" onSubmit={handleSearch}>
-              <input
-                className="search-input"
-                type="text"
-                name="q"
-                autoComplete="off"
-                placeholder="アーティスト・曲名で検索…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <button type="submit" className="search-btn" disabled={searching}>
-                {searching ? '...' : '検索'}
+            <div className="source-tabs">
+              <button
+                type="button"
+                className={`tab ${activeTab === 'itunes' ? 'active' : ''}`}
+                onClick={() => setActiveTab('itunes')}
+              >
+                iTunesから探す
               </button>
-            </form>
+              <button
+                type="button"
+                className={`tab ${activeTab === 'local' ? 'active' : ''}`}
+                onClick={() => setActiveTab('local')}
+              >
+                自分のファイル
+              </button>
+            </div>
 
-            {showResults && results.length > 0 && (
-              <div className="results-list">
-                <div className="results-label">{results.length} 件の結果</div>
-                <ul>
-                  {results.map((track) => (
-                    <li key={track.trackId}>
-                      <button
-                        type="button"
-                        className="result-item"
-                        onClick={() => handleSelectTrack(track)}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={track.artworkUrl} alt="" width={40} height={40} />
-                        <div className="result-meta">
-                          <div className="result-name">{track.trackName}</div>
-                          <div className="result-artist">{track.artistName}</div>
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+            {activeTab === 'itunes' ? (
+              <>
+                <form className="search-row" onSubmit={handleSearch}>
+                  <input
+                    className="search-input"
+                    type="text"
+                    name="q"
+                    autoComplete="off"
+                    placeholder="アーティスト・曲名で検索…"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                  <button type="submit" className="search-btn" disabled={searching}>
+                    {searching ? '...' : '検索'}
+                  </button>
+                </form>
+
+                {showResults && results.length > 0 && (
+                  <div className="results-list">
+                    <div className="results-label">{results.length} 件の結果</div>
+                    <ul>
+                      {results.map((track) => (
+                        <li key={track.trackId}>
+                          <button
+                            type="button"
+                            className="result-item"
+                            onClick={() => handleSelectTrack(track)}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={track.artworkUrl} alt="" width={40} height={40} />
+                            <div className="result-meta">
+                              <div className="result-name">{track.trackName}</div>
+                              <div className="result-artist">{track.artistName}</div>
+                            </div>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {showResults && results.length === 0 && !searching && (
+                  <div className="results-empty">該当する曲が見つかりませんでした</div>
+                )}
+              </>
+            ) : (
+              <div className="local-file-section">
+                <label className="local-file-btn">
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleFileSelect}
+                    style={{ display: 'none' }}
+                  />
+                  <span>音楽ファイルを選択</span>
+                </label>
+                <p className="local-file-hint">
+                  mp3 / m4a / wav など、ブラウザがサポートする音声ファイルが使えます
+                </p>
               </div>
-            )}
-
-            {showResults && results.length === 0 && !searching && (
-              <div className="results-empty">該当する曲が見つかりませんでした</div>
             )}
           </>
         )}
@@ -549,6 +633,10 @@ function Knob({
       <div className="knob-value">{displayValue}</div>
     </div>
   );
+}
+
+function isLocalTrack(t: ActiveSource): t is LocalTrack {
+  return !!t && 'isLocal' in t && t.isLocal === true;
 }
 
 function makeSatCurve(amount: number): Float32Array<ArrayBuffer> {

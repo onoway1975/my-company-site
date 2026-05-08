@@ -641,6 +641,92 @@
   color: rgba(237, 228, 211, 0.35);
 }
 
+/* ====== Source tabs ====== */
+.source-tabs {
+  position: relative;
+  z-index: 10;
+  width: min(94%, 460px);
+  margin: 14px auto 0;
+  display: flex;
+  gap: 4px;
+  background: rgba(15, 10, 8, 0.5);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: rgba(237, 228, 211, 0.6);
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--paper);
+}
+
+.tab.active {
+  background: var(--blue);
+  color: var(--paper);
+  font-weight: 700;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* ====== Local file section ====== */
+.local-file-section {
+  position: relative;
+  z-index: 10;
+  width: min(94%, 460px);
+  margin: 14px auto 0;
+  background: var(--surface-card);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 24px 18px;
+  text-align: center;
+}
+
+.local-file-btn {
+  display: inline-block;
+  background: var(--blue);
+  color: var(--paper);
+  padding: 12px 28px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  transition: opacity 0.15s ease;
+}
+
+.local-file-btn:hover {
+  opacity: 0.85;
+}
+
+.local-file-btn:focus-within {
+  outline: 2px solid var(--paper);
+  outline-offset: 2px;
+}
+
+.local-file-hint {
+  font-size: 11px;
+  color: rgba(237, 228, 211, 0.55);
+  line-height: 1.5;
+  margin: 0;
+}
+
 /* ====== Mobile compact ====== */
 @media (max-width: 540px) {
   .tape-main .hero {
@@ -686,9 +772,23 @@
   .vmarker.left { top: 38%; left: 4px; }
   .vmarker.right { top: 36%; right: 4px; }
 
-  /* スマホはさらに詰める：80px */
+  /* タブ：カセットから80px下に */
+  .source-tabs {
+    margin-top: 80px;
+  }
+
+  .tab {
+    font-size: 12px;
+    padding: 9px 8px;
+  }
+
+  .local-file-section {
+    margin-top: 12px;
+    padding: 20px 14px;
+  }
+
   .search-row {
-    margin: 80px auto 0;
+    margin: 14px auto 0;
   }
 
   .search-input {
