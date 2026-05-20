@@ -15,22 +15,22 @@ import { DeferredWidgets } from "./components/DeferredWidgets";
 export const metadata: Metadata = {
   metadataBase: new URL("https://ciraf.jp"),
   title: {
-    default: "東京のWeb・映像制作 シラフ株式会社 | ブランドを、もっと強くする",
+    default: "シラフ株式会社 | ciraf inc. – 東京のWeb・映像制作",
     template: "%s | シラフ株式会社",
   },
   description:
-    "Webサイト・映像・ブランディングで、あなたのビジネスを前に進めます。東京・シラフ株式会社。ロマンある丸投げOK。まず実績をご覧ください。",
+    "シラフ株式会社（ciraf inc.）は東京のWeb制作・映像制作・ブランディング会社です。企画から運用まで一貫対応。ロマンある丸投げOK。まず実績をご覧ください。",
   alternates: {
-    canonical: "https://ciraf.jp",
+    canonical: "https://ciraf.jp/",
   },
   openGraph: {
     type: "website",
     siteName: "シラフ株式会社",
     locale: "ja_JP",
-    title: "東京のWeb・映像制作 シラフ株式会社 | ブランドを、もっと強くする",
+    title: "シラフ株式会社 | ciraf inc. – 東京のWeb・映像制作",
     description:
-      "Webサイト・映像・ブランディングで、あなたのビジネスを前に進めます。東京・シラフ株式会社。ロマンある丸投げOK。まず実績をご覧ください。",
-    url: "https://ciraf.jp",
+      "シラフ株式会社（ciraf inc.）は東京のWeb制作・映像制作・ブランディング会社です。企画から運用まで一貫対応。ロマンある丸投げOK。まず実績をご覧ください。",
+    url: "https://ciraf.jp/",
     images: [
       {
         url: "https://ciraf.jp/og-image.jpg",
@@ -73,13 +73,11 @@ const jsonLd = {
       "@type": "Organization",
       "@id": "https://ciraf.jp/#organization",
       name: "シラフ株式会社",
-      alternateName: "ciraf inc.",
+      alternateName: ["ciraf", "ciraf inc.", "シラフ"],
       url: "https://ciraf.jp/",
       logo: {
         "@type": "ImageObject",
-        url: "https://ciraf.jp/icon.png",
-        width: 512,
-        height: 512,
+        url: "https://ciraf.jp/logo.png",
       },
       image: "https://ciraf.jp/og-image.jpg",
       address: {

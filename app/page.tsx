@@ -11,12 +11,14 @@ import { BodyPageType } from "./components/BodyPageType";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "東京のWeb・映像制作 シラフ株式会社 | ブランドを、もっと強くする",
+    absolute: "シラフ株式会社 | ciraf inc. – 東京のWeb・映像制作",
   },
-  description: "Webサイト・映像・ブランディングで、あなたのビジネスを前に進めます。東京・シラフ株式会社。ロマンある丸投げOK。まず実績をご覧ください。",
+  description:
+    "シラフ株式会社（ciraf inc.）は東京のWeb制作・映像制作・ブランディング会社です。企画から運用まで一貫対応。ロマンある丸投げOK。まず実績をご覧ください。",
   openGraph: {
-    title: "東京のWeb・映像制作 シラフ株式会社 | ブランドを、もっと強くする",
-    description: "Webサイト・映像・ブランディングで、あなたのビジネスを前に進めます。東京・シラフ株式会社。ロマンある丸投げOK。まず実績をご覧ください。",
+    title: "シラフ株式会社 | ciraf inc. – 東京のWeb・映像制作",
+    description:
+      "シラフ株式会社（ciraf inc.）は東京のWeb制作・映像制作・ブランディング会社です。企画から運用まで一貫対応。ロマンある丸投げOK。まず実績をご覧ください。",
   },
 };
 
