@@ -145,6 +145,15 @@ export default function PunimojiClient() {
         }}
       >
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          {/* Service pause banner */}
+          <div className="service-pause-banner">
+            <h3>🛑 一時サービス停止のお知らせ</h3>
+            <p>
+              運用コストの増加により一時サービスをストップしています。<br />
+              再開までお時間いただければと思います🙏
+            </p>
+          </div>
+
           {/* Title image */}
           <img
             src="/punimoji/title.png"
@@ -206,14 +215,14 @@ export default function PunimojiClient() {
             <StyleSelector selected={style} onSelect={setStyle} />
           </div>
 
-          {/* Generate button */}
+          {/* Generate button — サービス停止中 */}
           <button
             className="btn-puni"
-            onClick={() => handleGenerate()}
-            disabled={!word.trim() || isGenerating}
+            disabled={true}
+            onClick={() => {}}
             style={{ width: "100%", maxWidth: 280, marginBottom: 12 }}
           >
-            つくる ✨
+            ⏸️ 現在停止中
           </button>
 
           {/* How-to link */}

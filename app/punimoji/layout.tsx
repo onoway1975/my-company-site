@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "ぷっくり文字メーカー｜ぷに文字をAIで作る無料3D文字ツール",
   description:
-    "好きな言葉をぷっくり3D文字に変換できる無料の3D文字メーカー。ひらがな・カタカナ・漢字・英数字対応。インスタストーリー・うちわ文字・ネームボードの素材として背景透過PNGで保存できます。",
+    "【現在一時停止中】好きな言葉をぷっくり3D文字に変換できる無料の3D文字メーカー。ひらがな・カタカナ・漢字・英数字対応。インスタストーリー・うちわ文字・ネームボードの素材として背景透過PNGで保存できます。再開までお待ちください。",
   keywords:
     "ぷっくり文字, ぷに文字, ぷっくり文字メーカー, ぷくぷく文字, バルーン文字, 3D文字, 3D文字メーカー, インスタ ストーリー, うちわ文字, ネームボード, 推し活, 文字加工, 文字 透過 PNG",
   openGraph: {
@@ -95,7 +95,38 @@ export default function PunimojiLayout({
         .btn-puni:disabled {
           opacity: 0.5;
           cursor: not-allowed;
+          background: linear-gradient(180deg, #CCCCCC 0%, #999999 100%);
+          box-shadow: none;
           transform: none;
+        }
+
+        .service-pause-banner {
+          background: linear-gradient(180deg, #FF7AB5 0%, #FF3B8E 100%);
+          color: white;
+          padding: 20px 24px;
+          border-radius: 16px;
+          text-align: center;
+          margin: 20px auto;
+          max-width: 600px;
+          box-shadow:
+            0 4px 12px rgba(255, 59, 142, 0.3),
+            0 8px 24px rgba(255, 59, 142, 0.15);
+          position: relative;
+        }
+        .service-pause-banner h3 {
+          font-size: 18px;
+          font-weight: 700;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        .service-pause-banner p {
+          font-size: 14px;
+          line-height: 1.6;
+          margin: 0;
+          opacity: 0.95;
         }
 
         .btn-x-share {

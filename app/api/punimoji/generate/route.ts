@@ -86,6 +86,16 @@ function isValidWord(word: string): boolean {
 /* ── POST ── */
 
 export async function POST(req: NextRequest) {
+  // ── サービス停止中 ──
+  return NextResponse.json(
+    {
+      error: '運用コストの増加により一時サービスをストップしています。再開までお時間いただければと思います🙏',
+      type: 'SERVICE_PAUSED',
+    },
+    { status: 503 }
+  );
+
+  /* ── 以下: 再開時にコメントアウトを外す ──
   try {
     const { word, style } = await req.json();
 
@@ -174,4 +184,5 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+  ── 再開時にここまでコメントアウトを外す ── */
 }
