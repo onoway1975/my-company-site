@@ -31,10 +31,12 @@ export function middleware(request: NextRequest) {
 
 function isValidAuth(auth: string) {
   const [type, credentials] = auth.split(" ");
-  if (type !== "Basic") return false;
-  const [user, pass] = Buffer.from(credentials, "base64")
-    .toString()
-    .split(":");
+  if (type !== "Basic" || !credentials) return false;
+  const decoded = atob(credentials);
+  const colonIndex = decoded.indexOf(":");
+  if (colonIndex === -1) return false;
+  const user = decoded.slice(0, colonIndex);
+  const pass = decoded.slice(colonIndex + 1);
   return (
     user === process.env.RENEWAL_BASIC_USER &&
     pass === process.env.RENEWAL_BASIC_PASS
