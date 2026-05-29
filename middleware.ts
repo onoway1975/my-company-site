@@ -13,36 +13,9 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // /renewal 以下へのアクセスにBasic認証を適用
-  if (request.nextUrl.pathname.startsWith("/renewal")) {
-    const auth = request.headers.get("authorization");
-    if (!auth || !isValidAuth(auth)) {
-      return new NextResponse("Unauthorized", {
-        status: 401,
-        headers: {
-          "WWW-Authenticate": 'Basic realm="Renewal Advisor"',
-        },
-      });
-    }
-  }
-
   return NextResponse.next();
 }
 
-function isValidAuth(auth: string) {
-  const [type, credentials] = auth.split(" ");
-  if (type !== "Basic" || !credentials) return false;
-  const decoded = atob(credentials);
-  const colonIndex = decoded.indexOf(":");
-  if (colonIndex === -1) return false;
-  const user = decoded.slice(0, colonIndex);
-  const pass = decoded.slice(colonIndex + 1);
-  return (
-    user === process.env.RENEWAL_BASIC_USER &&
-    pass === process.env.RENEWAL_BASIC_PASS
-  );
-}
-
 export const config = {
-  matcher: ["/demo/:path*", "/renewal/:path*"],
+  matcher: ["/demo/:path*"],
 };
