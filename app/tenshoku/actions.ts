@@ -99,7 +99,7 @@ async function runFaceSwap(
     console.log(`[tenshoku] flux-pulid done: ${url}`);
     return url;
   } catch (e) {
-    console.warn(`[tenshoku] flux-pulid failed (${(e as Error).message}), trying instantid`);
+    console.error(`[tenshoku] [1/3] flux-pulid failed for ${vocation.id} (${gender}):`, e);
   }
 
   // 2nd: InstantID
@@ -120,7 +120,7 @@ async function runFaceSwap(
     console.log(`[tenshoku] instantid done: ${url}`);
     return url;
   } catch (e) {
-    console.warn(`[tenshoku] instantid failed (${(e as Error).message}), trying ip-adapter-face-id`);
+    console.error(`[tenshoku] [2/3] instantid failed for ${vocation.id} (${gender}):`, e);
   }
 
   // 3rd: ip-adapter-face-id
@@ -142,11 +142,11 @@ async function runFaceSwap(
     console.log(`[tenshoku] ip-adapter-face-id done: ${url}`);
     return url;
   } catch (e) {
-    console.warn(`[tenshoku] ip-adapter-face-id failed (${(e as Error).message}), falling back to face-swap`);
+    console.error(`[tenshoku] [3/3] ip-adapter-face-id failed for ${vocation.id} (${gender}):`, e);
   }
 
-  // 3rd: face-swap（従来方式）
-  console.log(`[tenshoku] falling back to fal-ai/face-swap for ${vocation.id}`);
+  // 4th: face-swap（従来方式 — 1〜3すべて失敗時のフォールバック）
+  console.error(`[tenshoku] ALL 3 stages failed for ${vocation.id} (${gender}). Falling back to face-swap (requires local image).`);
   const imagePath = path.join(process.cwd(), "public", getImagePath(vocation, gender));
   const base64Image = `data:image/jpeg;base64,${fs.readFileSync(imagePath).toString("base64")}`;
   const result = await fal.subscribe("fal-ai/face-swap", {
