@@ -12,6 +12,8 @@
 @source "./punimoji";
 @source "./flowermail";
 @source "./snap";
+@source "./subsidy";
+@source "../components/subsidy";
 
 @theme {
   --color-ink: #111111;

@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/tenshoku/`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${baseUrl}/punimoji/`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/punimoji/how-to/`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${baseUrl}/subsidy/`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
   ];
 
   const workPages: MetadataRoute.Sitemap = works.map((work) => ({
