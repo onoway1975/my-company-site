@@ -209,7 +209,7 @@ type ActVM = {
   key: string; name: string; stage: string; stageColor: string;
   start: number; end: number; time: string; ytUrl: string;
   fav: boolean; isNow: boolean;
-  starColor: string; rowStyle: string; rowStyleT: string;
+  starColor: string; rowStyle: string;
   lane?: number; conflict?: boolean;
 };
 
@@ -280,9 +280,8 @@ export default function FujiRockPage() {
       const key = stage + '|' + a[0] + '|' + a[2];
       const fav = favs.includes(key);
       const isNow = now !== null && now >= toMin(a[0]) && now < toMin(a[1]);
-      const card = (cols: string) =>
-        'display:grid; grid-template-columns:' + cols +
-        '; gap:12px; align-items:center; padding:12px 16px; border-radius:16px; background:#1a1730; border:1px solid rgba(255,255,255,0.08); border-left:4px solid ' +
+      const card = () =>
+        'display:grid; gap:12px; align-items:center; padding:12px 16px; border-radius:16px; background:#1a1730; border:1px solid rgba(255,255,255,0.08); border-left:4px solid ' +
         hue(stage) + '; transition:transform 0.15s ease, border-color 0.15s ease;' +
         (isNow ? ' background:linear-gradient(90deg, rgba(255,90,60,0.22), #1a1730 60%);' : '');
       const ytUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(a[3] || a[2]);
@@ -292,8 +291,7 @@ export default function FujiRockPage() {
         time: disp(a[0]) + '–' + disp(a[1]),
         ytUrl, fav, isNow,
         starColor: fav ? '#ffb54a' : '#4a4664',
-        rowStyle: card('auto 1fr auto 40px'),
-        rowStyleT: card('auto 1fr 170px auto 40px'),
+        rowStyle: card(),
       };
     };
 
@@ -340,7 +338,7 @@ export default function FujiRockPage() {
     (favOnly ? ' background:rgba(255,181,74,0.16); color:#ffb54a;' : ' background:transparent; color:#b9b4d6;');
 
   const ActRow = ({ act, timeView }: { act: ActVM; timeView: boolean }) => (
-    <div className="fr-row" style={css(timeView ? act.rowStyleT : act.rowStyle)}>
+    <div className={'fr-row ' + (timeView ? 'fr-rowT' : 'fr-rowS')} style={css(act.rowStyle)}>
       <div style={css('justify-self:start; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; color:#cfc9ec; background:#2a2547; padding:5px 11px; border-radius:999px; white-space:nowrap')}>{act.time}</div>
       <div style={css('min-width:0; display:flex; align-items:center; gap:10px; flex-wrap:wrap')}>
         <span style={css('font-weight:800; font-size:16px')}>{act.name}</span>
@@ -558,4 +556,27 @@ const FR_STYLE = `
 .fr-row:hover { transform:translateX(4px); border-color:rgba(255,255,255,0.22) !important; }
 .fr-yt:hover { background:#ff7a5f !important; color:#fff !important; }
 @keyframes glowpulse { 0%,100% { opacity:0.55; } 50% { opacity:1; } }
+.fr-rowS { grid-template-columns:auto 1fr auto 40px; }
+.fr-rowT { grid-template-columns:auto 1fr 170px auto 40px; }
+@media (max-width:560px) {
+  .fr-rowT {
+    grid-template-columns:1fr auto;
+    grid-template-areas:"time star" "name name" "stage yt";
+    row-gap:10px; align-items:center;
+  }
+  .fr-rowT > :nth-child(1) { grid-area:time; }
+  .fr-rowT > :nth-child(2) { grid-area:name; }
+  .fr-rowT > :nth-child(3) { grid-area:stage; }
+  .fr-rowT > :nth-child(4) { grid-area:yt; }
+  .fr-rowT > :nth-child(5) { grid-area:star; }
+  .fr-rowS {
+    grid-template-columns:1fr auto;
+    grid-template-areas:"time star" "name name" "yt yt";
+    row-gap:10px; align-items:center;
+  }
+  .fr-rowS > :nth-child(1) { grid-area:time; }
+  .fr-rowS > :nth-child(2) { grid-area:name; }
+  .fr-rowS > :nth-child(3) { grid-area:yt; justify-self:start; }
+  .fr-rowS > :nth-child(4) { grid-area:star; }
+}
 `;
