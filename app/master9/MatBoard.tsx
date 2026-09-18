@@ -10,41 +10,44 @@ import { useMemo, useState } from "react";
  *  全60ページから所属 "ARTA" の30名・31試合（初戦）を抽出
  * ------------------------------------------------------------------ */
 
-/** [マット, 試合順, カテゴリ, 選手, 相手, 相手所属, 集合, 計量, 試合開始, シード] */
-type Row = [string, number, string, string, string, string, string, string, string, 0 | 1];
+/** 勝ち上がり1手: [試合順, 試合開始, ラウンド名] */
+type Step = [number, string, string];
+
+/** [マット, 試合順, カテゴリ, 選手, 初戦の相手, 相手所属, 集合, 計量, シード, 勝ち上がり] */
+type Row = [string, number, string, string, string, string, string, string, 0 | 1, Step[]];
 
 const R: Row[] = [
-["1",1,"マスター2黒帯ライトフェザー級 -64.00kg（2人）","柳沼パウロセザル Paulo Yaginuma","古間木崇宏 Takahiro Furumaki","パラエストラ八王子","9:00","9:20","9:30",0],
-["1",9,"女子マスター2黒帯ルースター級 -48.50kg（2人）","DeniseJoanna Visda Tan","鎌田有理枝 Yurie Kamada","フィジカルスペース柔術アカデミー","9:40","10:00","10:10",0],
-["1",10,"女子マスター3茶帯ライトフェザー級 -53.50kg（2人）","齋藤悠子 Yuko Saito","尾崎加世子 Kayoko Ozaki","PATO STUDIO","9:45","10:05","10:15",0],
-["1",64,"女子マスター2青帯ライトフェザー級 -53.50kg（3人）","羽中田みな美 Minami Hanakata","田口舞花 Maika Taguchi","Carpe Diem Machida","13:55","14:45","14:55",0],
-["1",81,"女子マスター2紫帯ライトフェザー級 -53.50kg（7人）","中山かるら Karura Nakayama","髙山安奈 Anna Takayama","CARPE DIEM SHONAN","15:14","16:12","16:22",0],
-["2",19,"マスター1紫帯ミドル級 -82.30kg（3人）","安田昌平 Shohei Yasuda","出口力也 Rikiya Deguchi","Carpe Diem Shibuya","10:33","11:00","11:10",0],
-["2",73,"マスター4茶帯ライト級 -76.00kg（4人）","橋爪雅樹 Masaki Hashizume","田谷安之 Yasuyuki Taya","トライフォース柔術アカデミー","14:40","15:34","15:44",0],
-["2",83,"マスター3茶帯ライトフェザー級 -64.00kg（13人）","関谷祐治 Yuji Sekiya","迫慶太 Keita Sako","CARPE DIEM YOKOHAMA","15:25","16:24","16:34",0],
-["2",86,"マスター3茶帯ライトフェザー級 -64.00kg（13人）","松川慶太郎 Keitaro Matsukawa","琢磨修一 Shuichi Takuma","飛翔塾 SORA","15:38","16:39","16:49",0],
-["2",102,"マスター1紫帯オープンクラス OPEN（3人）","安田昌平 Shohei Yasuda","2-96（桑原隆志／森岡祥彬）の敗者","","16:51","18:00","18:10",1],
-["3",5,"マスター2紫帯ライトフェザー級 -64.00kg（7人）","石原遼平 Ryohei Ishihara","村上翔悟 Shogo Murakami","Carpe Diem芦屋","9:20","9:40","9:50",0],
-["3",14,"マスター3紫帯ライト級 -76.00kg（7人）","吉田勝観 Shokan Yoshida","上川聡一郎 Soichiro Kamikawa","Carpe Diem Fukagawa","10:01","10:25","10:35",0],
-["3",34,"マスター3紫帯ルースター級 -57.50kg（3人）","塚越太史 Taishi Tsukagoshi","堀内亮介 Ryosuke Horiuchi","パラエストラ吉祥寺","11:31","12:06","12:16",0],
-["3",35,"マスター5紫帯ミドル級 -82.30kg（3人）","東忠男 Tadao Azuma","矢舗秀和 Hidekazu Yashiki","ゼロ戦クラブ","11:36","12:11","12:21",0],
-["3",39,"マスター5紫帯ライト級 -76.00kg（6人）","山口昇吾 Shogo Yamaguchi","多葉好弘 Yoshihiro Taba","トライフォース柔術アカデミー","11:54","12:31","12:41",0],
-["3",46,"マスター5紫帯ライト級 -76.00kg（6人）","齋藤敦 Atsushi Saito","3-40（佐川太郎／Park Jaechul）の勝者","","12:25","13:06","13:16",1],
-["3",51,"マスター4紫帯フェザー級 -70.00kg（15人）","木村岳央 Takehisa Kimura","藤田武也 Takeya Fujita","レナトゥス柔術アカデミー","12:48","13:31","13:41",0],
-["3",79,"マスター5紫帯ライトフェザー級 -64.00kg（12人）","小池誠宏 Masahiro Koike","3-73（岩間茂夫／林裕一朗）の勝者","","14:54","15:51","16:01",1],
-["4",10,"マスター2青帯フェザー級 -70.00kg（19人）","近藤克哉 Katsuya Kondo","後藤判士郎 Hanshiro Goto","トライフォース柔術アカデミー","9:45","10:05","10:15",0],
-["4",23,"マスター2青帯ミドル級 -82.30kg（7人）","関根幹祐 Mikisuke Sekine","折笠慎也 Shinya Orikasa","トライフォース柔術アカデミー","10:41","11:10","11:20",0],
-["4",35,"マスター2青帯ライトフェザー級 -64.00kg（9人）","今成宏幸 Hiroyuki Imanari","斎藤孝晴 Takaharu Saito","CARPE DIEM SHONAN","11:35","12:10","12:20",0],
-["4",53,"マスター1青帯フェザー級 -70.00kg（17人）","橋爪貴 Takashi Hashizume","村山弘毅 Hiroki Murayama","Carpe Diem Shibuya","12:56","13:40","13:50",0],
-["4",61,"マスター1青帯フェザー級 -70.00kg（17人）","松下智紀 Tomoki Matsushita","高壮一郎 Soichiro Ko","リバーサルジム川口リディプス","13:32","14:20","14:30",0],
-["4",79,"マスター3青帯ライトフェザー級 -64.00kg（13人）","高野慎一 Shinichi Takano","鈴木勇策 Yusaku Suzuki","CHECKMAT CDJJ TOKYO","14:53","15:50","16:00",0],
-["4",102,"マスター2青帯ルースター級 -57.50kg（4人）","長瀬優秀 Masahide Nagase","伊藤智哉 Tomoya Ito","Carpe Diem Nagoya","16:36","17:45","17:55",0],
-["5",24,"マスター4青帯ライトフェザー級 -64.00kg（12人）","榎本欣泰 Yoshiyasu Enomoto","延命寺誠 Makoto Emmeiji","パラエストラ東大阪","10:45","11:15","11:25",0],
-["5",35,"マスター3青帯ライト級 -76.00kg（13人）","川﨑英世 Hideyo Kawasaki","佐藤大 Dai Sato","ねわざワールド品川","11:35","12:10","12:20",0],
-["5",69,"マスター3青帯フェザー級 -70.00kg（15人）","川口竜 Ryo Kawaguchi","佐藤明夫 Akio Sato","TOYATT","14:08","15:00","15:10",0],
-["5",90,"マスター4青帯フェザー級 -70.00kg（16人）","相樂喜一郎 Kiichiro Sagara","佐藤昌光 Shoko Sato","トライフォース柔術アカデミー","15:42","16:45","16:55",0],
-["5",92,"マスター4青帯フェザー級 -70.00kg（16人）","水上旭 Akira Mizukami","鈴木浩司 Koji Suzuki","リバーサルジム川口リディプス","15:51","16:55","17:05",0],
-["5",95,"マスター4青帯フェザー級 -70.00kg（16人）","財満栄治 Eiji Zaima","土屋正昭 Masaaki Tsuchiya","シュラプネル柔術アカデミー","16:05","17:10","17:20",0],
+["1", 1, "マスター2黒帯ライトフェザー級 -64.00kg（2人）", "柳沼パウロセザル Paulo Yaginuma", "古間木崇宏 Takahiro Furumaki", "パラエストラ八王子", "9:00", "9:20", 0, [[1, "9:30", "決勝"]]],
+["3", 5, "マスター2紫帯ライトフェザー級 -64.00kg（7人）", "石原遼平 Ryohei Ishihara", "村上翔悟 Shogo Murakami", "Carpe Diem芦屋", "9:20", "9:40", 0, [[5, "9:50", "準々決勝"], [10, "10:15", "準決勝"], [16, "10:45", "決勝"]]],
+["1", 9, "女子マスター2黒帯ルースター級 -48.50kg（2人）", "DeniseJoanna Visda Tan", "鎌田有理枝 Yurie Kamada", "フィジカルスペース柔術アカデミー", "9:40", "10:00", 0, [[9, "10:10", "決勝"]]],
+["1", 10, "女子マスター3茶帯ライトフェザー級 -53.50kg（2人）", "齋藤悠子 Yuko Saito", "尾崎加世子 Kayoko Ozaki", "PATO STUDIO", "9:45", "10:05", 0, [[10, "10:15", "決勝"]]],
+["4", 10, "マスター2青帯フェザー級 -70.00kg（19人）", "近藤克哉 Katsuya Kondo", "後藤判士郎 Hanshiro Goto", "トライフォース柔術アカデミー", "9:45", "10:05", 1, [[10, "10:15", "1回戦"], [15, "10:40", "準々決勝"], [20, "11:05", "準決勝"], [28, "11:45", "決勝"]]],
+["3", 14, "マスター3紫帯ライト級 -76.00kg（7人）", "吉田勝観 Shokan Yoshida", "上川聡一郎 Soichiro Kamikawa", "Carpe Diem Fukagawa", "10:01", "10:25", 0, [[14, "10:35", "準々決勝"], [19, "11:00", "準決勝"], [24, "11:25", "決勝"]]],
+["2", 19, "マスター1紫帯ミドル級 -82.30kg（3人）", "安田昌平 Shohei Yasuda", "出口力也 Rikiya Deguchi", "Carpe Diem Shibuya", "10:33", "11:00", 0, [[19, "11:10", "準決勝"], [31, "12:13", "決勝"]]],
+["4", 23, "マスター2青帯ミドル級 -82.30kg（7人）", "関根幹祐 Mikisuke Sekine", "折笠慎也 Shinya Orikasa", "トライフォース柔術アカデミー", "10:41", "11:10", 0, [[23, "11:20", "準々決勝"], [30, "11:55", "準決勝"], [34, "12:15", "決勝"]]],
+["5", 24, "マスター4青帯ライトフェザー級 -64.00kg（12人）", "榎本欣泰 Yoshiyasu Enomoto", "延命寺誠 Makoto Emmeiji", "パラエストラ東大阪", "10:45", "11:15", 0, [[24, "11:25", "1回戦"], [30, "11:55", "準々決勝"], [37, "12:30", "準決勝"], [42, "12:55", "決勝"]]],
+["3", 34, "マスター3紫帯ルースター級 -57.50kg（3人）", "塚越太史 Taishi Tsukagoshi", "堀内亮介 Ryosuke Horiuchi", "パラエストラ吉祥寺", "11:31", "12:06", 0, [[34, "12:16", "準決勝"], [47, "13:21", "決勝"]]],
+["4", 35, "マスター2青帯ライトフェザー級 -64.00kg（9人）", "今成宏幸 Hiroyuki Imanari", "斎藤孝晴 Takaharu Saito", "CARPE DIEM SHONAN", "11:35", "12:10", 1, [[35, "12:20", "準々決勝"], [43, "13:00", "準決勝"], [50, "13:35", "決勝"]]],
+["5", 35, "マスター3青帯ライト級 -76.00kg（13人）", "川﨑英世 Hideyo Kawasaki", "佐藤大 Dai Sato", "ねわざワールド品川", "11:35", "12:10", 0, [[35, "12:20", "1回戦"], [41, "12:50", "準々決勝"], [48, "13:25", "準決勝"], [53, "13:50", "決勝"]]],
+["3", 35, "マスター5紫帯ミドル級 -82.30kg（3人）", "東忠男 Tadao Azuma", "矢舗秀和 Hidekazu Yashiki", "ゼロ戦クラブ", "11:36", "12:11", 0, [[35, "12:21", "準決勝"], [48, "13:26", "決勝"]]],
+["3", 39, "マスター5紫帯ライト級 -76.00kg（6人）", "山口昇吾 Shogo Yamaguchi", "多葉好弘 Yoshihiro Taba", "トライフォース柔術アカデミー", "11:54", "12:31", 0, [[39, "12:41", "準々決勝"], [45, "13:11", "準決勝"], [50, "13:36", "決勝"]]],
+["3", 46, "マスター5紫帯ライト級 -76.00kg（6人）", "齋藤敦 Atsushi Saito", "3-40（佐川太郎／Park Jaechul）の勝者", "", "12:25", "13:06", 1, [[46, "13:16", "準決勝"], [50, "13:36", "決勝"]]],
+["3", 51, "マスター4紫帯フェザー級 -70.00kg（15人）", "木村岳央 Takehisa Kimura", "藤田武也 Takeya Fujita", "レナトゥス柔術アカデミー", "12:48", "13:31", 0, [[51, "13:41", "1回戦"], [59, "14:21", "準々決勝"], [67, "15:01", "準決勝"], [72, "15:26", "決勝"]]],
+["4", 53, "マスター1青帯フェザー級 -70.00kg（17人）", "橋爪貴 Takashi Hashizume", "村山弘毅 Hiroki Murayama", "Carpe Diem Shibuya", "12:56", "13:40", 0, [[53, "13:50", "1回戦"], [58, "14:15", "2回戦"], [65, "14:50", "準々決勝"], [71, "15:20", "準決勝"], [77, "15:50", "決勝"]]],
+["4", 61, "マスター1青帯フェザー級 -70.00kg（17人）", "松下智紀 Tomoki Matsushita", "高壮一郎 Soichiro Ko", "リバーサルジム川口リディプス", "13:32", "14:20", 1, [[61, "14:30", "1回戦"], [66, "14:55", "準々決勝"], [72, "15:25", "準決勝"], [77, "15:50", "決勝"]]],
+["1", 64, "女子マスター2青帯ライトフェザー級 -53.50kg（3人）", "羽中田みな美 Minami Hanakata", "田口舞花 Maika Taguchi", "Carpe Diem Machida", "13:55", "14:45", 0, [[64, "14:55", "準決勝"], [76, "15:57", "決勝"]]],
+["5", 69, "マスター3青帯フェザー級 -70.00kg（15人）", "川口竜 Ryo Kawaguchi", "佐藤明夫 Akio Sato", "TOYATT", "14:08", "15:00", 0, [[69, "15:10", "1回戦"], [75, "15:40", "準々決勝"], [80, "16:05", "準決勝"], [85, "16:30", "決勝"]]],
+["2", 73, "マスター4茶帯ライト級 -76.00kg（4人）", "橋爪雅樹 Masaki Hashizume", "田谷安之 Yasuyuki Taya", "トライフォース柔術アカデミー", "14:40", "15:34", 0, [[73, "15:44", "準決勝"], [79, "16:14", "決勝"]]],
+["4", 79, "マスター3青帯ライトフェザー級 -64.00kg（13人）", "高野慎一 Shinichi Takano", "鈴木勇策 Yusaku Suzuki", "CHECKMAT CDJJ TOKYO", "14:53", "15:50", 0, [[79, "16:00", "1回戦"], [89, "16:50", "準々決勝"], [97, "17:30", "準決勝"], [103, "18:00", "決勝"]]],
+["3", 79, "マスター5紫帯ライトフェザー級 -64.00kg（12人）", "小池誠宏 Masahiro Koike", "3-73（岩間茂夫／林裕一朗）の勝者", "", "14:54", "15:51", 1, [[79, "16:01", "準々決勝"], [88, "16:46", "準決勝"], [93, "17:11", "決勝"]]],
+["1", 81, "女子マスター2紫帯ライトフェザー級 -53.50kg（7人）", "中山かるら Karura Nakayama", "髙山安奈 Anna Takayama", "CARPE DIEM SHONAN", "15:14", "16:12", 0, [[81, "16:22", "準々決勝"], [86, "16:47", "準決勝"], [92, "17:17", "決勝"]]],
+["2", 83, "マスター3茶帯ライトフェザー級 -64.00kg（13人）", "関谷祐治 Yuji Sekiya", "迫慶太 Keita Sako", "CARPE DIEM YOKOHAMA", "15:25", "16:24", 0, [[83, "16:34", "1回戦"], [89, "17:04", "準々決勝"], [97, "17:45", "準決勝"], [104, "18:21", "決勝"]]],
+["2", 86, "マスター3茶帯ライトフェザー級 -64.00kg（13人）", "松川慶太郎 Keitaro Matsukawa", "琢磨修一 Shuichi Takuma", "飛翔塾 SORA", "15:38", "16:39", 0, [[86, "16:49", "1回戦"], [91, "17:14", "準々決勝"], [98, "17:50", "準決勝"], [104, "18:21", "決勝"]]],
+["5", 90, "マスター4青帯フェザー級 -70.00kg（16人）", "相樂喜一郎 Kiichiro Sagara", "佐藤昌光 Shoko Sato", "トライフォース柔術アカデミー", "15:42", "16:45", 0, [[90, "16:55", "1回戦"], [98, "17:35", "準々決勝"], [106, "18:15", "準決勝"], [112, "18:45", "決勝"]]],
+["5", 92, "マスター4青帯フェザー級 -70.00kg（16人）", "水上旭 Akira Mizukami", "鈴木浩司 Koji Suzuki", "リバーサルジム川口リディプス", "15:51", "16:55", 0, [[92, "17:05", "1回戦"], [99, "17:40", "準々決勝"], [106, "18:15", "準決勝"], [112, "18:45", "決勝"]]],
+["5", 95, "マスター4青帯フェザー級 -70.00kg（16人）", "財満栄治 Eiji Zaima", "土屋正昭 Masaaki Tsuchiya", "シュラプネル柔術アカデミー", "16:05", "17:10", 0, [[95, "17:20", "1回戦"], [100, "17:45", "準々決勝"], [107, "18:20", "準決勝"], [112, "18:45", "決勝"]]],
+["4", 102, "マスター2青帯ルースター級 -57.50kg（4人）", "長瀬優秀 Masahide Nagase", "伊藤智哉 Tomoya Ito", "Carpe Diem Nagoya", "16:36", "17:45", 0, [[102, "17:55", "準決勝"], [106, "18:15", "決勝"]]],
+["2", 102, "マスター1紫帯オープンクラス OPEN（3人）", "安田昌平 Shohei Yasuda", "2-96（桑原隆志／森岡祥彬）の敗者", "", "16:51", "18:00", 0, [[102, "18:10", "2試合目"], [108, "18:41", "決勝"]]],
 ];
 
 /** マットごとの総試合数 */
@@ -53,15 +56,17 @@ const TOT: Record<string, number> = { "1": 121, "2": 121, "3": 125, "4": 123, "5
 type Match = {
   mat: string; num: number; cat: string; belt: string; name: string;
   opp: string; team: string; call: string; weigh: string; start: string;
-  bye: boolean; mins: number; tot: number;
+  round: string; seq: Step[]; seed: boolean; mins: number; tot: number;
 };
 
 const M: Match[] = R.map((r) => {
   const belt = (r[2].match(/(白|青|紫|茶|黒)帯/) || [])[1] || "白";
-  const [h, m] = r[8].split(":");
+  const seq = r[9];
+  const [h, m] = seq[0][1].split(":");
   return {
     mat: r[0], num: r[1], cat: r[2], belt, name: r[3], opp: r[4], team: r[5],
-    call: r[6], weigh: r[7], start: r[8], bye: r[9] === 1,
+    call: r[6], weigh: r[7], start: seq[0][1], round: seq[0][2], seq,
+    seed: r[8] === 1,
     mins: Number(h) * 60 + Number(m), tot: TOT[r[0]] || 0,
   };
 });
@@ -145,7 +150,7 @@ export default function MatBoard() {
 
         <div className="m9-note">
           <div>
-            JBJJFのトーナメント表（PDF）から<b>ARTA所属の初戦だけを抽出</b>した非公式の一覧です。
+            JBJJFのトーナメント表（PDF）から<b>ARTA所属の全試合を抽出</b>した非公式の一覧です。初戦に加えて、勝ち上がった場合の予定時刻も入っています。
             <b>集合時間までに会場入り</b>してください。時刻は目安で、進行により大幅に前後します。
           </div>
         </div>
@@ -197,7 +202,7 @@ export default function MatBoard() {
                     >
                       <div className="m9-clock">
                         <span className="m9-t">{m.start}</span>
-                        <span className="m9-lb">試合開始</span>
+                        <span className="m9-lb">{m.round}</span>
                       </div>
                       <div className="m9-main">
                         <span className="m9-nm">{m.name}</span>
@@ -217,6 +222,23 @@ export default function MatBoard() {
                           {m.num} / {m.tot}試合目
                         </span>
                       </div>
+                      {m.seq.length > 1 ? (
+                        <div className="m9-path">
+                          <span className="m9-pl">勝てば</span>
+                          {m.seq.slice(1).map((s2, i) => (
+                            <span
+                              key={s2[0]}
+                              className={`m9-step${i === m.seq.length - 2 ? " m9-fin" : ""}`}
+                            >
+                              <span className="m9-r">{s2[2]}</span>
+                              <span className="m9-h">{s2[1]}</span>
+                              <span className="m9-o">
+                                {m.mat}-{s2[0]}
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -234,7 +256,7 @@ export default function MatBoard() {
             オレンジの<b>集合</b>が会場に居るべき時刻、ミントの<b>計量</b>が計量の目安、大きい数字が<b>試合開始</b>の目安です。集合時間を過ぎると失格になることがあります。
           </p>
           <p>
-            ここに出ているのは<b>初戦のみ</b>です。勝ち上がった後の試合はトーナメント表で確認してください。<b>シード</b>の選手は相手が前の試合の勝者（または敗者）になります。
+            カード下部の<b>「勝てば」</b>は勝ち上がった場合の予定です。オレンジが決勝。ここまで勝つと1日に4〜5試合になる階級もあるので、体力配分の目安にしてください。<b>シード</b>の選手は初戦の相手が前の試合の勝者（または敗者）になります。
           </p>
           <p>
             出典：
@@ -342,6 +364,18 @@ const CSS = `
 .m9-call{background:rgba(255,90,60,.16); color:var(--m9-flame)}
 .m9-weigh{background:rgba(76,215,192,.13); color:var(--m9-mint)}
 .m9-bye{background:rgba(169,123,255,.16); color:#BFA0FF}
+
+.m9-path{grid-column:1 / -1; margin-top:9px; padding-top:9px; border-top:1px dashed var(--m9-hair);
+  display:flex; align-items:center; gap:7px; flex-wrap:wrap}
+.m9-pl{font-size:10.5px; letter-spacing:.1em; color:var(--m9-lav-3); white-space:nowrap}
+.m9-step{display:inline-flex; align-items:baseline; gap:6px; padding:3px 10px; border-radius:999px;
+  background:rgba(255,255,255,.045); border:1px solid var(--m9-hair); white-space:nowrap}
+.m9-r{font-size:10.5px; color:var(--m9-lav-2)}
+.m9-h{font-family:var(--m9-disp); font-weight:700; font-size:13px; color:var(--m9-lav);
+  font-variant-numeric:tabular-nums}
+.m9-o{font-size:10px; color:var(--m9-lav-3); font-variant-numeric:tabular-nums}
+.m9-fin{background:rgba(255,90,60,.12); border-color:rgba(255,90,60,.35)}
+.m9-fin .m9-r,.m9-fin .m9-h{color:var(--m9-flame)}
 
 .m9-empty{padding:30px 16px; text-align:center; color:var(--m9-lav-2); font-size:13px;
   background:var(--m9-panel); border:1px solid var(--m9-hair); border-radius:16px}
