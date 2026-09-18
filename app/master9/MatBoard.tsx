@@ -276,6 +276,12 @@ export default function MatBoard() {
  *  LINE Seed は /public/fonts/ の既存ファイルを参照
  * ------------------------------------------------------------------ */
 const CSS = `
+/* このページだけ ciraf.jp 共通のヘッダー・フッターを隠す。
+   スタイルはこのコンポーネントと一緒に外れるので、他ページには影響しない。
+   （恒久対応をするなら root layout をルートグループで分ける） */
+body > header, body > footer{display:none !important}
+body > main{padding-top:0 !important}
+
 @font-face{font-family:"LINE Seed JP";font-weight:400;font-display:swap;src:url("/fonts/LINESeedJP_OTF_Rg.woff2") format("woff2")}
 @font-face{font-family:"LINE Seed JP";font-weight:700;font-display:swap;src:url("/fonts/LINESeedJP_OTF_Bd.woff2") format("woff2")}
 @font-face{font-family:"LINE Seed Sans";font-weight:400;font-display:swap;src:url("/fonts/LINESeedSans_W_Rg.woff2") format("woff2")}
