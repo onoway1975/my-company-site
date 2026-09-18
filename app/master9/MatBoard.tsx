@@ -214,7 +214,7 @@ export default function MatBoard() {
                         <span className="m9-cat">{m.cat}</span>
                       </div>
                       <div className="m9-side">
-                        {m.bye ? <span className="m9-tag m9-bye">シード</span> : null}
+                        {m.seed ? <span className="m9-tag m9-bye">シード</span> : null}
                         <span className="m9-tag m9-call">集合 {m.call}</span>
                         <span className="m9-tag m9-weigh">計量 {m.weigh}</span>
                         <span className="m9-tag m9-mat">MAT {m.mat}</span>
